@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お問い合わせ | 株式会社優心</title>
+  <meta name="description" content="株式会社優心へのお問い合わせはこちらから。搬入・荷上げ業務に関するご相談・お見積りをお受けしています。">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo"><span>優心</span> 株式会社</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">ホーム</a></li>
+          <li><a href="about.html">会社概要</a></li>
+          <li><a href="business.html">事業内容</a></li>
+          <li><a href="contact.html" class="active nav-cta">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+
+    <!-- Page Hero -->
+    <div class="page-hero">
+      <div class="page-hero-inner">
+        <p class="section-label">Contact</p>
+        <h1>お問い合わせ</h1>
+        <nav class="breadcrumb" aria-label="パンくず">
+          <a href="index.html">ホーム</a>
+          <span>/</span>
+          <span>お問い合わせ</span>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section class="contact-section">
+      <div class="contact-inner">
+
+        <div style="margin-bottom: 48px;">
+          <p class="section-label">Get in Touch</p>
+          <h2 class="section-title">お気軽にご連絡ください</h2>
+          <p class="section-desc">
+            搬入・荷上げ業務に関するご質問・お見積り・ご相談など、<br>
+            下記フォームよりお気軽にお問い合わせください。<br>
+            通常2〜3営業日以内にご返信いたします。
+          </p>
+        </div>
+
+        <div class="contact-info-grid">
+          <div class="contact-info-card">
+            <p class="contact-info-label">対応エリア</p>
+            <p class="contact-info-value">
+              関西圏を中心に対応<br>
+              <span style="font-size: 0.85rem; color: var(--gray-500);">詳細はお問い合わせください</span>
+            </p>
+          </div>
+          <div class="contact-info-card">
+            <p class="contact-info-label">営業時間</p>
+            <p class="contact-info-value">
+              平日 9:00 〜 18:00<br>
+              <span style="font-size: 0.85rem; color: var(--gray-500);">土日祝・夜間はフォームへ</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form action="#" method="post" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="company">会社名・組織名<span class="required">必須</span></label>
+              <input class="form-input" type="text" id="company" name="company" placeholder="例）株式会社〇〇建設" required autocomplete="organization">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="name">担当者名<span class="required">必須</span></label>
+              <input class="form-input" type="text" id="name" name="name" placeholder="例）山田 太郎" required autocomplete="name">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="email">メールアドレス<span class="required">必須</span></label>
+              <input class="form-input" type="email" id="email" name="email" placeholder="例）info@example.com" required autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tel">電話番号</label>
+              <input class="form-input" type="tel" id="tel" name="tel" placeholder="例）06-0000-0000" autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="type">お問い合わせ種別<span class="required">必須</span></label>
+            <div class="form-select-wrap">
+              <select class="form-select" id="type" name="type" required>
+                <option value="" disabled selected>選択してください</option>
+                <option value="estimate">お見積り依頼</option>
+                <option value="question">業務内容のご質問</option>
+                <option value="schedule">スケジュール確認</option>
+                <option value="other">その他</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="site">現場の場所（わかる範囲で）</label>
+            <input class="form-input" type="text" id="site" name="site" placeholder="例）大阪府豊中市、高層マンション現場">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="message">お問い合わせ内容<span class="required">必須</span></label>
+            <textarea class="form-textarea" id="message" name="message" placeholder="作業内容・規模・希望日程など、できる限り詳しくお知らせください。" required></textarea>
+          </div>
+
+          <div style="background: var(--gray-50); border: 1px solid var(--gray-100); border-radius: 8px; padding: 20px 24px; margin-bottom: 24px; font-size: 0.85rem; color: var(--gray-500); line-height: 1.9;">
+            <strong style="color: var(--gray-700);">個人情報の取り扱いについて</strong><br>
+            ご入力いただいた個人情報は、お問い合わせへの回答および業務上の連絡のみに使用し、第三者への提供は行いません。
+          </div>
+
+          <button type="submit" class="btn-submit">
+            送信する →
+          </button>
+
+          <p class="privacy-note">
+            ※ 送信後、確認メールをお送りします。<br>
+            迷惑メールフォルダに振り分けられる場合がございますのでご確認ください。
+          </p>
+
+        </form>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo"><span>優心</span> 株式会社</div>
+          <p>建築現場における資材搬入・荷上げを専門とする会社です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
+        </div>
+        <div>
+          <p class="footer-nav-title">Menu</p>
+          <ul class="footer-nav-links">
+            <li><a href="index.html">ホーム</a></li>
+            <li><a href="about.html">会社概要</a></li>
+            <li><a href="business.html">事業内容</a></li>
+            <li><a href="contact.html">お問い合わせ</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-nav-title">Contact</p>
+          <ul class="footer-nav-links">
+            <li><a href="contact.html">お問い合わせフォーム</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 株式会社優心. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
