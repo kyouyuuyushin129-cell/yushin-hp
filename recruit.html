@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>求人情報 | 株式会社優心</title>
-  <meta name="description" content="株式会社優心の求人情報。建築資材の搬入・トラック運転手・営業スタッフを募集中。未経験者歓迎、関西一円で活躍できます。">
+  <meta name="description" content="株式会社優心の求人情報。正社員・アルバイト・業務委託で建築資材搬入・トラック運転手・営業スタッフを募集中。">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -50,148 +50,204 @@
         <h2 class="section-title">建築現場を支える仲間を募集しています</h2>
         <p class="section-desc">
           株式会社優心では、建築現場で活躍できるスタッフを積極募集しています。<br>
-          未経験者も歓迎。誠実に仕事と向き合える方をお待ちしています。
+          正社員・アルバイト・業務委託、さまざまな形で一緒に働ける方をお待ちしています。
         </p>
       </div>
     </section>
 
-    <!-- 募集職種 -->
-    <section class="section" style="background: var(--gray-50);">
-      <div class="section-inner">
-        <p class="section-label">Positions</p>
-        <h2 class="section-title">募集職種</h2>
-        <div class="values-grid" style="margin-top: 48px;">
+    <!-- タブ求人 -->
+    <div class="recruit-tabs-wrap">
+      <div class="recruit-tabs-inner">
 
-          <div class="value-card">
-            <div style="font-size: 2.2rem; margin-bottom: 16px;">🏗️</div>
-            <p class="value-number">POSITION 01</p>
-            <h3 class="value-title">建築資材の搬入</h3>
-            <p class="value-desc">
-              建築現場への各種資材の搬入作業。チームで協力しながら安全・確実に進めます。未経験でも丁寧に指導します。
-            </p>
-          </div>
-
-          <div class="value-card">
-            <div style="font-size: 2.2rem; margin-bottom: 16px;">🚛</div>
-            <p class="value-number">POSITION 02</p>
-            <h3 class="value-title">トラック運転手</h3>
-            <p class="value-desc">
-              建築資材を現場へ届けるドライバー業務。普通・中型・大型免許をお持ちの方、ぜひご応募ください。
-            </p>
-          </div>
-
-          <div class="value-card">
-            <div style="font-size: 2.2rem; margin-bottom: 16px;">💼</div>
-            <p class="value-number">POSITION 03</p>
-            <h3 class="value-title">営業</h3>
-            <p class="value-desc">
-              施工会社・ゼネコンへの営業活動。業界経験がなくても、誠実に動ける方を歓迎します。
-            </p>
-          </div>
-
+        <!-- タブボタン -->
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="seishain">正社員</button>
+          <button class="tab-btn" data-tab="arbeit">アルバイト</button>
+          <button class="tab-btn" data-tab="gyomu">業務委託</button>
         </div>
-      </div>
-    </section>
 
-    <!-- 給与・勤務地 -->
-    <section class="section">
-      <div class="section-inner">
-        <p class="section-label">Conditions</p>
-        <h2 class="section-title">給与・勤務条件</h2>
-        <div class="divider"></div>
-        <div class="recruit-conditions">
+        <!-- 正社員 -->
+        <div class="tab-panel active" id="tab-seishain">
 
-          <!-- 給与 -->
-          <div class="recruit-salary-card">
-            <p class="recruit-card-label">— SALARY</p>
-            <h3 class="recruit-card-title">給与（1現場あたり）</h3>
-            <div class="recruit-salary-rows">
-              <div class="recruit-salary-row">
-                <p class="recruit-salary-tag">未経験者</p>
-                <p class="recruit-salary-value">7,500<span class="recruit-salary-unit">円〜</span></p>
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">🏗️ POSITION 01</p>
+                <h3 class="recruit-job-name">建築資材の搬入</h3>
               </div>
-              <div class="recruit-salary-row">
-                <p class="recruit-salary-tag">経験者</p>
-                <p class="recruit-salary-value">8,500<span class="recruit-salary-unit">円〜</span></p>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
               </div>
             </div>
-            <p class="recruit-salary-note">※ 経験・スキルに応じて考慮します</p>
+            <p class="recruit-job-desc">
+              建築現場への各種資材の搬入を、正社員として担っていただきます。重量物・大型資材の取り扱いにも対応し、チームで協力しながら安全・確実に作業を進めます。スケジュール調整から現場での配置確認まで丁寧に取り組みます。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">未経験歓迎</span>
+                <span class="feature-tag">社会保険完備</span>
+                <span class="feature-tag">昇給あり</span>
+              </div>
+              <a href="https://jp.indeed.com/job/%E5%BB%BA%E7%AF%89%E8%B3%87%E6%9D%90%E6%90%AC%E5%85%A5%E8%BB%BD%E4%BD%9C%E6%A5%AD%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95-bbd0196dc9024f7a" target="_blank" rel="noopener" class="recruit-indeed-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7l8 5 8-5v10c0 .55-.45 1-1 1zm-7-7L4 6h16l-8 5z"/></svg>
+                Indeed で詳細・応募
+              </a>
+            </div>
           </div>
 
-          <!-- 勤務地 -->
-          <div class="recruit-location-card">
-            <p class="recruit-card-label" style="color: var(--gold);">— LOCATION</p>
-            <h3 class="recruit-card-title" style="color: var(--gray-900);">勤務地</h3>
-            <div class="recruit-location-body">
-              <span style="font-size: 2.5rem;">📍</span>
-              <div>
-                <p class="recruit-location-area">関西一円</p>
-                <p class="recruit-location-sub">大阪・兵庫・京都・奈良・滋賀・和歌山</p>
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">🚛 POSITION 02</p>
+                <h3 class="recruit-job-name">トラック運転手</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              建築資材を現場へ届けるドライバーとして、正社員で活躍していただきます。普通・中型・大型免許をお持ちの方歓迎。夜間対応など現場のニーズに合わせた柔軟な対応も行います。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">大型・中型歓迎</span>
+                <span class="feature-tag">社会保険完備</span>
+                <span class="feature-tag">昇給あり</span>
               </div>
             </div>
           </div>
 
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">💼 POSITION 03</p>
+                <h3 class="recruit-job-name">営業</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              施工会社・ゼネコン・住宅メーカーへの営業を正社員として担っていただきます。搬入・荷上げサービスのご提案から現場の課題解決まで、業界未経験でも丁寧にサポートします。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">業界未経験可</span>
+                <span class="feature-tag">直行直帰可</span>
+                <span class="feature-tag">成果報酬あり</span>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+        <!-- アルバイト -->
+        <div class="tab-panel" id="tab-arbeit">
+
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">🏗️ POSITION 01</p>
+                <h3 class="recruit-job-name">建築資材の搬入</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              建築現場への資材搬入をアルバイトとして担っていただきます。週数日からOK。未経験者も丁寧に指導しますので、体を動かすことが好きな方はぜひご応募ください。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">週2日〜OK</span>
+                <span class="feature-tag">未経験歓迎</span>
+                <span class="feature-tag">日払い相談可</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">🚛 POSITION 02</p>
+                <h3 class="recruit-job-name">トラック運転手</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              建築資材の配送をアルバイトとして担っていただきます。普通免許以上をお持ちであれば歓迎。シフト制で働けるため、副業や掛け持ちの方もご相談ください。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">普通免許可</span>
+                <span class="feature-tag">シフト制</span>
+                <span class="feature-tag">副業・掛け持ちOK</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 業務委託 -->
+        <div class="tab-panel" id="tab-gyomu">
+
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">🏗️ POSITION 01</p>
+                <h3 class="recruit-job-name">建築資材の搬入</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与（1現場あたり）</p>
+                <p class="recruit-job-salary-value">7,500<span class="recruit-job-salary-unit">円〜</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              業務委託として、建築現場への資材搬入を請け負っていただきます。1現場単位の依頼で、自分のペースで働けます。未経験者は7,500円〜、経験者は8,500円〜の現場単価です。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">未経験：7,500円〜</span>
+                <span class="feature-tag">経験者：8,500円〜</span>
+                <span class="feature-tag">自由なペースで</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="recruit-job-card">
+            <div class="recruit-job-header">
+              <div class="recruit-job-title-wrap">
+                <p class="recruit-job-tag">💼 POSITION 02</p>
+                <h3 class="recruit-job-name">営業</h3>
+              </div>
+              <div class="recruit-job-salary">
+                <p class="recruit-job-salary-label">給与</p>
+                <p class="recruit-job-salary-value">詳細はお問い合わせ<span class="recruit-job-salary-unit">ください</span></p>
+              </div>
+            </div>
+            <p class="recruit-job-desc">
+              業務委託として、施工会社・ゼネコンへの営業活動を担っていただきます。成果に応じた報酬制。自分のネットワークや経験を活かしたい方に最適です。
+            </p>
+            <div class="recruit-job-footer">
+              <div class="feature-tags" style="margin-bottom:0;">
+                <span class="feature-tag">成果報酬制</span>
+                <span class="feature-tag">完全自由裁量</span>
+                <span class="feature-tag">副業歓迎</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
-    </section>
-
-    <!-- 仕事内容 -->
-    <section class="business-detail" style="background: var(--gray-50);">
-      <div class="business-inner">
-        <p class="section-label">Job Details</p>
-        <h2 class="section-title" style="margin-bottom: 16px;">仕事内容</h2>
-        <div class="divider"></div>
-
-        <div class="business-block" style="margin-top: 48px;">
-          <div class="business-img">🏗️</div>
-          <div>
-            <p class="business-tag">Job 01</p>
-            <h3 class="business-title">建築資材の搬入</h3>
-            <p class="business-desc">
-              建築現場への各種資材の搬入作業がメインの仕事です。重量物・大型資材の取り扱いにも対応し、チームで協力しながら安全・確実に作業を進めます。スケジュールの調整から現場での配置確認まで丁寧に取り組みます。
-            </p>
-            <div class="feature-tags">
-              <span class="feature-tag">未経験歓迎</span>
-              <span class="feature-tag">チームワーク</span>
-              <span class="feature-tag">重量物対応</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="business-block reverse">
-          <div class="business-img">🚛</div>
-          <div>
-            <p class="business-tag">Job 02</p>
-            <h3 class="business-title">建築資材の配送業</h3>
-            <p class="business-desc">
-              トラックを使用した建築資材の配送業務です。現場の指定場所へ安全・時間通りに届けることが大切な仕事です。夜間対応・長距離など、現場のニーズに合わせた柔軟な対応も行います。
-            </p>
-            <div class="feature-tags">
-              <span class="feature-tag">普通免許可</span>
-              <span class="feature-tag">大型・中型歓迎</span>
-              <span class="feature-tag">夜間対応あり</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="business-block">
-          <div class="business-img">💼</div>
-          <div>
-            <p class="business-tag">Job 03</p>
-            <h3 class="business-title">営業活動</h3>
-            <p class="business-desc">
-              施工会社・ゼネコン・住宅メーカーなどへの営業活動です。搬入・荷上げのサービスをご提案し、現場の課題解決をサポートします。業界未経験でも誠実に動ける方であればしっかり育てます。
-            </p>
-            <div class="feature-tags">
-              <span class="feature-tag">業界未経験可</span>
-              <span class="feature-tag">直行直帰可</span>
-              <span class="feature-tag">成果報酬あり</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
+    </div>
 
     <!-- 応募の流れ -->
     <section class="section">
@@ -234,7 +290,7 @@
       <p class="cta-desc">まずはお気軽にご連絡ください。応募・ご質問はお問い合わせフォームからどうぞ。</p>
       <div style="display:flex; flex-wrap:wrap; gap:16px; justify-content:center; align-items:center; margin-top:8px;">
         <a href="contact.html" class="btn-primary">お問い合わせはこちら →</a>
-        <a href="https://jp.indeed.com/job/%E5%BB%BA%E7%AF%89%E8%B3%87%E6%9D%90%E6%90%AC%E5%85%A5%E8%BB%BD%E4%BD%9C%E6%A5%AD%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95-bbd0196dc9024f7a" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:10px; background:#2164f3; color:#fff; padding:14px 32px; border-radius:4px; font-weight:700; font-size:0.95rem; letter-spacing:0.05em; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='#1a52d4';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#2164f3';this.style.transform=''">
+        <a href="https://jp.indeed.com/job/%E5%BB%BA%E7%AF%89%E8%B3%87%E6%9D%90%E6%90%AC%E5%85%A5%E8%BB%BD%E4%BD%9C%E6%A5%AD%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95-bbd0196dc9024f7a" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:10px; background:#2164f3; color:#fff; padding:14px 32px; border-radius:4px; font-weight:700; font-size:0.95rem; text-decoration:none; transition:background 0.2s,transform 0.2s;" onmouseover="this.style.background='#1a52d4';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='#2164f3';this.style.transform=''">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7l8 5 8-5v10c0 .55-.45 1-1 1zm-7-7L4 6h16l-8 5z"/></svg>
           Indeed で応募する
         </a>
@@ -273,6 +329,19 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    var btns = document.querySelectorAll('.tab-btn');
+    var panels = document.querySelectorAll('.tab-panel');
+    btns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        btns.forEach(function(b) { b.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
 
 </body>
 </html>

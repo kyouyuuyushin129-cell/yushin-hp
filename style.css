@@ -991,6 +991,138 @@ ul { list-style: none; }
   border-radius: 20px;
 }
 
+/* ===== Recruit Tabs ===== */
+.recruit-tabs-wrap {
+  padding: 80px 24px;
+  background: var(--gray-50);
+}
+
+.recruit-tabs-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.tab-buttons {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--gray-300);
+  margin-bottom: 56px;
+}
+
+.tab-btn {
+  padding: 14px 36px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-500);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover { color: var(--gray-900); }
+
+.tab-btn.active {
+  color: var(--navy);
+  border-bottom-color: var(--gold);
+}
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.recruit-job-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 40px 40px;
+  margin-bottom: 24px;
+  border: 1px solid var(--gray-100);
+}
+
+.recruit-job-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.recruit-job-title-wrap { flex: 1; }
+
+.recruit-job-tag {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.recruit-job-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 0;
+}
+
+.recruit-job-salary {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.recruit-job-salary-label {
+  font-size: 0.72rem;
+  color: var(--gray-500);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.recruit-job-salary-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.recruit-job-salary-unit {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+}
+
+.recruit-job-desc {
+  font-size: 0.92rem;
+  color: var(--gray-700);
+  line-height: 1.9;
+  margin-bottom: 24px;
+}
+
+.recruit-job-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.recruit-indeed-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2164f3;
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.recruit-indeed-btn:hover {
+  background: #1a52d4;
+  transform: translateY(-1px);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .nav-links { display: none; }
