@@ -31,6 +31,18 @@
 
     <!-- Hero -->
     <section class="hero">
+
+      <!-- Slideshow backgrounds -->
+      <div class="hero-slides">
+        <div class="hero-slide active" style="background-image:url('IMG_3525.JPG')"></div>
+        <div class="hero-slide" style="background-image:url('IMG_3526.JPG')"></div>
+        <div class="hero-slide" style="background-image:url('IMG_3527.JPG')"></div>
+        <div class="hero-slide" style="background-image:url('IMG_3528.JPG')"></div>
+        <div class="hero-slide" style="background-image:url('IMG_3529.JPG')"></div>
+        <div class="hero-slide" style="background-image:url('IMG_3530.JPG')"></div>
+      </div>
+      <div class="hero-overlay"></div>
+
       <div class="hero-inner">
         <p class="hero-label">Yushin Corporation</p>
         <h1>
@@ -216,6 +228,19 @@
       </div>
     </div>
   </footer>
+
+  <script>
+    (function () {
+      var slides = document.querySelectorAll('.hero-slide');
+      if (!slides.length) return;
+      var cur = 0;
+      setInterval(function () {
+        slides[cur].classList.remove('active');
+        cur = (cur + 1) % slides.length;
+        slides[cur].classList.add('active');
+      }, 5000);
+    })();
+  </script>
 
 </body>
 </html>
