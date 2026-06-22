@@ -39,8 +39,7 @@ ul { list-style: none; }
   top: 0;
   width: 100%;
   z-index: 100;
-  background: rgba(8, 14, 26, 0.97);
-  backdrop-filter: blur(8px);
+  background: #080e1a;
   border-bottom: 1px solid rgba(200, 169, 110, 0.2);
 }
 
@@ -56,6 +55,7 @@ ul { list-style: none; }
 
 .site-logo {
   display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 10px;
   text-decoration: none;
