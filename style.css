@@ -55,19 +55,27 @@ ul { list-style: none; }
 }
 
 .site-logo {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--white);
-  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
 }
-.site-logo span { color: var(--gold); }
 
 .logo-img {
   height: 40px;
   width: auto;
   display: block;
   object-fit: contain;
+  mix-blend-mode: multiply;
 }
+
+.logo-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.05em;
+}
+.logo-text span { color: var(--gold); }
 
 .nav-links {
   display: flex;
