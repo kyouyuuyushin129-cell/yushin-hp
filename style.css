@@ -6,10 +6,10 @@
 }
 
 :root {
-  --navy: #0f1c2e;
-  --navy-light: #1a2f48;
-  --gold: #c8a96e;
-  --gold-light: #dfc08a;
+  --navy: #080e1a;
+  --navy-light: #0f1e35;
+  --gold: #d4a030;
+  --gold-light: #e8b840;
   --white: #ffffff;
   --gray-50: #f8f9fa;
   --gray-100: #f0f2f5;
@@ -39,7 +39,7 @@ ul { list-style: none; }
   top: 0;
   width: 100%;
   z-index: 100;
-  background: rgba(15, 28, 46, 0.96);
+  background: rgba(8, 14, 26, 0.97);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(200, 169, 110, 0.2);
 }
@@ -114,7 +114,7 @@ ul { list-style: none; }
   min-height: 88vh;
   display: flex;
   align-items: center;
-  background: linear-gradient(135deg, var(--navy) 0%, #162540 60%, #1e3a5f 100%);
+  background: linear-gradient(135deg, var(--navy) 0%, #0a1628 60%, #0f2040 100%);
   overflow: hidden;
 }
 
