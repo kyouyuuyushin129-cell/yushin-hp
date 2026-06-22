@@ -838,6 +838,97 @@ ul { list-style: none; }
   margin: 0 auto;
 }
 
+/* ===== Recruit Page ===== */
+.recruit-conditions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-top: 48px;
+}
+
+.recruit-salary-card {
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 40px 36px;
+}
+
+.recruit-location-card {
+  background: var(--gray-50);
+  border-radius: 12px;
+  padding: 40px 36px;
+  border: 1px solid var(--gray-100);
+}
+
+.recruit-card-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.recruit-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 32px;
+}
+
+.recruit-salary-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.recruit-salary-row {
+  border-left: 3px solid var(--gold);
+  padding-left: 20px;
+}
+
+.recruit-salary-tag {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+
+.recruit-salary-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1.2;
+}
+
+.recruit-salary-unit {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.7);
+}
+
+.recruit-salary-note {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.4);
+  margin-top: 24px;
+}
+
+.recruit-location-body {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.recruit-location-area {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.recruit-location-sub {
+  font-size: 0.85rem;
+  color: var(--gray-500);
+  margin-top: 6px;
+}
+
 .business-block {
   display: grid;
   grid-template-columns: 1fr 1fr;
