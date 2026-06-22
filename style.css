@@ -62,6 +62,13 @@ ul { list-style: none; }
 }
 .site-logo span { color: var(--gold); }
 
+.logo-img {
+  height: 40px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
 .nav-links {
   display: flex;
   gap: 32px;
