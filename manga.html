@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>搬入のプロたち | 株式会社優心</title>
+  <meta name="description" content="株式会社優心の現場の1日を漫画でご紹介。建築資材搬入の仕事をわかりやすく解説しています。">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: #e8e6df; }
+
+    /* ===== Manga Stage ===== */
+    .manga-stage {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    .manga-title-block {
+      background: var(--navy);
+      border: 4px solid #111;
+      padding: 56px 40px;
+      text-align: center;
+      margin-bottom: 6px;
+      position: relative;
+      overflow: hidden;
+    }
+    .manga-title-block::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px,
+        transparent 1px, transparent 12px
+      );
+    }
+    .manga-main-title {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      position: relative;
+      line-height: 1.2;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    }
+    .manga-sub-title {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      margin-top: 12px;
+      letter-spacing: 0.2em;
+      position: relative;
+    }
+    .manga-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    /* Panels */
+    .panel-row {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+    .panel-row.col2 { grid-template-columns: 1fr 1fr; }
+    .panel-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
+    .panel-row.col-6-4 { grid-template-columns: 6fr 4fr; }
+    .panel-row.col-4-6 { grid-template-columns: 4fr 6fr; }
+
+    .panel {
+      background: white;
+      border: 4px solid #111;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    .panel.tall { min-height: 320px; }
+    .panel.hero { min-height: 280px; }
+
+    /* Screentone backgrounds */
+    .tone-dot {
+      background-image: radial-gradient(circle, #ccc 1px, transparent 1px);
+      background-size: 8px 8px;
+    }
+    .tone-line {
+      background: repeating-linear-gradient(
+        0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 6px
+      );
+    }
+    .tone-speed {
+      background: white;
+    }
+    .tone-dark {
+      background: #1a1a2e;
+    }
+
+    /* Caption bar */
+    .panel-caption {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--gray-500);
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+      padding-left: 8px;
+    }
+    .panel-caption.white {
+      color: rgba(255,255,255,0.6);
+      border-color: var(--gold);
+    }
+
+    /* Speech bubbles */
+    .bubble {
+      background: white;
+      border: 2.5px solid #111;
+      border-radius: 16px;
+      padding: 8px 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.6;
+      display: inline-block;
+      position: relative;
+      max-width: 90%;
+    }
+    .bubble.right { align-self: flex-end; }
+    .bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -13px;
+      left: 20px;
+      width: 0; height: 0;
+      border-left: 8px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 14px solid #111;
+    }
+    .bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 21px;
+      width: 0; height: 0;
+      border-left: 7px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 12px solid white;
+      z-index: 1;
+    }
+    .bubble.right::after { left: auto; right: 20px; }
+    .bubble.right::before { left: auto; right: 21px; }
+    .bubble.top::after {
+      bottom: auto; top: -13px;
+      border-top: none;
+      border-bottom: 14px solid #111;
+    }
+    .bubble.top::before {
+      bottom: auto; top: -9px;
+      border-top: none;
+      border-bottom: 12px solid white;
+      z-index: 1;
+    }
+    .bubble.think {
+      border-radius: 50%;
+      padding: 10px 16px;
+      border-style: dashed;
+    }
+    .bubble.shout {
+      border-radius: 0;
+      clip-path: polygon(8px 0%, calc(100% - 8px) 0%, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0% calc(100% - 8px), 0% 8px);
+      background: #fffde7;
+    }
+    .bubble.dark {
+      background: var(--navy);
+      color: white;
+      border-color: var(--navy);
+    }
+    .bubble.dark::before { border-top-color: var(--navy); }
+
+    /* SFX */
+    .sfx {
+      font-size: 3rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      font-style: italic;
+      line-height: 1;
+      color: #111;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.12);
+      display: block;
+    }
+    .sfx.gold { color: var(--gold); text-shadow: 3px 3px 0 rgba(212,160,48,0.3); }
+    .sfx.sm { font-size: 1.8rem; }
+    .sfx.lg { font-size: 4rem; }
+
+    /* Speed lines SVG */
+    .speed-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.12;
+    }
+
+    /* Characters */
+    .char-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      flex: 1;
+    }
+    .char-wrap.center { justify-content: center; }
+    .char-wrap.right { justify-content: flex-end; }
+
+    /* Narrative box */
+    .narr {
+      background: #fffde7;
+      border: 2px solid #111;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    .narr.bottom { margin-top: auto; }
+
+    /* Emphasis lines */
+    .emphasis {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* Recruit CTA panel */
+    .manga-cta {
+      background: var(--navy);
+      border: 4px solid #111;
+      padding: 56px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .manga-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg, rgba(212,160,48,0.05) 0px, rgba(212,160,48,0.05) 1px,
+        transparent 1px, transparent 14px
+      );
+    }
+    .manga-cta-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 900;
+      color: white;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .manga-cta-title span { color: var(--gold); }
+    .manga-cta-desc {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 32px;
+      position: relative;
+    }
+    .manga-cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .indeed-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #2164f3;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .indeed-btn:hover { background: #1a52d4; transform: translateY(-2px); }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .panel-row.col2,
+      .panel-row.col3,
+      .panel-row.col-6-4,
+      .panel-row.col-4-6 { grid-template-columns: 1fr; }
+      .panel { min-height: 200px; }
+      .sfx { font-size: 2.2rem; }
+      .sfx.lg { font-size: 3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="site-logo">
+        <img src="logo.png" alt="株式会社優心ロゴ" class="logo-img">
+        <span class="logo-text"><span>優心</span> 株式会社</span>
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="index.html">ホーム</a></li>
+          <li><a href="about.html">会社概要</a></li>
+          <li><a href="business.html">事業内容</a></li>
+          <li><a href="recruit.html" class="active">求人情報</a></li>
+          <li><a href="contact.html" class="nav-cta">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+  <div class="manga-stage">
+
+    <!-- ① タイトルパネル -->
+    <div class="manga-title-block">
+      <p class="manga-label">YUSHIN COMIC</p>
+      <h1 class="manga-main-title">搬入のプロたち</h1>
+      <p class="manga-sub-title">〜 優心の現場の1日 〜</p>
+    </div>
+
+    <!-- ② 朝の出発 -->
+    <div class="panel-row col-4-6">
+
+      <div class="panel tone-dot" style="justify-content: space-between;">
+        <p class="panel-caption">AM 6:30 — 自宅</p>
+        <div class="bubble think" style="align-self:center; margin: auto 0;">
+          今日も<br>現場や！
+        </div>
+        <!-- Worker getting ready -->
+        <svg viewBox="0 0 100 160" width="90" style="align-self:flex-end; margin: 0 auto;">
+          <!-- Hat -->
+          <ellipse cx="50" cy="32" rx="30" ry="7" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+          <rect x="26" y="18" width="48" height="20" rx="6" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+          <!-- Face -->
+          <circle cx="50" cy="56" r="20" fill="#FFCBA4" stroke="#111" stroke-width="2.5"/>
+          <!-- Eyes (energetic ^^ shape) -->
+          <path d="M42 52 Q45 48 48 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+          <path d="M52 52 Q55 48 58 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+          <!-- Smile big -->
+          <path d="M40 62 Q50 72 60 62" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Cheeks -->
+          <circle cx="38" cy="62" r="6" fill="rgba(255,120,100,0.25)"/>
+          <circle cx="62" cy="62" r="6" fill="rgba(255,120,100,0.25)"/>
+          <!-- Body -->
+          <rect x="32" y="76" width="36" height="40" rx="4" fill="#1a3a6b" stroke="#111" stroke-width="2.5"/>
+          <!-- Arms -->
+          <path d="M34 82 L14 108" stroke="#FFCBA4" stroke-width="10" stroke-linecap="round"/>
+          <path d="M34 82 L14 108" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M66 82 L86 96" stroke="#FFCBA4" stroke-width="10" stroke-linecap="round"/>
+          <path d="M66 82 L86 96" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Clenched fist right -->
+          <circle cx="89" cy="98" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <!-- Legs -->
+          <rect x="34" y="114" width="14" height="40" rx="5" fill="#222" stroke="#111" stroke-width="2.5"/>
+          <rect x="52" y="114" width="14" height="40" rx="5" fill="#222" stroke="#111" stroke-width="2.5"/>
+          <!-- Shoes -->
+          <ellipse cx="41" cy="154" rx="11" ry="6" fill="#333" stroke="#111" stroke-width="2"/>
+          <ellipse cx="59" cy="154" rx="11" ry="6" fill="#333" stroke="#111" stroke-width="2"/>
+          <!-- Energy stars -->
+          <text x="8" y="78" font-size="14" font-weight="900">☆</text>
+          <text x="76" y="60" font-size="12" font-weight="900">★</text>
+        </svg>
+      </div>
+
+      <div class="panel" style="justify-content:space-between;">
+        <p class="panel-caption">AM 7:30 — 現場到着</p>
+        <!-- Construction site simplified SVG -->
+        <svg viewBox="0 0 280 160" width="100%" style="flex:1;">
+          <!-- Sky -->
+          <rect width="280" height="160" fill="#e8f4fc"/>
+          <!-- Sun -->
+          <circle cx="240" cy="30" r="22" fill="#FFE066" stroke="#FFB800" stroke-width="2"/>
+          <line x1="240" y1="2" x2="240" y2="10" stroke="#FFB800" stroke-width="2"/>
+          <line x1="258" y1="12" x2="264" y2="6" stroke="#FFB800" stroke-width="2"/>
+          <line x1="268" y1="30" x2="276" y2="30" stroke="#FFB800" stroke-width="2"/>
+          <!-- Building outline -->
+          <rect x="40" y="30" width="140" height="120" fill="#d4c8b8" stroke="#111" stroke-width="2.5"/>
+          <!-- Windows -->
+          <rect x="60" y="50" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <rect x="96" y="50" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <rect x="132" y="50" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <rect x="60" y="82" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <rect x="96" y="82" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <rect x="132" y="82" width="22" height="18" rx="2" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <!-- Ground -->
+          <rect x="0" y="148" width="280" height="12" fill="#888" stroke="#111" stroke-width="1.5"/>
+          <!-- Fence -->
+          <rect x="0" y="130" width="280" height="8" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="20" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="60" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="100" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="140" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="180" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="220" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <rect x="260" y="120" width="8" height="30" fill="#f0b040" stroke="#111" stroke-width="1.5"/>
+          <!-- Worker arriving small figure -->
+          <circle cx="230" cy="115" r="10" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <rect x="218" y="112" width="24" height="10" rx="3" fill="#f5c000" stroke="#111" stroke-width="1.5"/>
+          <rect x="222" y="125" width="16" height="18" rx="3" fill="#1a3a6b" stroke="#111" stroke-width="2"/>
+        </svg>
+        <div class="bubble" style="margin-top:8px; font-size:0.85rem;">
+          よし！<br>段取り確認や！
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ③ 監督との打合せ -->
+    <div class="panel-row col3">
+
+      <div class="panel">
+        <p class="panel-caption">現場監督と打合せ</p>
+        <div style="display:flex; gap:8px; align-items:flex-end; flex:1; margin-top:8px;">
+          <!-- Supervisor -->
+          <svg viewBox="0 0 80 140" width="72" style="flex-shrink:0;">
+            <rect x="18" y="8" width="44" height="18" rx="4" fill="#fff" stroke="#111" stroke-width="2.5"/>
+            <ellipse cx="40" cy="8" rx="24" ry="6" fill="#fff" stroke="#111" stroke-width="2.5"/>
+            <circle cx="40" cy="44" r="18" fill="#FFCBA4" stroke="#111" stroke-width="2.5"/>
+            <path d="M32 42 Q34 38 36 42" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M44 42 Q46 38 48 42" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M33 52 Q40 56 47 52" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            <rect x="24" y="62" width="32" height="36" rx="4" fill="#888" stroke="#111" stroke-width="2.5"/>
+            <path d="M26 66 L12 86" stroke="#FFCBA4" stroke-width="9" stroke-linecap="round"/>
+            <path d="M26 66 L12 86" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            <path d="M54 66 L68 76" stroke="#FFCBA4" stroke-width="9" stroke-linecap="round"/>
+            <path d="M54 66 L68 76" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            <!-- Clipboard -->
+            <rect x="60" y="72" width="18" height="24" rx="2" fill="#fff" stroke="#111" stroke-width="2"/>
+            <rect x="36" y="96" width="10" height="36" rx="4" fill="#555" stroke="#111" stroke-width="2"/>
+            <rect x="50" y="96" width="10" height="36" rx="4" fill="#555" stroke="#111" stroke-width="2"/>
+          </svg>
+          <div style="flex:1;">
+            <div class="bubble" style="font-size:0.8rem; max-width:100%;">今日は3階まで<br>鉄骨資材を<br>搬入してくれ</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel tone-dot">
+        <p class="panel-caption">内容を確認</p>
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:12px;">
+          <div class="narr">📋 今日の作業内容</div>
+          <div style="font-size:0.85rem; font-weight:700; line-height:2; padding-left:8px;">
+            ✅ 鉄骨資材 × 12本<br>
+            ✅ 配管部材 × 多数<br>
+            ✅ 搬入先：3F・4F<br>
+            ✅ 完了目標：15:00
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="background:#1a3a6b;">
+        <p class="panel-caption white">気合い入れ</p>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+          <span class="sfx gold" style="font-size:2.8rem; text-align:center;">いくぞ<br>チーム！！</span>
+          <!-- 3 hard hats icon -->
+          <svg viewBox="0 0 120 60" width="110">
+            <ellipse cx="20" cy="40" rx="18" ry="6" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <rect x="8" y="28" width="24" height="16" rx="4" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <ellipse cx="60" cy="36" rx="20" ry="7" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <rect x="46" y="22" width="28" height="18" rx="5" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <ellipse cx="100" cy="40" rx="18" ry="6" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <rect x="88" y="28" width="24" height="16" rx="4" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ④ 搬入作業（大ゴマ） -->
+    <div class="panel hero tone-line" style="min-height:300px; margin-bottom:6px;">
+
+      <!-- Speed lines SVG -->
+      <svg class="speed-bg" viewBox="0 0 860 300" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <radialGradient id="fade" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="white" stop-opacity="0"/>
+            <stop offset="100%" stop-color="white" stop-opacity="1"/>
+          </radialGradient>
+        </defs>
+        <!-- speed lines from center -->
+        <g stroke="#111" stroke-width="1" opacity="0.7">
+          <line x1="430" y1="150" x2="0" y2="0"/>
+          <line x1="430" y1="150" x2="100" y2="0"/>
+          <line x1="430" y1="150" x2="200" y2="0"/>
+          <line x1="430" y1="150" x2="300" y2="0"/>
+          <line x1="430" y1="150" x2="860" y2="0"/>
+          <line x1="430" y1="150" x2="760" y2="0"/>
+          <line x1="430" y1="150" x2="660" y2="0"/>
+          <line x1="430" y1="150" x2="560" y2="0"/>
+          <line x1="430" y1="150" x2="0" y2="300"/>
+          <line x1="430" y1="150" x2="100" y2="300"/>
+          <line x1="430" y1="150" x2="200" y2="300"/>
+          <line x1="430" y1="150" x2="300" y2="300"/>
+          <line x1="430" y1="150" x2="860" y2="300"/>
+          <line x1="430" y1="150" x2="760" y2="300"/>
+          <line x1="430" y1="150" x2="660" y2="300"/>
+          <line x1="430" y1="150" x2="560" y2="300"/>
+          <line x1="430" y1="150" x2="0" y2="150"/>
+          <line x1="430" y1="150" x2="860" y2="150"/>
+          <line x1="430" y1="150" x2="430" y2="0"/>
+          <line x1="430" y1="150" x2="430" y2="300"/>
+        </g>
+        <rect width="860" height="300" fill="url(#fade)"/>
+      </svg>
+
+      <p class="panel-caption" style="position:relative;">搬入作業スタート！</p>
+      <div style="flex:1; display:flex; align-items:center; justify-content:space-around; position:relative; gap:20px; flex-wrap:wrap;">
+
+        <!-- Worker 1 - lifting -->
+        <svg viewBox="0 0 110 180" width="100">
+          <!-- Hat -->
+          <ellipse cx="55" cy="34" rx="32" ry="8" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+          <rect x="28" y="20" width="54" height="20" rx="6" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+          <!-- Effort face (straining) -->
+          <circle cx="55" cy="60" r="22" fill="#FFCBA4" stroke="#111" stroke-width="2.5"/>
+          <path d="M44 54 Q47 50 50 54" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M60 54 Q63 50 66 54" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Gritting teeth -->
+          <rect x="44" y="66" width="22" height="8" rx="2" fill="white" stroke="#111" stroke-width="2"/>
+          <line x1="50" y1="66" x2="50" y2="74" stroke="#111" stroke-width="1.5"/>
+          <line x1="56" y1="66" x2="56" y2="74" stroke="#111" stroke-width="1.5"/>
+          <!-- Sweat drop -->
+          <ellipse cx="76" cy="44" rx="5" ry="8" fill="#87CEEB" stroke="#111" stroke-width="1.5"/>
+          <!-- Body -->
+          <rect x="34" y="82" width="42" height="44" rx="4" fill="#1a3a6b" stroke="#111" stroke-width="2.5"/>
+          <!-- Arms UP holding beam -->
+          <path d="M36 86 L10 56" stroke="#FFCBA4" stroke-width="12" stroke-linecap="round"/>
+          <path d="M36 86 L10 56" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M74 86 L100 56" stroke="#FFCBA4" stroke-width="12" stroke-linecap="round"/>
+          <path d="M74 86 L100 56" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Hands gripping -->
+          <circle cx="8" cy="53" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <circle cx="102" cy="53" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <!-- Steel beam -->
+          <rect x="-10" y="40" width="130" height="18" rx="4" fill="#888" stroke="#111" stroke-width="2.5"/>
+          <!-- Legs apart (effort stance) -->
+          <path d="M44 124 L34 170" stroke="#222" stroke-width="14" stroke-linecap="round"/>
+          <path d="M44 124 L34 170" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M66 124 L76 170" stroke="#222" stroke-width="14" stroke-linecap="round"/>
+          <path d="M66 124 L76 170" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Effort lines -->
+          <line x1="30" y1="70" x2="14" y2="62" stroke="#111" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="80" y1="70" x2="96" y2="62" stroke="#111" stroke-width="2" stroke-dasharray="3,2"/>
+          <line x1="55" y1="30" x2="55" y2="14" stroke="#111" stroke-width="2" stroke-dasharray="3,2"/>
+        </svg>
+
+        <!-- SFX center -->
+        <div style="text-align:center;">
+          <span class="sfx lg">ウリャ<br>ァァ！！</span>
+          <div class="bubble shout" style="margin-top:16px; font-size:1rem;">
+            せーの<br>どっこいしょ！！
+          </div>
+        </div>
+
+        <!-- Worker 2 - pushing -->
+        <svg viewBox="0 0 110 180" width="100">
+          <!-- Hat -->
+          <ellipse cx="55" cy="34" rx="32" ry="8" fill="#ff6b35" stroke="#111" stroke-width="2.5"/>
+          <rect x="28" y="20" width="54" height="20" rx="6" fill="#ff6b35" stroke="#111" stroke-width="2.5"/>
+          <!-- Effort face -->
+          <circle cx="55" cy="60" r="22" fill="#FFCBA4" stroke="#111" stroke-width="2.5"/>
+          <path d="M43 56 Q46 52 49 56" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M61 56 Q64 52 67 56" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <rect x="43" y="66" width="24" height="8" rx="2" fill="white" stroke="#111" stroke-width="2"/>
+          <line x1="51" y1="66" x2="51" y2="74" stroke="#111" stroke-width="1.5"/>
+          <line x1="59" y1="66" x2="59" y2="74" stroke="#111" stroke-width="1.5"/>
+          <!-- Body -->
+          <rect x="34" y="82" width="42" height="44" rx="4" fill="#c0392b" stroke="#111" stroke-width="2.5"/>
+          <!-- Arms forward pushing -->
+          <path d="M36 88 L0 72" stroke="#FFCBA4" stroke-width="12" stroke-linecap="round"/>
+          <path d="M36 88 L0 72" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M74 88 L0 90" stroke="#FFCBA4" stroke-width="12" stroke-linecap="round"/>
+          <path d="M74 88 L0 90" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Hands -->
+          <circle cx="-4" cy="71" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <circle cx="-4" cy="91" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+          <!-- Legs leaning forward -->
+          <path d="M46 124 L28 170" stroke="#222" stroke-width="14" stroke-linecap="round"/>
+          <path d="M46 124 L28 170" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M64 124 L70 170" stroke="#222" stroke-width="14" stroke-linecap="round"/>
+          <path d="M64 124 L70 170" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+
+      </div>
+    </div>
+
+    <!-- ⑤ 荷上げ・連携 -->
+    <div class="panel-row col-6-4">
+
+      <div class="panel" style="background:#f9f9f5; min-height:260px;">
+        <p class="panel-caption">上階への荷上げ</p>
+        <div style="flex:1; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+
+          <!-- Building cross-section SVG -->
+          <svg viewBox="0 0 360 200" width="100%" style="flex:1;">
+            <!-- Building section -->
+            <rect x="60" y="0" width="240" height="200" fill="#e8e0d4" stroke="#111" stroke-width="2"/>
+            <!-- Floor lines -->
+            <line x1="60" y1="66" x2="300" y2="66" stroke="#111" stroke-width="2"/>
+            <line x1="60" y1="132" x2="300" y2="132" stroke="#111" stroke-width="2"/>
+            <!-- Floor labels -->
+            <text x="16" y="38" font-size="13" font-weight="900" fill="#111">3F</text>
+            <text x="16" y="104" font-size="13" font-weight="900" fill="#111">2F</text>
+            <text x="16" y="170" font-size="13" font-weight="900" fill="#111">1F</text>
+            <!-- Worker on 1F with box -->
+            <circle cx="200" cy="170" r="12" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+            <rect x="184" y="148" width="28" height="14" rx="3" fill="#f5c000" stroke="#111" stroke-width="2"/>
+            <rect x="190" y="182" width="10" height="18" rx="3" fill="#1a3a6b" stroke="#111" stroke-width="2"/>
+            <rect x="204" y="182" width="10" height="18" rx="3" fill="#1a3a6b" stroke="#111" stroke-width="2"/>
+            <!-- Box being carried -->
+            <rect x="160" y="155" width="36" height="28" rx="3" fill="#c8a878" stroke="#111" stroke-width="2"/>
+            <line x1="160" y1="169" x2="196" y2="169" stroke="#111" stroke-width="1.5"/>
+            <line x1="178" y1="155" x2="178" y2="183" stroke="#111" stroke-width="1.5"/>
+            <!-- Arrow up -->
+            <line x1="178" y1="140" x2="178" y2="60" stroke="#f5c000" stroke-width="3" stroke-dasharray="6,3"/>
+            <polygon points="178,48 170,66 186,66" fill="#f5c000" stroke="#111" stroke-width="2"/>
+            <!-- Worker on 3F receiving -->
+            <circle cx="178" cy="36" r="12" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+            <rect x="164" y="14" width="28" height="14" rx="3" fill="#f5c000" stroke="#111" stroke-width="2"/>
+            <rect x="168" y="48" width="10" height="18" rx="3" fill="#c0392b" stroke="#111" stroke-width="2"/>
+            <rect x="182" y="48" width="10" height="18" rx="3" fill="#c0392b" stroke="#111" stroke-width="2"/>
+            <!-- Arms reaching down -->
+            <path d="M170 52 L162 70" stroke="#FFCBA4" stroke-width="8" stroke-linecap="round"/>
+            <path d="M170 52 L162 70" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+
+          <div class="bubble top" style="margin-top:8px;">
+            上から受け取るで！<br>慎重に頼むな！
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="background:#1a1a2e; min-height:260px;">
+        <p class="panel-caption white">チームの連携</p>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;">
+          <!-- Megaphone icon -->
+          <svg viewBox="0 0 80 60" width="70">
+            <path d="M8 22 L8 38 L20 38 L20 22 Z" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <path d="M20 14 L64 4 L64 56 L20 46 Z" fill="#f5c000" stroke="#fff" stroke-width="2"/>
+            <ellipse cx="64" cy="30" rx="8" ry="26" fill="#e0a000" stroke="#fff" stroke-width="2"/>
+            <!-- Sound waves -->
+            <path d="M72 20 Q82 30 72 40" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          <span class="sfx gold" style="text-align:center; font-size:2rem;">息を<br>合わせろ！！</span>
+          <div style="display:flex; gap:8px; justify-content:center;">
+            <div style="background:rgba(245,192,0,0.2); border:1.5px solid var(--gold); border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:700; color:var(--gold);">安全第一</div>
+            <div style="background:rgba(245,192,0,0.2); border:1.5px solid var(--gold); border-radius:20px; padding:4px 12px; font-size:0.75rem; font-weight:700; color:var(--gold);">チームワーク</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ⑥ 完了・達成感 -->
+    <div class="panel-row col2">
+
+      <div class="panel" style="background:#fffde7; min-height:240px;">
+        <p class="panel-caption">無事に搬入完了！</p>
+        <div style="flex:1; display:flex; align-items:center; gap:16px;">
+
+          <!-- Happy worker thumbs up -->
+          <svg viewBox="0 0 100 170" width="90">
+            <!-- Hat -->
+            <ellipse cx="50" cy="32" rx="30" ry="7" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+            <rect x="26" y="18" width="48" height="20" rx="6" fill="#f5c000" stroke="#111" stroke-width="2.5"/>
+            <!-- Face very happy -->
+            <circle cx="50" cy="58" r="22" fill="#FFCBA4" stroke="#111" stroke-width="2.5"/>
+            <path d="M40 53 Q43 48 46 53" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M54 53 Q57 48 60 53" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <path d="M38 64 Q50 76 62 64" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="38" cy="64" r="7" fill="rgba(255,120,100,0.3)"/>
+            <circle cx="62" cy="64" r="7" fill="rgba(255,120,100,0.3)"/>
+            <!-- Body -->
+            <rect x="32" y="80" width="36" height="38" rx="4" fill="#1a3a6b" stroke="#111" stroke-width="2.5"/>
+            <!-- Left arm down -->
+            <path d="M34 86 L18 110" stroke="#FFCBA4" stroke-width="10" stroke-linecap="round"/>
+            <path d="M34 86 L18 110" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Right arm up thumbs up -->
+            <path d="M66 84 L84 60" stroke="#FFCBA4" stroke-width="10" stroke-linecap="round"/>
+            <path d="M66 84 L84 60" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Thumb -->
+            <circle cx="86" cy="56" r="9" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+            <rect x="82" y="42" width="8" height="18" rx="4" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+            <!-- Legs -->
+            <rect x="34" y="116" width="12" height="46" rx="5" fill="#222" stroke="#111" stroke-width="2.5"/>
+            <rect x="54" y="116" width="12" height="46" rx="5" fill="#222" stroke="#111" stroke-width="2.5"/>
+            <!-- Shoes -->
+            <ellipse cx="40" cy="162" rx="11" ry="6" fill="#333" stroke="#111" stroke-width="2"/>
+            <ellipse cx="60" cy="162" rx="11" ry="6" fill="#333" stroke="#111" stroke-width="2"/>
+            <!-- Stars -->
+            <text x="2" y="45" font-size="16" font-weight="900">★</text>
+            <text x="86" y="35" font-size="14" font-weight="900">☆</text>
+            <text x="92" y="95" font-size="12" font-weight="900">✦</text>
+          </svg>
+
+          <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
+            <div class="bubble right" style="font-size:0.9rem;">
+              搬入完了です！<br>ありがとう<br>ございました！
+            </div>
+            <div class="narr" style="align-self:flex-end;">PM 2:45 完了 ✅</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel tone-dot" style="min-height:240px;">
+        <p class="panel-caption">現場監督からの一言</p>
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;">
+          <!-- Supervisor small -->
+          <div style="display:flex; align-items:flex-end; gap:12px;">
+            <svg viewBox="0 0 70 120" width="60">
+              <rect x="16" y="8" width="38" height="16" rx="4" fill="#fff" stroke="#111" stroke-width="2"/>
+              <ellipse cx="35" cy="8" rx="20" ry="5" fill="#fff" stroke="#111" stroke-width="2"/>
+              <circle cx="35" cy="38" r="16" fill="#FFCBA4" stroke="#111" stroke-width="2"/>
+              <path d="M27 35 Q29 31 31 35" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M39 35 Q41 31 43 35" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M28 44 Q35 50 42 44" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <rect x="22" y="54" width="26" height="30" rx="4" fill="#888" stroke="#111" stroke-width="2"/>
+              <path d="M24 58 L12 74" stroke="#FFCBA4" stroke-width="8" stroke-linecap="round"/>
+              <path d="M24 58 L12 74" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+              <path d="M46 58 L58 68" stroke="#FFCBA4" stroke-width="8" stroke-linecap="round"/>
+              <path d="M46 58 L58 68" stroke="#111" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <div class="bubble" style="font-size:0.85rem; flex:1;">
+              いつも助かってるで！<br>段取りがええし<br>安心して頼めるわ
+            </div>
+          </div>
+          <div style="text-align:center; margin-top:8px;">
+            <span class="sfx gold sm">信頼の積み重ね</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ⑦ 終業（締め） -->
+    <div class="panel" style="min-height:200px; margin-bottom:6px; background: linear-gradient(to bottom, #ff9a3c22, #ffe0b222);">
+      <p class="panel-caption">PM 5:00 — 終業</p>
+      <div style="flex:1; display:flex; align-items:center; justify-content:space-between; gap:20px;">
+
+        <!-- Sunset SVG -->
+        <svg viewBox="0 0 200 140" width="180" style="flex-shrink:0;">
+          <rect width="200" height="140" fill="#fff8f0"/>
+          <!-- Sun setting -->
+          <circle cx="100" cy="120" r="52" fill="#ff9a3c" opacity="0.5"/>
+          <!-- Ground/building silhouette -->
+          <rect x="0" y="100" width="200" height="40" fill="#222"/>
+          <rect x="20" y="60" width="30" height="40" fill="#333"/>
+          <rect x="70" y="40" width="50" height="60" fill="#333"/>
+          <rect x="140" y="70" width="40" height="30" fill="#333"/>
+          <!-- Crane silhouette -->
+          <line x1="140" y1="70" x2="140" y2="10" stroke="#444" stroke-width="4"/>
+          <line x1="120" y1="10" x2="175" y2="10" stroke="#444" stroke-width="4"/>
+          <line x1="175" y1="10" x2="175" y2="30" stroke="#444" stroke-width="3" stroke-dasharray="4,2"/>
+          <!-- Skyline glow -->
+          <ellipse cx="100" cy="100" rx="80" ry="20" fill="#ff9a3c" opacity="0.3"/>
+          <!-- Worker silhouette -->
+          <circle cx="30" cy="95" r="8" fill="#111"/>
+          <rect x="22" y="103" width="16" height="20" rx="3" fill="#111"/>
+          <!-- Helmet -->
+          <ellipse cx="30" cy="88" rx="10" ry="4" fill="#f5c000"/>
+          <rect x="22" y="82" width="16" height="10" rx="3" fill="#f5c000"/>
+        </svg>
+
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:16px;">
+          <div class="bubble think" style="margin: 0 auto; text-align:center;">
+            今日もええ仕事した！<br>また明日も頑張ろ！
+          </div>
+          <span class="sfx gold" style="font-size:2.2rem; text-align:center;">充実の1日</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ⑧ 求人CTA -->
+    <div class="manga-cta">
+      <p style="font-size:0.72rem; font-weight:700; letter-spacing:0.2em; color:var(--gold); margin-bottom:16px; position:relative;">— RECRUIT</p>
+      <h2 class="manga-cta-title">
+        こんな仕事、<span>してみませんか？</span>
+      </h2>
+      <p class="manga-cta-desc">
+        未経験からでもOK。チームで支え合いながら、建築現場の根幹を担う誇りある仕事です。<br>
+        「話だけ聞きたい」だけでも、お気軽にどうぞ。
+      </p>
+      <div class="manga-cta-buttons">
+        <a href="recruit.html" class="btn-primary" style="color:var(--navy);">求人情報を見る →</a>
+        <a href="https://jp.indeed.com/job/%E5%BB%BA%E7%AF%89%E8%B3%87%E6%9D%90%E6%90%AC%E5%85%A5%E8%BB%BD%E4%BD%9C%E6%A5%AD%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95-bbd0196dc9024f7a" target="_blank" rel="noopener" class="indeed-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7l8 5 8-5v10c0 .55-.45 1-1 1zm-7-7L4 6h16l-8 5z"/></svg>
+          Indeed で応募する
+        </a>
+        <a href="contact.html" class="btn-secondary" style="margin-left:0;">お問い合わせ</a>
+      </div>
+    </div>
+
+  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="footer-logo"><span>優心</span> 株式会社</div>
+          <p>建築現場における資材搬入・荷上げを専門とする会社です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
+        </div>
+        <div>
+          <p class="footer-nav-title">Menu</p>
+          <ul class="footer-nav-links">
+            <li><a href="index.html">ホーム</a></li>
+            <li><a href="about.html">会社概要</a></li>
+            <li><a href="business.html">事業内容</a></li>
+            <li><a href="recruit.html">求人情報</a></li>
+            <li><a href="contact.html">お問い合わせ</a></li>
+          </ul>
+        </div>
+        <div>
+          <p class="footer-nav-title">Contact</p>
+          <ul class="footer-nav-links">
+            <li><a href="contact.html">お問い合わせフォーム</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 株式会社優心. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
