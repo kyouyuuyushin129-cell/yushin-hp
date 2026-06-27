@@ -1123,6 +1123,27 @@ ul { list-style: none; }
   transform: translateY(-1px);
 }
 
+.manga-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--navy);
+  color: var(--white);
+  border: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 14px 28px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.manga-cta-link:hover {
+  background: var(--gold);
+  color: var(--navy);
+  transform: translateY(-2px);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .nav-links { display: none; }
