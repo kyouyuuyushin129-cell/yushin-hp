@@ -80,6 +80,32 @@
     .panel.dark { background: radial-gradient(circle at 50% 35%, #1e2b48 0%, #0d1424 80%); }
     .panel.warm { background: linear-gradient(160deg, #fff7e0 0%, #ffeccb 100%); }
 
+    /* ===== Photo panel (実写を漫画風に加工) ===== */
+    .panel.photo { padding: 0; background: #000; justify-content: flex-end; }
+    .panel.photo .ph-img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+      filter: grayscale(1) contrast(1.5) brightness(1.08);
+    }
+    .panel.photo .ph-tone {
+      position: absolute; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.55) 1.1px, transparent 1.4px);
+      background-size: 5px 5px; mix-blend-mode: multiply; opacity: 0.42;
+      mask-image: linear-gradient(to bottom right, #000 0%, transparent 62%);
+      -webkit-mask-image: linear-gradient(to bottom right, #000 0%, transparent 62%);
+    }
+    .panel.photo .ph-vig { position: absolute; inset: 0; z-index: 1; pointer-events: none; box-shadow: inset 0 0 60px rgba(0,0,0,0.45); }
+    .panel.photo > * { position: relative; z-index: 3; }
+    .panel.photo .panel-caption { margin: 14px 0 0 14px; }
+    .panel.photo .bubble { margin: 0 14px 14px 14px; }
+    .panel.photo .narr { margin: 0 14px 14px 14px; }
+    .photo-sfx {
+      position: absolute; z-index: 4; right: 16px; top: 16px;
+      font-style: italic; font-weight: 900; color: #fff;
+      -webkit-text-stroke: 2px var(--ink); font-size: 2.6rem; line-height: 0.9;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.5); transform: rotate(-6deg);
+    }
+
     .tone-dot { background-color: #eceadf; background-image: radial-gradient(circle, rgba(20,17,13,0.16) 1.3px, transparent 1.5px); background-size: 8px 8px; }
     .tone-dot-soft { background-image: radial-gradient(circle, rgba(20,17,13,0.10) 1.1px, transparent 1.3px); background-size: 9px 9px; }
     .tone-grad-dot { background-image: radial-gradient(circle, rgba(20,17,13,0.22) 1.6px, transparent 1.7px); background-size: 7px 7px; mask-image: linear-gradient(to top, #000, transparent 75%); -webkit-mask-image: linear-gradient(to top, #000, transparent 75%); position: absolute; inset: 0; pointer-events: none; }
@@ -279,44 +305,14 @@
         </svg>
       </div>
 
-      <!-- 現場到着＋ボード大量 -->
-      <div class="panel sky" style="justify-content:space-between;">
+      <!-- 現場到着＋ボード大量（実写コマ） -->
+      <div class="panel photo" style="min-height:280px;">
+        <img class="ph-img" src="IMG_3528.JPG" alt="現場に積まれた石膏ボードの山">
+        <span class="ph-tone"></span>
+        <span class="ph-vig"></span>
+        <span class="photo-sfx">ドンッ</span>
         <p class="panel-caption">トラック一台ぶんの石膏ボード</p>
-        <svg viewBox="0 0 340 180" width="100%" style="flex:1;" aria-label="現場に積まれた石膏ボード">
-          <ellipse cx="80" cy="26" rx="26" ry="11" fill="#fff" opacity="0.85"/>
-          <ellipse cx="104" cy="22" rx="18" ry="9" fill="#fff" opacity="0.85"/>
-          <circle cx="300" cy="28" r="18" fill="#ffd23f"/>
-          <!-- building -->
-          <rect x="20" y="40" width="150" height="124" fill="#d9cdb8" stroke="#000" stroke-width="3"/>
-          <line x1="20" y1="82" x2="170" y2="82" stroke="#000" stroke-width="2"/>
-          <line x1="20" y1="124" x2="170" y2="124" stroke="#000" stroke-width="2"/>
-          <g fill="#8fcdee" stroke="#000" stroke-width="1.4">
-            <rect x="32" y="52" width="22" height="20"/><rect x="72" y="52" width="22" height="20"/><rect x="112" y="52" width="22" height="20"/>
-            <rect x="32" y="94" width="22" height="20"/><rect x="72" y="94" width="22" height="20"/><rect x="112" y="94" width="22" height="20"/>
-          </g>
-          <!-- crane -->
-          <line x1="200" y1="160" x2="200" y2="24" stroke="#555" stroke-width="4"/>
-          <line x1="160" y1="26" x2="262" y2="26" stroke="#555" stroke-width="4"/>
-          <line x1="248" y1="26" x2="248" y2="46" stroke="#777" stroke-width="2"/>
-          <!-- ground + fence -->
-          <rect x="0" y="160" width="340" height="20" fill="#9a9a9a" stroke="#000" stroke-width="2"/>
-          <rect x="0" y="146" width="340" height="7" fill="#f0b040" stroke="#000" stroke-width="1.5"/>
-          <!-- truck with board stack -->
-          <rect x="206" y="118" width="70" height="32" fill="#2d4f8a" stroke="#000" stroke-width="2.5"/>
-          <rect x="276" y="126" width="22" height="24" fill="#3a63a8" stroke="#000" stroke-width="2.5"/>
-          <rect x="280" y="130" width="14" height="10" fill="#bfe3ff" stroke="#000" stroke-width="1.5"/>
-          <circle cx="224" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
-          <circle cx="262" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
-          <!-- big stack of gypsum boards on the ground -->
-          <g stroke="#000" stroke-width="2">
-            <rect x="206" y="92" width="86" height="26" fill="url(#board)"/>
-            <line x1="206" y1="98" x2="292" y2="98" stroke="#c3b083" stroke-width="1.2"/>
-            <line x1="206" y1="104" x2="292" y2="104" stroke="#c3b083" stroke-width="1.2"/>
-            <line x1="206" y1="110" x2="292" y2="110" stroke="#c3b083" stroke-width="1.2"/>
-          </g>
-          <text x="232" y="86" font-size="13" font-weight="900" fill="#14110d">100枚！</text>
-        </svg>
-        <div class="bubble" style="margin-top:6px;">これ全部、<b>3階まで</b>担いで上げるで！</div>
+        <div class="bubble" style="align-self:flex-start;">これ全部、<b>3階まで</b>担いで上げるで！</div>
       </div>
     </div>
 
