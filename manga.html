@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>搬入のプロたち | 株式会社優心</title>
-  <meta name="description" content="株式会社優心の現場の1日を漫画でご紹介。建築資材搬入の仕事をわかりやすく解説しています。">
+  <title>担いで、上へ。― 利他的な荷揚げ屋・優心 | 株式会社優心</title>
+  <meta name="description" content="株式会社優心の現場の1日を漫画でご紹介。石膏ボードを担いで階段を上がる「荷揚げ屋」の仕事を、TikTokでおなじみの世界観でわかりやすく解説します。">
   <link rel="stylesheet" href="style.css">
   <style>
     :root {
@@ -26,16 +26,13 @@
       background: radial-gradient(circle at 30% 20%, #15294a 0%, var(--navy) 55%, #04060c 100%);
       border: 5px solid var(--ink);
       box-shadow: 8px 8px 0 rgba(0,0,0,0.25);
-      padding: 64px 40px 56px;
+      padding: 60px 40px 52px;
       text-align: center;
       margin-bottom: 10px;
       position: relative;
       overflow: hidden;
     }
-    /* converging focus lines on title */
-    .manga-title-block .focus {
-      position: absolute; inset: 0; opacity: 0.5;
-    }
+    .manga-title-block .focus { position: absolute; inset: 0; opacity: 0.5; }
     .manga-title-block .halftone {
       position: absolute; inset: 0;
       background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1.4px, transparent 1.5px);
@@ -45,28 +42,21 @@
     }
     .manga-label {
       display: inline-block;
-      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.35em;
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.3em;
       color: var(--navy); background: var(--gold);
       padding: 5px 16px; border-radius: 2px;
-      margin-bottom: 22px; position: relative;
+      margin-bottom: 20px; position: relative;
     }
     .manga-main-title {
-      font-size: clamp(2.4rem, 8vw, 4.6rem);
+      font-size: clamp(2.3rem, 7.5vw, 4.4rem);
       font-weight: 900; color: #fff;
-      letter-spacing: 0.08em; position: relative; line-height: 1.1;
-      text-shadow:
-        3px 3px 0 var(--gold),
-        6px 6px 0 rgba(0,0,0,0.5);
+      letter-spacing: 0.06em; position: relative; line-height: 1.1;
+      text-shadow: 3px 3px 0 var(--gold), 6px 6px 0 rgba(0,0,0,0.5);
     }
-    .manga-main-title .accent {
-      color: var(--gold);
-      text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.5);
-    }
-    .manga-sub-title {
-      font-size: 1.05rem; color: rgba(255,255,255,0.85);
-      margin-top: 20px; letter-spacing: 0.25em; position: relative;
-      font-weight: 600;
-    }
+    .manga-main-title .accent { color: var(--gold); text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.5); }
+    .manga-sub-title { font-size: 1.05rem; color: rgba(255,255,255,0.88); margin-top: 18px; letter-spacing: 0.18em; position: relative; font-weight: 700; }
+    .title-tags { margin-top: 18px; position: relative; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .title-tags span { font-size: 0.74rem; font-weight: 800; color: var(--gold); border: 1.5px solid rgba(245,192,0,0.5); border-radius: 20px; padding: 4px 12px; }
 
     /* ===== Panels ===== */
     .panel-row { display: grid; gap: 10px; }
@@ -75,114 +65,56 @@
     .panel-row.col-6-4 { grid-template-columns: 6fr 4fr; }
     .panel-row.col-4-6 { grid-template-columns: 4fr 6fr; }
     .panel-row.col-7-5 { grid-template-columns: 7fr 5fr; }
+    .panel-row.col-5-7 { grid-template-columns: 5fr 7fr; }
 
     .panel {
       background: var(--paper);
       border: 4px solid var(--ink);
       box-shadow: 5px 5px 0 rgba(0,0,0,0.18);
-      min-height: 240px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      padding: 18px;
+      min-height: 240px; position: relative; overflow: hidden;
+      display: flex; flex-direction: column; padding: 18px;
     }
-    .panel.tall { min-height: 340px; }
+    .panel.tall { min-height: 360px; }
     .panel.sky { background: linear-gradient(to bottom, #cfeafd 0%, #eaf6ff 55%, #f4f1e8 100%); }
     .panel.dawn { background: linear-gradient(to bottom, #ffe1c4 0%, #ffd0a8 45%, #f9ead8 100%); }
     .panel.dark { background: radial-gradient(circle at 50% 35%, #1e2b48 0%, #0d1424 80%); }
     .panel.warm { background: linear-gradient(160deg, #fff7e0 0%, #ffeccb 100%); }
 
-    /* manga screentones */
-    .tone-dot {
-      background-color: #eceadf;
-      background-image: radial-gradient(circle, rgba(20,17,13,0.16) 1.3px, transparent 1.5px);
-      background-size: 8px 8px;
-    }
-    .tone-dot-soft {
-      background-image: radial-gradient(circle, rgba(20,17,13,0.10) 1.1px, transparent 1.3px);
-      background-size: 9px 9px;
-    }
-    .tone-grad-dot {
-      background-image: radial-gradient(circle, rgba(20,17,13,0.22) 1.6px, transparent 1.7px);
-      background-size: 7px 7px;
-      mask-image: linear-gradient(to top, #000, transparent 75%);
-      -webkit-mask-image: linear-gradient(to top, #000, transparent 75%);
-      position: absolute; inset: 0; pointer-events: none;
-    }
-    .tone-diag {
-      background: repeating-linear-gradient(-45deg,
-        rgba(20,17,13,0.07) 0 2px, transparent 2px 7px);
-    }
+    .tone-dot { background-color: #eceadf; background-image: radial-gradient(circle, rgba(20,17,13,0.16) 1.3px, transparent 1.5px); background-size: 8px 8px; }
+    .tone-dot-soft { background-image: radial-gradient(circle, rgba(20,17,13,0.10) 1.1px, transparent 1.3px); background-size: 9px 9px; }
+    .tone-grad-dot { background-image: radial-gradient(circle, rgba(20,17,13,0.22) 1.6px, transparent 1.7px); background-size: 7px 7px; mask-image: linear-gradient(to top, #000, transparent 75%); -webkit-mask-image: linear-gradient(to top, #000, transparent 75%); position: absolute; inset: 0; pointer-events: none; }
+    .tone-diag { background: repeating-linear-gradient(-45deg, rgba(20,17,13,0.07) 0 2px, transparent 2px 7px); }
 
-    /* caption / time stamp */
     .panel-caption {
-      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.12em;
-      color: var(--ink); margin-bottom: 8px;
-      align-self: flex-start;
-      background: var(--gold);
-      padding: 4px 12px 4px 10px;
-      position: relative; z-index: 3;
-      box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+      color: var(--ink); margin-bottom: 8px; align-self: flex-start;
+      background: var(--gold); padding: 4px 12px 4px 10px;
+      position: relative; z-index: 3; box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
     }
-    .panel-caption.ghost {
-      background: rgba(255,255,255,0.92);
-      border-left: 4px solid var(--gold);
-    }
-    .panel-caption.white { color: var(--ink); }
+    .panel-caption.ghost { background: rgba(255,255,255,0.92); border-left: 4px solid var(--gold); }
 
     /* ===== Speech bubbles ===== */
     .bubble {
-      background: #fff;
-      border: 3px solid var(--ink);
-      border-radius: 22px / 30px;
-      padding: 10px 16px;
-      font-size: 0.9rem; font-weight: 700; line-height: 1.55;
-      display: inline-block; position: relative;
-      max-width: 94%; z-index: 4;
+      background: #fff; border: 3px solid var(--ink); border-radius: 22px / 30px;
+      padding: 10px 16px; font-size: 0.9rem; font-weight: 700; line-height: 1.55;
+      display: inline-block; position: relative; max-width: 94%; z-index: 4;
       box-shadow: 3px 3px 0 rgba(0,0,0,0.12);
     }
     .bubble.sm { font-size: 0.8rem; padding: 8px 13px; }
     .bubble.right { align-self: flex-end; }
     .bubble.center { align-self: center; }
-    .bubble::after {
-      content: ''; position: absolute; bottom: -16px; left: 24px;
-      width: 0; height: 0;
-      border-left: 9px solid transparent; border-right: 6px solid transparent;
-      border-top: 17px solid var(--ink);
-    }
-    .bubble::before {
-      content: ''; position: absolute; bottom: -11px; left: 25px;
-      width: 0; height: 0;
-      border-left: 7px solid transparent; border-right: 4px solid transparent;
-      border-top: 13px solid #fff; z-index: 1;
-    }
+    .bubble::after { content: ''; position: absolute; bottom: -16px; left: 24px; width: 0; height: 0; border-left: 9px solid transparent; border-right: 6px solid transparent; border-top: 17px solid var(--ink); }
+    .bubble::before { content: ''; position: absolute; bottom: -11px; left: 25px; width: 0; height: 0; border-left: 7px solid transparent; border-right: 4px solid transparent; border-top: 13px solid #fff; z-index: 1; }
     .bubble.right::after { left: auto; right: 24px; }
     .bubble.right::before { left: auto; right: 25px; }
     .bubble.top::after { bottom: auto; top: -16px; border-top: none; border-bottom: 17px solid var(--ink); }
     .bubble.top::before { bottom: auto; top: -11px; border-top: none; border-bottom: 13px solid #fff; }
-    .bubble.think {
-      border-radius: 50% / 42%; border-style: solid;
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.12);
-    }
-    .bubble.think::after {
-      border: none; width: 11px; height: 11px; border-radius: 50%;
-      background: #fff; box-shadow: 0 0 0 3px var(--ink);
-      bottom: -10px; left: 30px;
-    }
-    .bubble.think::before {
-      border: none; width: 6px; height: 6px; border-radius: 50%;
-      background: #fff; box-shadow: 0 0 0 2.5px var(--ink);
-      bottom: -22px; left: 22px;
-    }
+    .bubble.think { border-radius: 50% / 42%; box-shadow: 3px 3px 0 rgba(0,0,0,0.12); }
+    .bubble.think::after { border: none; width: 11px; height: 11px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px var(--ink); bottom: -10px; left: 30px; }
+    .bubble.think::before { border: none; width: 6px; height: 6px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2.5px var(--ink); bottom: -22px; left: 22px; }
     .bubble.shout {
-      border-radius: 0; background: #fffdf0; font-weight: 800;
-      border-width: 3px;
-      clip-path: polygon(
-        0% 12%, 12% 6%, 24% 14%, 38% 4%, 52% 13%, 66% 3%, 80% 13%, 92% 6%, 100% 16%,
-        94% 32%, 100% 48%, 93% 62%, 100% 80%, 88% 90%, 74% 84%, 60% 96%, 46% 86%,
-        32% 97%, 18% 87%, 6% 94%, 2% 74%, 8% 58%, 0% 44%, 7% 28%
-      );
+      border-radius: 0; background: #fffdf0; font-weight: 800; border-width: 3px;
+      clip-path: polygon(0% 12%, 12% 6%, 24% 14%, 38% 4%, 52% 13%, 66% 3%, 80% 13%, 92% 6%, 100% 16%, 94% 32%, 100% 48%, 93% 62%, 100% 80%, 88% 90%, 74% 84%, 60% 96%, 46% 86%, 32% 97%, 18% 87%, 6% 94%, 2% 74%, 8% 58%, 0% 44%, 7% 28%);
       padding: 18px 22px;
     }
     .bubble.shout::after, .bubble.shout::before { display: none; }
@@ -191,73 +123,57 @@
     .bubble.dark.top::before { border-top: none; border-bottom-color: var(--navy); }
 
     /* ===== SFX ===== */
-    .sfx {
-      font-size: 3.4rem; font-weight: 900; font-style: italic;
-      letter-spacing: -0.02em; line-height: 0.95; color: var(--ink);
-      -webkit-text-stroke: 1px var(--ink);
-      text-shadow: 4px 4px 0 rgba(0,0,0,0.18);
-      display: block; position: relative; z-index: 4;
-    }
+    .sfx { font-size: 3.4rem; font-weight: 900; font-style: italic; letter-spacing: -0.02em; line-height: 0.95; color: var(--ink); -webkit-text-stroke: 1px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.18); display: block; position: relative; z-index: 4; }
     .sfx.gold { color: var(--gold); -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.45); }
     .sfx.white { color: #fff; -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.6); }
     .sfx.sm { font-size: 1.7rem; }
-    .sfx.lg { font-size: 4.6rem; }
-
-    /* impact burst behind big SFX */
+    .sfx.lg { font-size: 4.4rem; }
     .impact { position: relative; display: inline-block; }
     .impact .burst { position: absolute; inset: -40px; z-index: 0; }
     .impact .sfx { z-index: 2; }
 
-    /* speed / focus lines container */
     .lines-bg { position: absolute; inset: 0; pointer-events: none; }
 
-    /* narration box */
-    .narr {
-      background: #fffaf0; border: 2.5px solid var(--ink);
-      padding: 7px 13px; font-size: 0.8rem; font-weight: 800;
-      letter-spacing: 0.04em; display: inline-block; align-self: flex-start;
-      box-shadow: 3px 3px 0 rgba(0,0,0,0.14); position: relative; z-index: 3;
-    }
-    .narr.bottom { margin-top: auto; }
+    .narr { background: #fffaf0; border: 2.5px solid var(--ink); padding: 7px 13px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; display: inline-block; align-self: flex-start; box-shadow: 3px 3px 0 rgba(0,0,0,0.14); position: relative; z-index: 3; }
+    .pill { background: rgba(245,192,0,0.18); border: 1.6px solid var(--gold); border-radius: 20px; padding: 5px 14px; font-size: 0.75rem; font-weight: 800; color: var(--gold); display: inline-block; }
 
-    .checklist {
-      font-size: 0.86rem; font-weight: 700; line-height: 2.05;
-      background: rgba(255,255,255,0.65); border: 2px dashed var(--ink);
-      padding: 14px 18px; position: relative; z-index: 3;
+    /* ===== TikTok-style frame ===== */
+    .tiktok-frame {
+      width: 200px; max-width: 80%; aspect-ratio: 9/16;
+      margin: 0 auto; position: relative;
+      background: radial-gradient(circle at 50% 40%, #233454, #0c1322 85%);
+      border: 4px solid #000; border-radius: 22px; overflow: hidden;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.3);
     }
-    .checklist .tk { color: #1a8f3a; font-weight: 900; }
-
-    .pill {
-      background: rgba(245,192,0,0.18); border: 1.6px solid var(--gold);
-      border-radius: 20px; padding: 5px 14px; font-size: 0.75rem;
-      font-weight: 800; color: var(--gold); display: inline-block;
-    }
+    .tt-rec { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 5px; font-size: 0.62rem; font-weight: 800; color: #fff; z-index: 5; }
+    .tt-rec .dot { width: 9px; height: 9px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; }
+    .tt-counter { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 4; gap: 2px; }
+    .tt-counter .lbl { font-size: 0.66rem; font-weight: 800; color: rgba(255,255,255,0.8); letter-spacing: 0.12em; }
+    .tt-counter .num { font-size: 3.6rem; font-weight: 900; color: var(--gold); line-height: 1; -webkit-text-stroke: 2px #000; text-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
+    .tt-counter .unit { font-size: 0.9rem; font-weight: 800; color: #fff; }
+    .tt-side { position: absolute; right: 8px; bottom: 56px; display: flex; flex-direction: column; gap: 14px; align-items: center; z-index: 5; color: #fff; }
+    .tt-side div { display: flex; flex-direction: column; align-items: center; font-size: 0.55rem; font-weight: 700; gap: 2px; }
+    .tt-side svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
+    .tt-cap { position: absolute; left: 10px; right: 40px; bottom: 10px; z-index: 5; text-align: left; }
+    .tt-cap .acc { font-size: 0.66rem; font-weight: 800; color: #fff; }
+    .tt-cap .tags { font-size: 0.6rem; font-weight: 700; color: var(--gold); line-height: 1.5; margin-top: 2px; }
 
     /* ===== Recruit CTA ===== */
-    .manga-cta {
-      background: radial-gradient(circle at 50% 0%, #15294a 0%, var(--navy) 60%, #04060c 100%);
-      border: 5px solid var(--ink);
-      box-shadow: 8px 8px 0 rgba(0,0,0,0.25);
-      padding: 60px 40px; text-align: center; position: relative; overflow: hidden;
-    }
-    .manga-cta .halftone {
-      position: absolute; inset: 0;
-      background-image: radial-gradient(circle, rgba(245,192,0,0.10) 1.4px, transparent 1.6px);
-      background-size: 12px 12px;
-      mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%);
-      -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%);
-    }
+    .manga-cta { background: radial-gradient(circle at 50% 0%, #15294a 0%, var(--navy) 60%, #04060c 100%); border: 5px solid var(--ink); box-shadow: 8px 8px 0 rgba(0,0,0,0.25); padding: 56px 40px; text-align: center; position: relative; overflow: hidden; }
+    .manga-cta .halftone { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(245,192,0,0.10) 1.4px, transparent 1.6px); background-size: 12px 12px; mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); }
     .manga-cta-title { font-size: clamp(1.7rem, 5vw, 2.7rem); font-weight: 900; color: #fff; margin-bottom: 14px; position: relative; line-height: 1.3; }
     .manga-cta-title span { color: var(--gold); }
-    .manga-cta-desc { color: rgba(255,255,255,0.78); margin-bottom: 34px; position: relative; line-height: 1.9; }
+    .manga-cta-desc { color: rgba(255,255,255,0.78); margin-bottom: 30px; position: relative; line-height: 1.9; }
     .manga-cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; }
     .indeed-btn { display: inline-flex; align-items: center; gap: 8px; background: #2164f3; color: #fff; padding: 14px 32px; border-radius: 4px; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: background 0.2s, transform 0.2s; }
     .indeed-btn:hover { background: #1a52d4; transform: translateY(-2px); }
+    .sns-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 22px; position: relative; }
+    .sns-chip { display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; text-decoration: none; color: #fff; border: 1px solid rgba(255,255,255,0.25); }
+    .sns-chip.tt { background: #111; }
+    .sns-chip.ig { background: linear-gradient(120deg,#f9ce34,#ee2a7b,#6228d7); }
 
-    /* Responsive */
     @media (max-width: 660px) {
-      .panel-row.col2, .panel-row.col3,
-      .panel-row.col-6-4, .panel-row.col-4-6, .panel-row.col-7-5 { grid-template-columns: 1fr; }
+      .panel-row.col2, .panel-row.col3, .panel-row.col-6-4, .panel-row.col-4-6, .panel-row.col-7-5, .panel-row.col-5-7 { grid-template-columns: 1fr; }
       .panel { min-height: 210px; box-shadow: 4px 4px 0 rgba(0,0,0,0.18); }
       .sfx { font-size: 2.4rem; }
       .sfx.lg { font-size: 3.2rem; }
@@ -285,34 +201,15 @@
     </div>
   </header>
 
-  <!-- ===== Shared SVG defs (gradients / filters used across panels) ===== -->
+  <!-- shared SVG defs -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#ffd9b8"/>
-        <stop offset="1" stop-color="#f0b88e"/>
-      </linearGradient>
-      <linearGradient id="helmet" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffd23f"/>
-        <stop offset="1" stop-color="#e09c00"/>
-      </linearGradient>
-      <linearGradient id="helmetRed" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ff7a52"/>
-        <stop offset="1" stop-color="#cc3b1f"/>
-      </linearGradient>
-      <linearGradient id="vest" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#1f3f73"/>
-        <stop offset="1" stop-color="#0e2347"/>
-      </linearGradient>
-      <linearGradient id="vestRed" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#d4513a"/>
-        <stop offset="1" stop-color="#8f2415"/>
-      </linearGradient>
-      <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#b8bcc4"/>
-        <stop offset="0.5" stop-color="#7d828c"/>
-        <stop offset="1" stop-color="#4f535c"/>
-      </linearGradient>
+      <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd9b8"/><stop offset="1" stop-color="#f0b88e"/></linearGradient>
+      <linearGradient id="helmet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#e09c00"/></linearGradient>
+      <linearGradient id="helmetRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a52"/><stop offset="1" stop-color="#cc3b1f"/></linearGradient>
+      <linearGradient id="vest" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f3f73"/><stop offset="1" stop-color="#0e2347"/></linearGradient>
+      <linearGradient id="vestRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4513a"/><stop offset="1" stop-color="#8f2415"/></linearGradient>
+      <linearGradient id="board" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3ead3"/><stop offset="1" stop-color="#d8c7a0"/></linearGradient>
     </defs>
   </svg>
 
@@ -321,75 +218,60 @@
 
     <!-- ===================== ① タイトル ===================== -->
     <div class="manga-title-block">
-      <svg class="focus" viewBox="0 0 880 260" preserveAspectRatio="none">
+      <svg class="focus" viewBox="0 0 880 280" preserveAspectRatio="none">
         <g stroke="#d4a030" stroke-width="2">
-          <!-- radiating lines from center -->
-          <line x1="440" y1="130" x2="0" y2="-40"/><line x1="440" y1="130" x2="150" y2="-40"/>
-          <line x1="440" y1="130" x2="300" y2="-40"/><line x1="440" y1="130" x2="440" y2="-40"/>
-          <line x1="440" y1="130" x2="580" y2="-40"/><line x1="440" y1="130" x2="730" y2="-40"/>
-          <line x1="440" y1="130" x2="880" y2="-40"/>
-          <line x1="440" y1="130" x2="0" y2="300"/><line x1="440" y1="130" x2="150" y2="300"/>
-          <line x1="440" y1="130" x2="300" y2="300"/><line x1="440" y1="130" x2="580" y2="300"/>
-          <line x1="440" y1="130" x2="730" y2="300"/><line x1="440" y1="130" x2="880" y2="300"/>
-          <line x1="440" y1="130" x2="-40" y2="130"/><line x1="440" y1="130" x2="920" y2="130"/>
+          <line x1="440" y1="140" x2="0" y2="-40"/><line x1="440" y1="140" x2="150" y2="-40"/>
+          <line x1="440" y1="140" x2="300" y2="-40"/><line x1="440" y1="140" x2="440" y2="-40"/>
+          <line x1="440" y1="140" x2="580" y2="-40"/><line x1="440" y1="140" x2="730" y2="-40"/>
+          <line x1="440" y1="140" x2="880" y2="-40"/>
+          <line x1="440" y1="140" x2="0" y2="320"/><line x1="440" y1="140" x2="150" y2="320"/>
+          <line x1="440" y1="140" x2="300" y2="320"/><line x1="440" y1="140" x2="580" y2="320"/>
+          <line x1="440" y1="140" x2="730" y2="320"/><line x1="440" y1="140" x2="880" y2="320"/>
+          <line x1="440" y1="140" x2="-40" y2="140"/><line x1="440" y1="140" x2="920" y2="140"/>
         </g>
       </svg>
       <span class="halftone"></span>
-      <span class="manga-label">YUSHIN COMIC</span>
-      <h1 class="manga-main-title">搬入の<span class="accent">プロ</span>たち</h1>
-      <p class="manga-sub-title">〜 優心・現場の１日 〜</p>
+      <span class="manga-label">YUSHIN COMIC ／ TikTokでも発信中</span>
+      <h1 class="manga-main-title">担いで、<span class="accent">上</span>へ。</h1>
+      <p class="manga-sub-title">― 利他的な荷揚げ屋・優心の１日 ―</p>
+      <div class="title-tags">
+        <span>#荷揚げ屋</span><span>#現場男子</span><span>#利他的</span><span>#未経験歓迎</span>
+      </div>
     </div>
 
-    <!-- ===================== ② 朝 ===================== -->
-    <div class="panel-row col-4-6 row">
+    <!-- ===================== ② 朝・現場到着 ===================== -->
+    <div class="panel-row col-5-7 row">
 
-      <!-- 起床・出発 -->
+      <!-- 出発 -->
       <div class="panel dawn" style="justify-content:space-between;">
-        <p class="panel-caption">AM 6:30　自宅</p>
+        <p class="panel-caption">AM 7:00　現場入り</p>
         <div class="bubble think center" style="margin-top:4px;">今日も<br>気合い入れてくぞ！</div>
-        <div style="position:absolute; right:-6px; top:8px; font-size:1.4rem;">☀️</div>
-        <!-- standing worker, ready -->
-        <svg viewBox="0 0 150 250" width="118" style="align-self:center; margin-top:auto;" aria-label="出勤する作業員">
+        <div style="position:absolute; right:-4px; top:8px; font-size:1.4rem;">☀️</div>
+        <svg viewBox="0 0 150 250" width="116" style="align-self:center; margin-top:auto;" aria-label="出勤する作業員">
           <ellipse cx="75" cy="244" rx="46" ry="7" fill="rgba(0,0,0,0.12)"/>
-          <!-- legs -->
           <path d="M60 168 L52 232" stroke="#2c2c33" stroke-width="20" stroke-linecap="round"/>
           <path d="M90 168 L98 232" stroke="#34343c" stroke-width="20" stroke-linecap="round"/>
-          <!-- knee pads -->
           <circle cx="56" cy="200" r="7" fill="#111"/><circle cx="94" cy="200" r="7" fill="#111"/>
-          <!-- boots -->
           <path d="M40 232 h26 v10 a4 4 0 0 1-4 4 H40 Z" fill="#1a1a1a" stroke="#000" stroke-width="2"/>
           <path d="M86 232 h26 a4 4 0 0 1 4 4 v6 a4 4 0 0 1-4 4 H86 Z" fill="#222" stroke="#000" stroke-width="2"/>
-          <!-- torso vest -->
           <path d="M50 96 Q75 88 100 96 L104 170 Q75 178 46 170 Z" fill="url(#vest)" stroke="#000" stroke-width="3"/>
-          <!-- hi-vis stripes -->
           <path d="M48 132 Q75 138 102 132 L102 142 Q75 148 48 142 Z" fill="#ffe14d"/>
           <path d="M48 150 Q75 156 102 150 L102 158 Q75 164 48 158 Z" fill="#9fd0ff"/>
-          <!-- arms -->
           <path d="M52 102 L34 150" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
-          <path d="M52 102 L34 150" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.0"/>
           <path d="M98 102 L120 142" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
-          <!-- gloves -->
           <circle cx="32" cy="154" r="9" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
           <circle cx="123" cy="146" r="9" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
-          <!-- thumbs up -->
           <rect x="119" y="130" width="7" height="14" rx="3" fill="#2b2b2b"/>
-          <!-- neck + towel -->
           <rect x="66" y="80" width="18" height="14" fill="url(#skin)"/>
           <path d="M60 86 Q75 96 90 86 L94 100 Q75 108 56 100 Z" fill="#fff" stroke="#000" stroke-width="2"/>
-          <!-- head -->
           <circle cx="75" cy="60" r="26" fill="url(#skin)" stroke="#000" stroke-width="3"/>
-          <!-- hair sides -->
-          <path d="M50 56 Q48 40 60 38" fill="#1a1208"/>
-          <path d="M100 56 Q102 40 90 38" fill="#1a1208"/>
-          <!-- brows + eyes (energetic) -->
+          <path d="M50 56 Q48 40 60 38" fill="#1a1208"/><path d="M100 56 Q102 40 90 38" fill="#1a1208"/>
           <path d="M60 50 L70 52" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
           <path d="M90 50 L80 52" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
           <circle cx="65" cy="58" r="3.4" fill="#111"/><circle cx="85" cy="58" r="3.4" fill="#111"/>
           <circle cx="66" cy="57" r="1" fill="#fff"/><circle cx="86" cy="57" r="1" fill="#fff"/>
           <path d="M63 68 Q75 78 87 68" fill="none" stroke="#000" stroke-width="2.6" stroke-linecap="round"/>
-          <circle cx="58" cy="66" r="5" fill="rgba(255,120,100,0.3)"/>
-          <circle cx="92" cy="66" r="5" fill="rgba(255,120,100,0.3)"/>
-          <!-- helmet -->
+          <circle cx="58" cy="66" r="5" fill="rgba(255,120,100,0.3)"/><circle cx="92" cy="66" r="5" fill="rgba(255,120,100,0.3)"/>
           <path d="M48 44 Q75 8 102 44 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
           <ellipse cx="75" cy="44" rx="33" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
           <path d="M70 16 Q75 13 80 16 L80 40 L70 40 Z" fill="#e09c00"/>
@@ -397,335 +279,346 @@
         </svg>
       </div>
 
-      <!-- 現場到着 -->
+      <!-- 現場到着＋ボード大量 -->
       <div class="panel sky" style="justify-content:space-between;">
-        <p class="panel-caption">AM 7:30　現場到着</p>
-        <svg viewBox="0 0 320 175" width="100%" style="flex:1;" aria-label="建設現場に到着">
-          <!-- clouds -->
-          <ellipse cx="60" cy="28" rx="26" ry="11" fill="#fff" opacity="0.85"/>
-          <ellipse cx="84" cy="24" rx="18" ry="9" fill="#fff" opacity="0.85"/>
-          <!-- sun -->
-          <circle cx="282" cy="30" r="20" fill="#ffd23f"/>
-          <g stroke="#ffb800" stroke-width="2.5" stroke-linecap="round">
-            <line x1="282" y1="2" x2="282" y2="-4"/><line x1="306" y1="14" x2="311" y2="9"/>
-            <line x1="310" y1="30" x2="318" y2="30"/>
-          </g>
-          <!-- tower crane -->
-          <line x1="250" y1="160" x2="250" y2="20" stroke="#555" stroke-width="4"/>
-          <line x1="250" y1="160" x2="250" y2="20" stroke="#888" stroke-width="1.5" stroke-dasharray="6,6"/>
-          <line x1="205" y1="22" x2="305" y2="22" stroke="#555" stroke-width="4"/>
-          <line x1="245" y1="14" x2="290" y2="22" stroke="#555" stroke-width="2"/>
-          <line x1="245" y1="14" x2="220" y2="22" stroke="#555" stroke-width="2"/>
-          <line x1="290" y1="22" x2="290" y2="44" stroke="#777" stroke-width="2"/>
-          <rect x="284" y="44" width="12" height="9" fill="#f5c000" stroke="#000" stroke-width="1.5"/>
-          <!-- building under construction -->
-          <rect x="34" y="46" width="150" height="118" fill="#d9cdb8" stroke="#000" stroke-width="3"/>
-          <line x1="34" y1="86" x2="184" y2="86" stroke="#000" stroke-width="2"/>
-          <line x1="34" y1="126" x2="184" y2="126" stroke="#000" stroke-width="2"/>
-          <!-- scaffold -->
-          <g stroke="#c98a2e" stroke-width="3">
-            <line x1="34" y1="46" x2="34" y2="164"/><line x1="74" y1="46" x2="74" y2="164"/>
-            <line x1="114" y1="46" x2="114" y2="164"/><line x1="154" y1="46" x2="154" y2="164"/>
-            <line x1="184" y1="46" x2="184" y2="164"/>
-          </g>
-          <!-- windows -->
+        <p class="panel-caption">トラック一台ぶんの石膏ボード</p>
+        <svg viewBox="0 0 340 180" width="100%" style="flex:1;" aria-label="現場に積まれた石膏ボード">
+          <ellipse cx="80" cy="26" rx="26" ry="11" fill="#fff" opacity="0.85"/>
+          <ellipse cx="104" cy="22" rx="18" ry="9" fill="#fff" opacity="0.85"/>
+          <circle cx="300" cy="28" r="18" fill="#ffd23f"/>
+          <!-- building -->
+          <rect x="20" y="40" width="150" height="124" fill="#d9cdb8" stroke="#000" stroke-width="3"/>
+          <line x1="20" y1="82" x2="170" y2="82" stroke="#000" stroke-width="2"/>
+          <line x1="20" y1="124" x2="170" y2="124" stroke="#000" stroke-width="2"/>
           <g fill="#8fcdee" stroke="#000" stroke-width="1.4">
-            <rect x="44" y="56" width="22" height="20"/><rect x="84" y="56" width="22" height="20"/><rect x="124" y="56" width="22" height="20"/>
-            <rect x="44" y="96" width="22" height="20"/><rect x="84" y="96" width="22" height="20"/><rect x="124" y="96" width="22" height="20"/>
+            <rect x="32" y="52" width="22" height="20"/><rect x="72" y="52" width="22" height="20"/><rect x="112" y="52" width="22" height="20"/>
+            <rect x="32" y="94" width="22" height="20"/><rect x="72" y="94" width="22" height="20"/><rect x="112" y="94" width="22" height="20"/>
           </g>
+          <!-- crane -->
+          <line x1="200" y1="160" x2="200" y2="24" stroke="#555" stroke-width="4"/>
+          <line x1="160" y1="26" x2="262" y2="26" stroke="#555" stroke-width="4"/>
+          <line x1="248" y1="26" x2="248" y2="46" stroke="#777" stroke-width="2"/>
           <!-- ground + fence -->
-          <rect x="0" y="160" width="320" height="15" fill="#9a9a9a" stroke="#000" stroke-width="2"/>
-          <rect x="0" y="146" width="320" height="7" fill="#f0b040" stroke="#000" stroke-width="1.5"/>
-          <!-- truck -->
-          <rect x="206" y="120" width="60" height="30" fill="#2d4f8a" stroke="#000" stroke-width="2.5"/>
-          <rect x="266" y="128" width="22" height="22" fill="#3a63a8" stroke="#000" stroke-width="2.5"/>
-          <rect x="270" y="132" width="14" height="10" fill="#bfe3ff" stroke="#000" stroke-width="1.5"/>
-          <circle cx="222" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
-          <circle cx="276" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
-          <circle cx="222" cy="152" r="3.5" fill="#888"/><circle cx="276" cy="152" r="3.5" fill="#888"/>
-          <!-- worker walking in -->
-          <g>
-            <ellipse cx="170" cy="156" rx="14" ry="3" fill="rgba(0,0,0,0.15)"/>
-            <path d="M165 132 L160 153" stroke="#2c2c33" stroke-width="6" stroke-linecap="round"/>
-            <path d="M173 132 L179 153" stroke="#2c2c33" stroke-width="6" stroke-linecap="round"/>
-            <rect x="160" y="112" width="18" height="24" rx="3" fill="url(#vest)" stroke="#000" stroke-width="2"/>
-            <rect x="160" y="120" width="18" height="4" fill="#ffe14d"/>
-            <circle cx="169" cy="104" r="9" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-            <path d="M159 100 Q169 86 179 100 Z" fill="url(#helmet)" stroke="#000" stroke-width="2"/>
-            <ellipse cx="169" cy="100" rx="11" ry="3" fill="url(#helmet)" stroke="#000" stroke-width="2"/>
+          <rect x="0" y="160" width="340" height="20" fill="#9a9a9a" stroke="#000" stroke-width="2"/>
+          <rect x="0" y="146" width="340" height="7" fill="#f0b040" stroke="#000" stroke-width="1.5"/>
+          <!-- truck with board stack -->
+          <rect x="206" y="118" width="70" height="32" fill="#2d4f8a" stroke="#000" stroke-width="2.5"/>
+          <rect x="276" y="126" width="22" height="24" fill="#3a63a8" stroke="#000" stroke-width="2.5"/>
+          <rect x="280" y="130" width="14" height="10" fill="#bfe3ff" stroke="#000" stroke-width="1.5"/>
+          <circle cx="224" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
+          <circle cx="262" cy="152" r="9" fill="#222" stroke="#000" stroke-width="2"/>
+          <!-- big stack of gypsum boards on the ground -->
+          <g stroke="#000" stroke-width="2">
+            <rect x="206" y="92" width="86" height="26" fill="url(#board)"/>
+            <line x1="206" y1="98" x2="292" y2="98" stroke="#c3b083" stroke-width="1.2"/>
+            <line x1="206" y1="104" x2="292" y2="104" stroke="#c3b083" stroke-width="1.2"/>
+            <line x1="206" y1="110" x2="292" y2="110" stroke="#c3b083" stroke-width="1.2"/>
           </g>
+          <text x="232" y="86" font-size="13" font-weight="900" fill="#14110d">100枚！</text>
         </svg>
-        <div class="bubble" style="margin-top:6px;">よし、段取り確認や！</div>
+        <div class="bubble" style="margin-top:6px;">これ全部、<b>3階まで</b>担いで上げるで！</div>
       </div>
     </div>
 
-    <!-- ===================== ③ 打合せ ===================== -->
-    <div class="panel-row col3 row">
+    <!-- ===================== ③ 利他レクチャー ===================== -->
+    <div class="panel-row col2 row">
 
-      <!-- 監督と打合せ -->
-      <div class="panel tone-dot" style="justify-content:flex-start;">
-        <p class="panel-caption ghost white">現場監督と打合せ</p>
-        <div style="display:flex; gap:6px; align-items:flex-end; flex:1; margin-top:6px;">
-          <!-- supervisor -->
-          <svg viewBox="0 0 95 180" width="86" style="flex-shrink:0;" aria-label="現場監督">
-            <ellipse cx="47" cy="174" rx="30" ry="5" fill="rgba(0,0,0,0.1)"/>
-            <path d="M34 116 L28 168" stroke="#3a3f4a" stroke-width="14" stroke-linecap="round"/>
-            <path d="M60 116 L66 168" stroke="#454b57" stroke-width="14" stroke-linecap="round"/>
-            <path d="M24 168 h22 v8 H24 Z" fill="#1a1a1a"/><path d="M58 168 h22 v8 H58 Z" fill="#222"/>
-            <!-- jacket (foreman gray) -->
-            <path d="M30 70 Q47 64 64 70 L68 120 Q47 126 26 120 Z" fill="#7c828c" stroke="#000" stroke-width="2.5"/>
-            <line x1="47" y1="68" x2="47" y2="120" stroke="#000" stroke-width="1.5"/>
-            <!-- arm holding clipboard -->
-            <path d="M32 76 L20 104" stroke="#7c828c" stroke-width="10" stroke-linecap="round"/>
-            <path d="M64 76 L78 96" stroke="#7c828c" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="80" cy="98" r="7" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-            <rect x="6" y="98" width="20" height="26" rx="2" fill="#fff" stroke="#000" stroke-width="2"/>
-            <line x1="10" y1="106" x2="22" y2="106" stroke="#aaa" stroke-width="1.5"/>
-            <line x1="10" y1="112" x2="22" y2="112" stroke="#aaa" stroke-width="1.5"/>
-            <circle cx="18" cy="104" r="8" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-            <!-- neck/head -->
-            <rect x="40" y="56" width="14" height="12" fill="url(#skin)"/>
-            <circle cx="47" cy="44" r="19" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
-            <path d="M31 40 Q30 26 47 24 Q64 26 63 40" fill="#2a2a2a"/>
-            <path d="M37 40 L44 41" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
-            <path d="M57 40 L50 41" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
-            <circle cx="41" cy="46" r="2.6" fill="#111"/><circle cx="53" cy="46" r="2.6" fill="#111"/>
-            <path d="M40 54 Q47 58 54 54" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- white helmet -->
-            <path d="M27 30 Q47 4 67 30 Z" fill="#f4f4f4" stroke="#000" stroke-width="2.5"/>
-            <ellipse cx="47" cy="30" rx="24" ry="6" fill="#f4f4f4" stroke="#000" stroke-width="2.5"/>
-            <rect x="40" y="20" width="14" height="8" fill="#080e1a"/>
+      <!-- 担ぎ方を教える（利他） -->
+      <div class="panel tone-dot">
+        <p class="panel-caption ghost">担ぎ方を教える</p>
+        <div style="display:flex; gap:6px; align-items:flex-end; flex:1; margin-top:4px;">
+          <!-- senior teaching -->
+          <svg viewBox="0 0 120 190" width="120" style="flex-shrink:0;" aria-label="先輩がボードの担ぎ方を教える">
+            <ellipse cx="60" cy="184" rx="40" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <!-- board on senior's shoulder (short demo) -->
+            <g stroke="#000" stroke-width="2.5">
+              <rect x="20" y="34" width="92" height="16" fill="url(#board)" transform="rotate(-12 66 42)"/>
+            </g>
+            <line x1="30" y1="52" x2="118" y2="33" stroke="#c3b083" stroke-width="1.2"/>
+            <!-- legs -->
+            <path d="M52 120 L46 174" stroke="#2c2c33" stroke-width="15" stroke-linecap="round"/>
+            <path d="M70 120 L78 174" stroke="#34343c" stroke-width="15" stroke-linecap="round"/>
+            <path d="M36 174 h22 v7 H36 Z" fill="#1a1a1a"/><path d="M70 174 h22 v7 H70 Z" fill="#222"/>
+            <!-- torso -->
+            <path d="M44 74 Q62 68 80 74 L84 124 Q62 130 40 124 Z" fill="url(#vest)" stroke="#000" stroke-width="3"/>
+            <path d="M42 96 Q62 102 82 96 L82 105 Q62 111 42 105 Z" fill="#ffe14d"/>
+            <!-- right arm up holding board on shoulder -->
+            <path d="M76 78 L92 50" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="94" cy="48" r="8" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
+            <!-- left arm pointing (teaching) -->
+            <path d="M46 82 L26 96" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="23" cy="98" r="7" fill="url(#skin)" stroke="#000" stroke-width="2"/>
+            <!-- head -->
+            <rect x="54" y="58" width="16" height="12" fill="url(#skin)"/>
+            <circle cx="62" cy="46" r="19" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
+            <path d="M45 42 Q44 28 62 26 Q80 28 79 42" fill="#1a1208"/>
+            <path d="M52 42 L59 43" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M72 42 L65 43" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="56" cy="48" r="2.6" fill="#111"/><circle cx="68" cy="48" r="2.6" fill="#111"/>
+            <path d="M55 56 Q62 61 69 56" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M43 32 Q62 4 81 32 Z" fill="url(#helmet)" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="62" cy="32" rx="23" ry="6" fill="url(#helmet)" stroke="#000" stroke-width="2.5"/>
           </svg>
-          <div class="bubble sm" style="flex:1;">今日は<b>3階まで</b><br>鉄骨資材を<br>搬入してくれ！</div>
+          <div class="bubble sm" style="flex:1;">肩のここに乗せて、<br><b>体の芯</b>で支えるんや。<br>力やない、コツやで。</div>
         </div>
       </div>
 
-      <!-- チェックリスト -->
-      <div class="panel" style="background:#fffdf4;">
+      <!-- 新人が挑戦 -->
+      <div class="panel" style="background:#fffdf4; justify-content:flex-start;">
         <span class="tone-grad-dot"></span>
-        <p class="panel-caption ghost white">本日のミッション</p>
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:12px; position:relative; z-index:3;">
-          <div class="narr">📋 作業指示書</div>
-          <div class="checklist">
-            <span class="tk">✔</span> 鉄骨資材 ×12本<br>
-            <span class="tk">✔</span> 配管部材 一式<br>
-            <span class="tk">✔</span> 搬入先：3F・4F<br>
-            <span class="tk">✔</span> 完了目標：15:00
-          </div>
-        </div>
-      </div>
-
-      <!-- 気合い -->
-      <div class="panel dark" style="justify-content:flex-start;">
-        <p class="panel-caption">いざ出陣</p>
-        <svg class="lines-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <g stroke="rgba(245,192,0,0.18)" stroke-width="1.2">
-            <line x1="50" y1="50" x2="0" y2="-10"/><line x1="50" y1="50" x2="50" y2="-10"/><line x1="50" y1="50" x2="100" y2="-10"/>
-            <line x1="50" y1="50" x2="0" y2="110"/><line x1="50" y1="50" x2="50" y2="110"/><line x1="50" y1="50" x2="100" y2="110"/>
-            <line x1="50" y1="50" x2="-10" y2="50"/><line x1="50" y1="50" x2="110" y2="50"/>
-          </g>
-        </svg>
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; position:relative; z-index:3;">
-          <span class="sfx gold" style="text-align:center; font-size:2.3rem;">いくぞ<br>チーム！！</span>
-          <!-- 3 helmets raised -->
-          <svg viewBox="0 0 140 56" width="120">
-            <g>
-              <path d="M6 40 Q24 14 42 40 Z" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
-              <ellipse cx="24" cy="40" rx="20" ry="5" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
+        <p class="panel-caption ghost">新人、はじめての一枚</p>
+        <div style="flex:1; display:flex; align-items:center; gap:10px; position:relative; z-index:3;">
+          <svg viewBox="0 0 120 190" width="108" aria-label="新人が一枚担いでみる">
+            <ellipse cx="60" cy="184" rx="38" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <!-- one board balanced, a bit wobbly -->
+            <g stroke="#000" stroke-width="2.5">
+              <rect x="14" y="40" width="96" height="14" fill="url(#board)" transform="rotate(8 62 47)"/>
             </g>
-            <g>
-              <path d="M50 36 Q70 6 90 36 Z" fill="url(#helmetRed)" stroke="#fff" stroke-width="2"/>
-              <ellipse cx="70" cy="36" rx="22" ry="5.5" fill="url(#helmetRed)" stroke="#fff" stroke-width="2"/>
-            </g>
-            <g>
-              <path d="M98 40 Q116 14 134 40 Z" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
-              <ellipse cx="116" cy="40" rx="20" ry="5" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
-            </g>
+            <!-- legs slightly unsteady -->
+            <path d="M52 122 L42 176" stroke="#2c2c33" stroke-width="15" stroke-linecap="round"/>
+            <path d="M70 122 L82 176" stroke="#34343c" stroke-width="15" stroke-linecap="round"/>
+            <path d="M32 176 h22 v7 H32 Z" fill="#1a1a1a"/><path d="M74 176 h22 v7 H74 Z" fill="#222"/>
+            <path d="M44 76 Q62 70 80 76 L84 126 Q62 132 40 126 Z" fill="url(#vestRed)" stroke="#000" stroke-width="3"/>
+            <path d="M42 98 Q62 104 82 98 L82 107 Q62 113 42 107 Z" fill="#ffe14d"/>
+            <path d="M76 80 L94 52" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="96" cy="50" r="8" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
+            <path d="M46 82 L30 60" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="28" cy="56" r="8" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
+            <rect x="54" y="60" width="16" height="12" fill="url(#skin)"/>
+            <circle cx="62" cy="48" r="19" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
+            <path d="M48 46 Q47 30 62 28 Q77 30 76 46" fill="#23180c"/>
+            <!-- strained eyes -->
+            <path d="M53 44 L60 46" stroke="#000" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M71 44 L64 46" stroke="#000" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="57" cy="50" r="2.6" fill="#111"/><circle cx="67" cy="50" r="2.6" fill="#111"/>
+            <path d="M56 58 Q62 56 68 58" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M76 34 q4 7 0 11 q-4-4 0-11Z" fill="#7fc4ee" stroke="#000" stroke-width="1.4"/>
+            <path d="M44 36 Q62 8 80 36 Z" fill="url(#helmetRed)" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="62" cy="36" rx="22" ry="5.5" fill="url(#helmetRed)" stroke="#000" stroke-width="2.5"/>
           </svg>
-          <div style="display:flex; gap:8px;">
-            <span class="pill">安全第一</span><span class="pill">無事故</span>
+          <div style="flex:1; display:flex; flex-direction:column; gap:10px;">
+            <div class="bubble" style="font-size:0.82rem;">お、おもっ…！<br>でも、いけそう…！</div>
+            <div class="narr">先輩「ええ感じや！その調子！」</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===================== ④ 大ゴマ 搬入 ===================== -->
-    <div class="panel tall tone-diag row" style="min-height:360px;">
-      <!-- speed lines -->
-      <svg class="lines-bg" viewBox="0 0 880 360" preserveAspectRatio="xMidYMid slice">
+    <!-- ===================== ④ 大ゴマ：階段ダッシュ ===================== -->
+    <div class="panel tall tone-diag row" style="min-height:380px;">
+      <svg class="lines-bg" viewBox="0 0 880 380" preserveAspectRatio="xMidYMid slice">
         <defs>
-          <radialGradient id="fade4" cx="50%" cy="55%" r="55%">
+          <radialGradient id="fade4" cx="46%" cy="52%" r="55%">
             <stop offset="0%" stop-color="#f4f1e8" stop-opacity="0"/>
-            <stop offset="62%" stop-color="#f4f1e8" stop-opacity="0"/>
+            <stop offset="60%" stop-color="#f4f1e8" stop-opacity="0"/>
             <stop offset="100%" stop-color="#f4f1e8" stop-opacity="1"/>
           </radialGradient>
         </defs>
-        <g stroke="#14110d" stroke-width="1.3" opacity="0.55">
-          <line x1="440" y1="200" x2="0" y2="-60"/><line x1="440" y1="200" x2="120" y2="-60"/><line x1="440" y1="200" x2="240" y2="-60"/>
-          <line x1="440" y1="200" x2="340" y2="-60"/><line x1="440" y1="200" x2="440" y2="-60"/><line x1="440" y1="200" x2="540" y2="-60"/>
-          <line x1="440" y1="200" x2="640" y2="-60"/><line x1="440" y1="200" x2="760" y2="-60"/><line x1="440" y1="200" x2="880" y2="-60"/>
-          <line x1="440" y1="200" x2="0" y2="420"/><line x1="440" y1="200" x2="120" y2="420"/><line x1="440" y1="200" x2="240" y2="420"/>
-          <line x1="440" y1="200" x2="340" y2="420"/><line x1="440" y1="200" x2="540" y2="420"/><line x1="440" y1="200" x2="640" y2="420"/>
-          <line x1="440" y1="200" x2="760" y2="420"/><line x1="440" y1="200" x2="880" y2="420"/>
-          <line x1="440" y1="200" x2="-60" y2="120"/><line x1="440" y1="200" x2="-60" y2="280"/>
-          <line x1="440" y1="200" x2="940" y2="120"/><line x1="440" y1="200" x2="940" y2="280"/>
+        <g stroke="#14110d" stroke-width="1.3" opacity="0.5">
+          <line x1="400" y1="200" x2="0" y2="-60"/><line x1="400" y1="200" x2="140" y2="-60"/><line x1="400" y1="200" x2="280" y2="-60"/>
+          <line x1="400" y1="200" x2="400" y2="-60"/><line x1="400" y1="200" x2="540" y2="-60"/><line x1="400" y1="200" x2="700" y2="-60"/>
+          <line x1="400" y1="200" x2="880" y2="-60"/>
+          <line x1="400" y1="200" x2="0" y2="440"/><line x1="400" y1="200" x2="160" y2="440"/><line x1="400" y1="200" x2="320" y2="440"/>
+          <line x1="400" y1="200" x2="520" y2="440"/><line x1="400" y1="200" x2="700" y2="440"/><line x1="400" y1="200" x2="880" y2="440"/>
+          <line x1="400" y1="200" x2="-60" y2="120"/><line x1="400" y1="200" x2="-60" y2="280"/>
+          <line x1="400" y1="200" x2="940" y2="120"/><line x1="400" y1="200" x2="940" y2="280"/>
         </g>
-        <rect width="880" height="360" fill="url(#fade4)"/>
+        <rect width="880" height="380" fill="url(#fade4)"/>
       </svg>
 
-      <p class="panel-caption">搬入作業、スタート！！</p>
+      <p class="panel-caption">石膏ボードを担いで、階段を駆け上がる！</p>
 
-      <div style="flex:1; display:flex; align-items:center; justify-content:space-around; position:relative; gap:12px; flex-wrap:wrap;">
+      <div style="flex:1; display:flex; align-items:center; justify-content:center; position:relative; gap:8px;">
 
-        <!-- Worker A : lifting beam overhead -->
-        <svg viewBox="0 0 180 300" width="148" aria-label="鉄骨を持ち上げる作業員">
-          <ellipse cx="90" cy="292" rx="58" ry="8" fill="rgba(0,0,0,0.14)"/>
-          <!-- steel beam overhead -->
-          <rect x="2" y="8" width="176" height="22" rx="3" fill="url(#beam)" stroke="#000" stroke-width="3"/>
-          <line x1="2" y1="19" x2="178" y2="19" stroke="#3b3f47" stroke-width="2"/>
-          <rect x="14" y="2" width="10" height="34" fill="#5a5e66" stroke="#000" stroke-width="2"/>
-          <rect x="156" y="2" width="10" height="34" fill="#5a5e66" stroke="#000" stroke-width="2"/>
-          <!-- legs wide effort stance -->
-          <path d="M76 178 L50 285" stroke="#2c2c33" stroke-width="24" stroke-linecap="round"/>
-          <path d="M104 178 L132 285" stroke="#34343c" stroke-width="24" stroke-linecap="round"/>
-          <circle cx="60" cy="236" r="9" fill="#111"/><circle cx="120" cy="236" r="9" fill="#111"/>
-          <path d="M34 282 h32 v10 a4 4 0 0 1-4 4 H34 Z" fill="#1a1a1a" stroke="#000" stroke-width="2.5"/>
-          <path d="M118 282 h32 a4 4 0 0 1 4 4 v6 a4 4 0 0 1-4 4 h-32 Z" fill="#222" stroke="#000" stroke-width="2.5"/>
-          <!-- torso -->
-          <path d="M58 108 Q90 100 122 108 L128 182 Q90 192 52 182 Z" fill="url(#vest)" stroke="#000" stroke-width="3.5"/>
-          <path d="M55 140 Q90 147 125 140 L125 151 Q90 158 55 151 Z" fill="#ffe14d"/>
-          <path d="M55 160 Q90 167 125 160 L125 169 Q90 176 55 169 Z" fill="#9fd0ff"/>
-          <!-- arms up to beam -->
-          <path d="M60 114 L24 30" stroke="url(#skin)" stroke-width="17" stroke-linecap="round"/>
-          <path d="M120 114 L156 30" stroke="url(#skin)" stroke-width="17" stroke-linecap="round"/>
-          <!-- sleeve cuffs -->
-          <line x1="48" y1="86" x2="68" y2="92" stroke="#0e2347" stroke-width="6"/>
-          <line x1="112" y1="92" x2="132" y2="86" stroke="#0e2347" stroke-width="6"/>
-          <!-- gloves gripping -->
-          <circle cx="22" cy="30" r="12" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
-          <circle cx="158" cy="30" r="12" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
+        <!-- motion sfx -->
+        <span class="sfx gold" style="font-size:2.2rem; align-self:flex-start; margin-top:10px;">ダッ<br>ダッ<br>ダッ！</span>
+
+        <!-- worker carrying boards up the stairs -->
+        <svg viewBox="0 0 280 320" width="240" aria-label="ボードを担いで階段を上がる作業員">
+          <!-- stairs (ascending to the right) -->
+          <g fill="#cfc6b4" stroke="#000" stroke-width="2.5">
+            <polygon points="0,300 60,300 60,260 120,260 120,220 190,220 190,180 280,180 280,320 0,320"/>
+          </g>
+          <g stroke="#a99a78" stroke-width="2">
+            <line x1="60" y1="260" x2="60" y2="300"/><line x1="120" y1="220" x2="120" y2="260"/><line x1="190" y1="180" x2="190" y2="220"/>
+          </g>
+          <!-- shadow -->
+          <ellipse cx="150" cy="218" rx="46" ry="7" fill="rgba(0,0,0,0.16)"/>
+
+          <!-- BOARD STACK on shoulder (long, tilted up-right) -->
+          <g stroke="#000" stroke-width="3">
+            <polygon points="60,150 78,128 250,40 232,62" fill="url(#board)"/>
+          </g>
+          <g stroke="#bda874" stroke-width="1.4">
+            <line x1="66" y1="146" x2="240" y2="58"/>
+            <line x1="71" y1="140" x2="244" y2="52"/>
+          </g>
+          <!-- end caps to show multiple boards -->
+          <line x1="60" y1="150" x2="78" y2="128" stroke="#000" stroke-width="3"/>
+
+          <!-- back leg (lower step) -->
+          <path d="M138 168 L120 214" stroke="#2c2c33" stroke-width="20" stroke-linecap="round"/>
+          <path d="M108 210 h30 v9 a4 4 0 0 1-4 4 H108 Z" fill="#1a1a1a" stroke="#000" stroke-width="2.5"/>
+          <!-- front leg (higher step, bent, stepping up) -->
+          <path d="M150 168 L176 150 L186 178" fill="none" stroke="#34343c" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M174 176 h30 a4 4 0 0 1 4 4 v5 a4 4 0 0 1-4 4 h-30 Z" fill="#222" stroke="#000" stroke-width="2.5"/>
+          <circle cx="130" cy="190" r="8" fill="#111"/>
+
+          <!-- torso leaning forward -->
+          <path d="M128 100 Q150 92 168 104 L160 170 Q138 176 122 166 Z" fill="url(#vest)" stroke="#000" stroke-width="3.5"/>
+          <path d="M126 130 Q148 137 162 130 L160 140 Q140 147 124 140 Z" fill="#ffe14d"/>
+          <path d="M124 148 Q146 155 158 148 L156 158 Q138 164 122 158 Z" fill="#9fd0ff"/>
+
+          <!-- right arm up gripping board -->
+          <path d="M152 104 L168 70" stroke="url(#skin)" stroke-width="14" stroke-linecap="round"/>
+          <circle cx="170" cy="66" r="11" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
+          <!-- left arm forward for balance -->
+          <path d="M130 110 L104 96" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
+          <circle cx="100" cy="94" r="9" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
+
           <!-- neck towel -->
-          <path d="M76 96 Q90 106 104 96 L108 112 Q90 120 72 112 Z" fill="#fff" stroke="#000" stroke-width="2.5"/>
-          <!-- head straining -->
-          <circle cx="90" cy="74" r="25" fill="url(#skin)" stroke="#000" stroke-width="3"/>
-          <!-- gritted teeth -->
-          <path d="M76 64 L86 67" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-          <path d="M104 64 L94 67" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="81" cy="72" r="3" fill="#111"/><circle cx="99" cy="72" r="3" fill="#111"/>
-          <rect x="78" y="82" width="24" height="9" rx="2" fill="#fff" stroke="#000" stroke-width="2.5"/>
-          <line x1="86" y1="82" x2="86" y2="91" stroke="#000" stroke-width="1.5"/>
-          <line x1="94" y1="82" x2="94" y2="91" stroke="#000" stroke-width="1.5"/>
-          <!-- sweat -->
-          <path d="M114 58 q4 8 0 12 q-4-4 0-12Z" fill="#7fc4ee" stroke="#000" stroke-width="1.5"/>
+          <path d="M140 86 Q152 95 164 86 L168 100 Q150 108 134 100 Z" fill="#fff" stroke="#000" stroke-width="2.5"/>
+          <!-- head straining (profile-ish facing right) -->
+          <circle cx="158" cy="66" r="22" fill="url(#skin)" stroke="#000" stroke-width="3"/>
+          <path d="M146 60 L154 62" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+          <path d="M170 60 L162 62" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+          <circle cx="152" cy="66" r="2.8" fill="#111"/><circle cx="166" cy="66" r="2.8" fill="#111"/>
+          <rect x="150" y="74" width="18" height="7" rx="2" fill="#fff" stroke="#000" stroke-width="2"/>
+          <path d="M178 52 q4 8 0 12 q-4-4 0-12Z" fill="#7fc4ee" stroke="#000" stroke-width="1.5"/>
           <!-- helmet -->
-          <path d="M62 58 Q90 18 118 58 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
-          <ellipse cx="90" cy="58" rx="34" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
-          <path d="M85 28 Q90 24 95 28 L95 54 L85 54 Z" fill="#e09c00"/>
-          <ellipse cx="78" cy="42" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
+          <path d="M134 52 Q158 18 182 52 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
+          <ellipse cx="158" cy="52" rx="29" ry="7" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
+          <ellipse cx="148" cy="38" rx="5" ry="10" fill="rgba(255,255,255,0.4)"/>
           <!-- effort marks -->
-          <path d="M48 70 l-12 -6 M50 84 l-14 0 M132 70 l12 -6 M130 84 l14 0" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M120 92 l-10 -4 M120 104 l-12 2" stroke="#000" stroke-width="2.5" stroke-linecap="round"/>
         </svg>
 
-        <!-- center SFX -->
-        <div style="text-align:center;" class="impact">
-          <svg class="burst" viewBox="0 0 200 200" aria-hidden="true">
-            <polygon fill="#d4a030" stroke="#14110d" stroke-width="3" points="100,0 118,60 180,40 132,86 200,108 130,116 160,180 100,130 40,180 70,116 0,108 68,86 20,40 82,60"/>
-          </svg>
-          <span class="sfx lg" style="position:relative;">ウリャ<br>ァァ！！</span>
+        <!-- challenge text -->
+        <div style="text-align:center; align-self:flex-start; margin-top:10px;">
+          <div class="bubble shout" style="font-size:1.05rem;">１往復<br>これで<br>何枚目！？</div>
         </div>
-
-        <!-- Worker B : pushing/supporting -->
-        <svg viewBox="0 0 180 300" width="148" aria-label="支える作業員">
-          <ellipse cx="90" cy="292" rx="56" ry="8" fill="rgba(0,0,0,0.14)"/>
-          <!-- legs braced -->
-          <path d="M84 180 L58 285" stroke="#2c2c33" stroke-width="24" stroke-linecap="round"/>
-          <path d="M104 180 L128 285" stroke="#34343c" stroke-width="24" stroke-linecap="round"/>
-          <circle cx="68" cy="236" r="9" fill="#111"/><circle cx="118" cy="236" r="9" fill="#111"/>
-          <path d="M42 282 h32 v10 a4 4 0 0 1-4 4 H42 Z" fill="#1a1a1a" stroke="#000" stroke-width="2.5"/>
-          <path d="M114 282 h32 a4 4 0 0 1 4 4 v6 a4 4 0 0 1-4 4 h-32 Z" fill="#222" stroke="#000" stroke-width="2.5"/>
-          <!-- torso red vest -->
-          <path d="M58 110 Q90 102 122 110 L128 184 Q90 194 52 184 Z" fill="url(#vestRed)" stroke="#000" stroke-width="3.5"/>
-          <path d="M55 142 Q90 149 125 142 L125 153 Q90 160 55 153 Z" fill="#ffe14d"/>
-          <path d="M55 162 Q90 169 125 162 L125 171 Q90 178 55 171 Z" fill="#fff"/>
-          <!-- arms pushing forward/up to beam -->
-          <path d="M62 116 L18 70" stroke="url(#skin)" stroke-width="16" stroke-linecap="round"/>
-          <path d="M118 116 L150 60" stroke="url(#skin)" stroke-width="16" stroke-linecap="round"/>
-          <circle cx="16" cy="68" r="11" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
-          <circle cx="152" cy="58" r="11" fill="#2b2b2b" stroke="#000" stroke-width="2.5"/>
-          <!-- neck towel -->
-          <path d="M76 98 Q90 108 104 98 L108 114 Q90 122 72 114 Z" fill="#fff" stroke="#000" stroke-width="2.5"/>
-          <!-- head -->
-          <circle cx="90" cy="76" r="25" fill="url(#skin)" stroke="#000" stroke-width="3"/>
-          <path d="M76 66 L86 69" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-          <path d="M104 66 L94 69" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-          <circle cx="81" cy="74" r="3" fill="#111"/><circle cx="99" cy="74" r="3" fill="#111"/>
-          <path d="M80 86 Q90 92 100 86" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round"/>
-          <path d="M118 60 q4 8 0 12 q-4-4 0-12Z" fill="#7fc4ee" stroke="#000" stroke-width="1.5"/>
-          <!-- red helmet -->
-          <path d="M62 60 Q90 20 118 60 Z" fill="url(#helmetRed)" stroke="#000" stroke-width="3"/>
-          <ellipse cx="90" cy="60" rx="34" ry="8" fill="url(#helmetRed)" stroke="#000" stroke-width="3"/>
-          <ellipse cx="78" cy="44" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
-        </svg>
       </div>
 
-      <div class="bubble shout right" style="margin-top:auto;">せーの、どっこいしょォ！！</div>
+      <div class="bubble right" style="margin-top:auto;">階段でも、止まらん。これが荷揚げ屋や！</div>
     </div>
 
-    <!-- ===================== ⑤ 荷上げ・連携 ===================== -->
-    <div class="panel-row col-7-5 row">
+    <!-- ===================== ⑤ TikTok企画：枚数チャレンジ ===================== -->
+    <div class="panel-row col-5-7 row">
 
-      <!-- 荷上げ断面図 -->
-      <div class="panel warm" style="min-height:280px;">
-        <p class="panel-caption">上階への荷上げ</p>
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between;">
-          <svg viewBox="0 0 380 210" width="100%" style="flex:1;" aria-label="フロアごとの荷上げ">
-            <!-- building cross section -->
-            <rect x="70" y="2" width="250" height="206" fill="#e7ddcb" stroke="#000" stroke-width="2.5"/>
-            <line x1="70" y1="72" x2="320" y2="72" stroke="#000" stroke-width="2"/>
-            <line x1="70" y1="142" x2="320" y2="142" stroke="#000" stroke-width="2"/>
-            <!-- floor tone -->
-            <rect x="70" y="2" width="250" height="70" fill="rgba(20,17,13,0.04)"/>
-            <rect x="70" y="142" width="250" height="66" fill="rgba(20,17,13,0.06)"/>
-            <text x="26" y="44" font-size="16" font-weight="900">3F</text>
-            <text x="26" y="114" font-size="16" font-weight="900">2F</text>
-            <text x="26" y="184" font-size="16" font-weight="900">1F</text>
-            <!-- rope / pulley up arrow -->
-            <line x1="200" y1="150" x2="200" y2="40" stroke="#c98a2e" stroke-width="3" stroke-dasharray="2,5"/>
-            <polygon points="200,28 188,52 212,52" fill="#d4a030" stroke="#000" stroke-width="2"/>
-            <!-- box rising -->
-            <rect x="178" y="86" width="44" height="34" rx="3" fill="#c8a878" stroke="#000" stroke-width="2.5"/>
-            <line x1="178" y1="103" x2="222" y2="103" stroke="#000" stroke-width="1.5"/>
-            <line x1="200" y1="86" x2="200" y2="120" stroke="#000" stroke-width="1.5"/>
-            <!-- worker 1F lifting up -->
-            <g>
-              <path d="M150 168 L146 196" stroke="#2c2c33" stroke-width="8" stroke-linecap="round"/>
-              <path d="M160 168 L164 196" stroke="#2c2c33" stroke-width="8" stroke-linecap="round"/>
-              <path d="M146 142 Q155 138 164 142 L166 170 Q155 174 144 170 Z" fill="url(#vest)" stroke="#000" stroke-width="2"/>
-              <rect x="144" y="152" width="22" height="4" fill="#ffe14d"/>
-              <path d="M148 146 L130 120" stroke="url(#skin)" stroke-width="8" stroke-linecap="round"/>
-              <path d="M162 146 L180 122" stroke="url(#skin)" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="155" cy="128" r="11" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-              <path d="M144 124 Q155 110 166 124 Z" fill="url(#helmet)" stroke="#000" stroke-width="2"/>
-              <ellipse cx="155" cy="124" rx="13" ry="3.5" fill="url(#helmet)" stroke="#000" stroke-width="2"/>
-            </g>
-            <!-- worker 3F receiving -->
-            <g>
-              <path d="M205 42 L201 64" stroke="#2c2c33" stroke-width="7" stroke-linecap="round"/>
-              <path d="M214 42 L218 64" stroke="#2c2c33" stroke-width="7" stroke-linecap="round"/>
-              <path d="M202 18 Q210 14 218 18 L220 44 Q210 48 200 44 Z" fill="url(#vestRed)" stroke="#000" stroke-width="2"/>
-              <rect x="200" y="28" width="20" height="3.5" fill="#ffe14d"/>
-              <path d="M204 22 L188 44" stroke="url(#skin)" stroke-width="7" stroke-linecap="round"/>
-              <path d="M216 22 L230 42" stroke="url(#skin)" stroke-width="7" stroke-linecap="round"/>
-              <circle cx="210" cy="8" r="10" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-              <path d="M200 6 Q210 -8 220 6 Z" fill="url(#helmetRed)" stroke="#000" stroke-width="2"/>
-            </g>
+      <!-- TikTok frame -->
+      <div class="panel dark" style="justify-content:center; align-items:center;">
+        <div class="tiktok-frame">
+          <div class="tt-rec"><span class="dot"></span>REC</div>
+          <!-- mini worker silhouette carrying boards -->
+          <svg viewBox="0 0 200 360" width="100%" height="100%" style="position:absolute; inset:0; opacity:0.5;" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <polygon points="40,250 70,210 180,150 150,190" fill="#dfcfa6" stroke="#000" stroke-width="3"/>
+            <path d="M95 175 L80 250" stroke="#0c1322" stroke-width="20" stroke-linecap="round"/>
+            <path d="M110 175 L130 250" stroke="#0c1322" stroke-width="20" stroke-linecap="round"/>
+            <path d="M90 120 Q108 112 122 122 L116 180 Q98 186 84 178 Z" fill="#0c1322" stroke="#000" stroke-width="3"/>
+            <circle cx="115" cy="92" r="20" fill="#0c1322" stroke="#000" stroke-width="3"/>
+            <path d="M93 80 Q115 48 137 80 Z" fill="#1a2438" stroke="#000" stroke-width="3"/>
           </svg>
-          <div class="bubble top" style="margin-top:6px;">上で受け取るで！　慎重に頼むな！</div>
+          <div class="tt-counter">
+            <span class="lbl">本日の記録</span>
+            <span class="num">12</span>
+            <span class="unit">枚 担いだ！🔥</span>
+          </div>
+          <div class="tt-side">
+            <div>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#ff3b5c"><path d="M12 21s-7-4.35-9.5-8.5C1 9.5 2.5 6 6 6c2 0 3 1.2 4 2.5C11 7.2 12 6 14 6c3.5 0 5 3.5 3.5 6.5C19 16.65 12 21 12 21z"/></svg>
+              12.3k
+            </div>
+            <div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16v12H7l-3 3V4z"/></svg>
+              842
+            </div>
+            <div>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M14 9V5l8 7-8 7v-4H4V9z"/></svg>
+              シェア
+            </div>
+          </div>
+          <div class="tt-cap">
+            <div class="acc">@yushin.inc129</div>
+            <div class="tags">#荷揚げ屋 #現場男子<br>#利他的な荷揚げ屋 #大阪</div>
+          </div>
         </div>
       </div>
 
-      <!-- 連携 -->
-      <div class="panel dark" style="min-height:280px;">
+      <!-- 解説 -->
+      <div class="panel tone-dot-soft" style="background:#f6f3ea;">
+        <p class="panel-caption ghost">優心は、ここを発信中！</p>
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:14px; position:relative; z-index:3;">
+          <div class="narr">📱 TikTok・Instagramで現場の“リアル”を公開中</div>
+          <div style="font-size:0.9rem; font-weight:700; line-height:1.95;">
+            「何枚担げる？」の枚数チャレンジや、職人技の担ぎ方、<br>
+            現場のワイワイした雰囲気を毎日アップ。<br>
+            <b style="color:var(--gold);">見て楽しい・やってみたくなる</b>、そんな荷揚げ屋を目指してます。
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <span class="pill">枚数チャレンジ</span><span class="pill">担ぎ方講座</span><span class="pill">現場の日常</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== ⑥ 利他：助け合い ===================== -->
+    <div class="panel-row col2 row">
+
+      <!-- 新人がバテる→先輩がフォロー -->
+      <div class="panel" style="background:#f2efe4;">
+        <span class="tone-grad-dot"></span>
+        <p class="panel-caption ghost">「利他」の現場</p>
+        <div style="flex:1; display:flex; align-items:flex-end; justify-content:center; gap:4px; position:relative; z-index:3;">
+          <!-- tired newbie sitting -->
+          <svg viewBox="0 0 110 150" width="92" aria-label="バテた新人">
+            <ellipse cx="55" cy="146" rx="36" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <path d="M40 120 L30 142" stroke="#2c2c33" stroke-width="13" stroke-linecap="round"/>
+            <path d="M64 120 L80 138" stroke="#34343c" stroke-width="13" stroke-linecap="round"/>
+            <path d="M38 86 Q55 80 72 86 L74 124 Q55 130 36 124 Z" fill="url(#vestRed)" stroke="#000" stroke-width="2.5"/>
+            <path d="M36 104 Q55 110 74 104 L74 112 Q55 118 36 112 Z" fill="#ffe14d"/>
+            <path d="M40 90 L24 116" stroke="url(#skin)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M70 90 L86 110" stroke="url(#skin)" stroke-width="10" stroke-linecap="round"/>
+            <rect x="48" y="70" width="14" height="12" fill="url(#skin)"/>
+            <circle cx="55" cy="58" r="17" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
+            <!-- exhausted face -->
+            <path d="M46 56 L54 56" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M58 56 L66 56" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M48 66 Q55 62 62 66" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M40 46 q5 8 0 12 q-5-4 0-12Z" fill="#7fc4ee" stroke="#000" stroke-width="1.4"/>
+            <path d="M38 46 Q55 20 72 46 Z" fill="url(#helmetRed)" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="55" cy="46" rx="20" ry="5" fill="url(#helmetRed)" stroke="#000" stroke-width="2.5"/>
+          </svg>
+          <!-- senior carrying extra, hand on shoulder -->
+          <svg viewBox="0 0 130 160" width="112" aria-label="先輩がフォローする">
+            <ellipse cx="65" cy="156" rx="40" ry="5" fill="rgba(0,0,0,0.1)"/>
+            <!-- extra boards on shoulder -->
+            <g stroke="#000" stroke-width="2.5"><polygon points="30,40 44,24 122,2 108,18" fill="url(#board)"/></g>
+            <path d="M56 128 L46 152" stroke="#2c2c33" stroke-width="15" stroke-linecap="round"/>
+            <path d="M76 128 L88 152" stroke="#34343c" stroke-width="15" stroke-linecap="round"/>
+            <path d="M48 80 Q66 74 84 80 L88 132 Q66 138 44 132 Z" fill="url(#vest)" stroke="#000" stroke-width="3"/>
+            <path d="M46 102 Q66 108 86 102 L86 111 Q66 117 46 111 Z" fill="#ffe14d"/>
+            <!-- right arm up to board -->
+            <path d="M80 84 L96 52" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="98" cy="48" r="8" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
+            <!-- left hand reaching to newbie's shoulder -->
+            <path d="M50 88 L26 96" stroke="url(#skin)" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="22" cy="97" r="8" fill="url(#skin)" stroke="#000" stroke-width="2"/>
+            <rect x="58" y="64" width="16" height="12" fill="url(#skin)"/>
+            <circle cx="66" cy="52" r="18" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
+            <path d="M50 48 Q49 34 66 32 Q83 34 82 48" fill="#1a1208"/>
+            <path d="M56 48 L63 49" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M76 48 L69 49" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="60" cy="54" r="2.6" fill="#111"/><circle cx="72" cy="54" r="2.6" fill="#111"/>
+            <path d="M59 62 Q66 67 73 62" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+            <path d="M47 38 Q66 12 85 38 Z" fill="url(#helmet)" stroke="#000" stroke-width="2.5"/>
+            <ellipse cx="66" cy="38" rx="22" ry="5.5" fill="url(#helmet)" stroke="#000" stroke-width="2.5"/>
+          </svg>
+        </div>
+        <div class="bubble dark top right" style="margin-top:8px;">無理すんな。残りは俺が持つ。<br>そのぶん、次に活かしたらええ。</div>
+      </div>
+
+      <!-- チームで連携 -->
+      <div class="panel dark" style="justify-content:flex-start;">
         <svg class="lines-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
           <g stroke="rgba(245,192,0,0.16)" stroke-width="1.2">
             <line x1="50" y1="45" x2="-10" y2="-10"/><line x1="50" y1="45" x2="50" y2="-10"/><line x1="50" y1="45" x2="110" y2="-10"/>
@@ -733,146 +626,81 @@
             <line x1="50" y1="45" x2="-10" y2="50"/><line x1="50" y1="45" x2="110" y2="50"/>
           </g>
         </svg>
-        <p class="panel-caption">声を掛け合う</p>
+        <p class="panel-caption">支え合うから、強い</p>
         <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; position:relative; z-index:3;">
-          <!-- megaphone -->
-          <svg viewBox="0 0 90 64" width="78" aria-hidden="true">
-            <path d="M6 24 L6 40 L22 40 L22 24 Z" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
-            <path d="M22 14 L66 4 L66 60 L22 50 Z" fill="url(#helmet)" stroke="#fff" stroke-width="2"/>
-            <ellipse cx="66" cy="32" rx="9" ry="28" fill="#e0a000" stroke="#fff" stroke-width="2"/>
-            <g fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round">
-              <path d="M76 18 Q86 32 76 46"/><path d="M82 12 Q98 32 82 52"/>
-            </g>
-          </svg>
-          <span class="sfx gold" style="text-align:center; font-size:1.9rem;">息を<br>合わせろ！！</span>
-          <div style="display:flex; gap:8px;">
-            <span class="pill">安全第一</span><span class="pill">チームワーク</span>
+          <span class="sfx gold" style="text-align:center; font-size:2rem;">仲間のために、<br>もう一歩。</span>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+            <span class="pill">利他の精神</span><span class="pill">チームワーク</span><span class="pill">安全第一</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ===================== ⑥ 完了 ===================== -->
-    <div class="panel-row col2 row">
+    <!-- ===================== ⑦ 完了・夕暮れ ===================== -->
+    <div class="panel-row col-6-4 row">
 
-      <!-- 達成 -->
-      <div class="panel warm" style="min-height:260px;">
-        <p class="panel-caption">無事に搬入完了！</p>
+      <!-- 完了 -->
+      <div class="panel warm">
+        <p class="panel-caption">100枚、無事に上げ切った！</p>
         <div style="flex:1; display:flex; align-items:center; gap:14px;">
-          <!-- happy worker thumbs up -->
-          <svg viewBox="0 0 150 250" width="118" aria-label="完了を喜ぶ作業員">
-            <ellipse cx="75" cy="244" rx="44" ry="6" fill="rgba(0,0,0,0.1)"/>
-            <path d="M62 168 L54 232" stroke="#2c2c33" stroke-width="19" stroke-linecap="round"/>
-            <path d="M88 168 L96 232" stroke="#34343c" stroke-width="19" stroke-linecap="round"/>
-            <path d="M40 232 h26 v9 H40 Z" fill="#1a1a1a"/><path d="M84 232 h26 v9 H84 Z" fill="#222"/>
-            <path d="M50 100 Q75 92 100 100 L104 170 Q75 178 46 170 Z" fill="url(#vest)" stroke="#000" stroke-width="3"/>
-            <path d="M48 134 Q75 140 102 134 L102 144 Q75 150 48 144 Z" fill="#ffe14d"/>
-            <path d="M48 152 Q75 158 102 152 L102 160 Q75 166 48 160 Z" fill="#9fd0ff"/>
-            <!-- left arm relaxed -->
-            <path d="M52 106 L36 150" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
-            <circle cx="34" cy="153" r="9" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
-            <!-- right arm thumbs up -->
-            <path d="M98 104 L124 60" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
-            <circle cx="126" cy="56" r="11" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-            <rect x="121" y="38" width="9" height="18" rx="4" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-            <!-- neck towel -->
-            <path d="M61 86 Q75 96 89 86 L93 100 Q75 108 57 100 Z" fill="#fff" stroke="#000" stroke-width="2"/>
-            <!-- head big smile -->
-            <circle cx="75" cy="62" r="25" fill="url(#skin)" stroke="#000" stroke-width="3"/>
-            <path d="M60 54 Q64 49 68 54" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
-            <path d="M90 54 Q86 49 82 54" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
-            <circle cx="64" cy="60" r="3.2" fill="#111"/><circle cx="86" cy="60" r="3.2" fill="#111"/>
-            <circle cx="65" cy="59" r="1" fill="#fff"/><circle cx="87" cy="59" r="1" fill="#fff"/>
-            <path d="M62 70 Q75 82 88 70" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
-            <circle cx="58" cy="68" r="5.5" fill="rgba(255,120,100,0.32)"/>
-            <circle cx="92" cy="68" r="5.5" fill="rgba(255,120,100,0.32)"/>
-            <!-- helmet -->
-            <path d="M48 46 Q75 8 102 46 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
-            <ellipse cx="75" cy="46" rx="33" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
-            <ellipse cx="64" cy="32" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
-            <!-- sparkle -->
-            <text x="6" y="48" font-size="18" font-weight="900" fill="#d4a030">✦</text>
-            <text x="128" y="100" font-size="14" font-weight="900" fill="#d4a030">✧</text>
+          <svg viewBox="0 0 150 230" width="112" aria-label="やり切った作業員">
+            <ellipse cx="75" cy="224" rx="44" ry="6" fill="rgba(0,0,0,0.1)"/>
+            <path d="M62 158 L54 216" stroke="#2c2c33" stroke-width="19" stroke-linecap="round"/>
+            <path d="M88 158 L96 216" stroke="#34343c" stroke-width="19" stroke-linecap="round"/>
+            <path d="M40 216 h26 v9 H40 Z" fill="#1a1a1a"/><path d="M84 216 h26 v9 H84 Z" fill="#222"/>
+            <path d="M50 92 Q75 84 100 92 L104 160 Q75 168 46 160 Z" fill="url(#vest)" stroke="#000" stroke-width="3"/>
+            <path d="M48 124 Q75 130 102 124 L102 134 Q75 140 48 134 Z" fill="#ffe14d"/>
+            <path d="M48 142 Q75 148 102 142 L102 150 Q75 156 48 150 Z" fill="#9fd0ff"/>
+            <path d="M52 98 L36 142" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
+            <circle cx="34" cy="145" r="9" fill="#2b2b2b" stroke="#000" stroke-width="2"/>
+            <path d="M98 96 L124 52" stroke="url(#skin)" stroke-width="13" stroke-linecap="round"/>
+            <circle cx="126" cy="48" r="11" fill="url(#skin)" stroke="#000" stroke-width="2"/>
+            <rect x="121" y="30" width="9" height="18" rx="4" fill="url(#skin)" stroke="#000" stroke-width="2"/>
+            <path d="M61 78 Q75 88 89 78 L93 92 Q75 100 57 92 Z" fill="#fff" stroke="#000" stroke-width="2"/>
+            <circle cx="75" cy="54" r="25" fill="url(#skin)" stroke="#000" stroke-width="3"/>
+            <path d="M60 46 Q64 41 68 46" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+            <path d="M90 46 Q86 41 82 46" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+            <circle cx="64" cy="52" r="3.2" fill="#111"/><circle cx="86" cy="52" r="3.2" fill="#111"/>
+            <circle cx="65" cy="51" r="1" fill="#fff"/><circle cx="87" cy="51" r="1" fill="#fff"/>
+            <path d="M62 62 Q75 74 88 62" fill="none" stroke="#000" stroke-width="2.8" stroke-linecap="round"/>
+            <circle cx="58" cy="60" r="5.5" fill="rgba(255,120,100,0.32)"/><circle cx="92" cy="60" r="5.5" fill="rgba(255,120,100,0.32)"/>
+            <path d="M48 38 Q75 0 102 38 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
+            <ellipse cx="75" cy="38" rx="33" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
+            <ellipse cx="64" cy="24" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
+            <text x="6" y="40" font-size="18" font-weight="900" fill="#d4a030">✦</text>
+            <text x="128" y="92" font-size="14" font-weight="900" fill="#d4a030">✧</text>
           </svg>
           <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
-            <div class="bubble right">搬入完了です！<br>ありがとう<br>ございました！</div>
-            <div class="narr" style="align-self:flex-end;">PM 2:45　完了 ✅</div>
+            <div class="bubble right">やり切った！<br>今日もええ汗かいたわ〜！</div>
+            <div class="narr" style="align-self:flex-end;">PM 3:00　完了 ✅</div>
           </div>
         </div>
       </div>
 
-      <!-- 監督の一言 -->
-      <div class="panel tone-dot-soft" style="min-height:260px; background:#f2efe4;">
-        <p class="panel-caption ghost white">現場監督より</p>
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; gap:18px;">
-          <div style="display:flex; align-items:flex-end; gap:10px;">
-            <svg viewBox="0 0 80 130" width="64" aria-label="現場監督">
-              <path d="M30 96 L26 124" stroke="#3a3f4a" stroke-width="10" stroke-linecap="round"/>
-              <path d="M48 96 L52 124" stroke="#454b57" stroke-width="10" stroke-linecap="round"/>
-              <path d="M28 56 Q40 50 52 56 L56 100 Q40 106 24 100 Z" fill="#7c828c" stroke="#000" stroke-width="2.5"/>
-              <line x1="40" y1="54" x2="40" y2="100" stroke="#000" stroke-width="1.5"/>
-              <path d="M28 60 L16 84" stroke="#7c828c" stroke-width="8" stroke-linecap="round"/>
-              <path d="M52 60 L66 80" stroke="#7c828c" stroke-width="8" stroke-linecap="round"/>
-              <circle cx="68" cy="82" r="7" fill="url(#skin)" stroke="#000" stroke-width="2"/>
-              <rect x="33" y="44" width="14" height="12" fill="url(#skin)"/>
-              <circle cx="40" cy="34" r="17" fill="url(#skin)" stroke="#000" stroke-width="2.5"/>
-              <path d="M24 30 Q23 16 40 14 Q57 16 56 30" fill="#2a2a2a"/>
-              <path d="M30 30 L37 31" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-              <path d="M50 30 L43 31" stroke="#000" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="34" cy="36" r="2.4" fill="#111"/><circle cx="46" cy="36" r="2.4" fill="#111"/>
-              <path d="M33 44 Q40 50 47 44" fill="none" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
-              <path d="M22 20 Q40 -4 58 20 Z" fill="#f4f4f4" stroke="#000" stroke-width="2.5"/>
-              <ellipse cx="40" cy="20" rx="21" ry="5.5" fill="#f4f4f4" stroke="#000" stroke-width="2.5"/>
-              <rect x="33" y="11" width="14" height="7" fill="#080e1a"/>
-            </svg>
-            <div class="bubble" style="flex:1;">いつも助かるわ！<br>段取りがええから<br>安心して任せられる。</div>
-          </div>
-          <div style="text-align:center;">
-            <span class="sfx gold sm">信頼の、積み重ね。</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ===================== ⑦ 終業 ===================== -->
-    <div class="panel row" style="min-height:240px; background: linear-gradient(to bottom, #ff9a3c 0%, #ffb866 35%, #ffe0b2 100%); overflow:hidden;">
-      <p class="panel-caption">PM 5:00　終業</p>
-      <div style="flex:1; display:flex; align-items:center; justify-content:space-between; gap:18px;">
-        <!-- sunset silhouette scene -->
-        <svg viewBox="0 0 260 180" width="100%" style="max-width:300px;" aria-label="夕暮れの現場">
-          <!-- big sun -->
-          <circle cx="130" cy="120" r="62" fill="#ffce7a" opacity="0.65"/>
-          <circle cx="130" cy="120" r="42" fill="#ffd98f" opacity="0.7"/>
-          <!-- sun glow lines -->
-          <g stroke="#ffe6b0" stroke-width="3" opacity="0.5">
-            <line x1="0" y1="118" x2="260" y2="118"/><line x1="0" y1="128" x2="260" y2="128"/>
-            <line x1="0" y1="108" x2="260" y2="108"/>
-          </g>
-          <!-- ground -->
-          <rect x="0" y="146" width="260" height="34" fill="#241a14"/>
-          <!-- building silhouettes -->
-          <rect x="14" y="92" width="40" height="56" fill="#2c2018"/>
-          <rect x="70" y="64" width="58" height="84" fill="#241a14"/>
-          <rect x="150" y="100" width="46" height="48" fill="#2c2018"/>
-          <!-- crane silhouette -->
-          <line x1="170" y1="100" x2="170" y2="20" stroke="#1a120c" stroke-width="4"/>
-          <line x1="140" y1="20" x2="214" y2="20" stroke="#1a120c" stroke-width="4"/>
-          <line x1="214" y1="20" x2="214" y2="40" stroke="#1a120c" stroke-width="2" stroke-dasharray="4,3"/>
-          <rect x="208" y="40" width="12" height="9" fill="#1a120c"/>
-          <!-- two workers walking home silhouettes -->
-          <g fill="#150f0a">
-            <circle cx="40" cy="130" r="7"/><rect x="33" y="137" width="14" height="16" rx="3"/>
-            <path d="M34 153 l-3 -1 M46 153 l3 -1" stroke="#150f0a" stroke-width="3" stroke-linecap="round"/>
-            <ellipse cx="40" cy="124" rx="9" ry="3.5"/><rect x="31" y="119" width="18" height="6" rx="3"/>
-          </g>
-          <g fill="#150f0a">
-            <circle cx="60" cy="132" r="6"/><rect x="54" y="138" width="12" height="15" rx="3"/>
-            <ellipse cx="60" cy="127" rx="8" ry="3"/><rect x="52" y="122" width="16" height="5" rx="2.5"/>
-          </g>
-        </svg>
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:16px; min-width:160px;">
-          <div class="bubble think center" style="text-align:center;">今日もええ仕事した！<br>また明日も頑張ろ！</div>
-          <span class="sfx gold" style="font-size:2rem; text-align:center;">充実の１日</span>
+      <!-- 夕暮れ -->
+      <div class="panel" style="background: linear-gradient(to bottom, #ff9a3c 0%, #ffb866 40%, #ffe0b2 100%); overflow:hidden;">
+        <p class="panel-caption">PM 5:00　終業</p>
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px;">
+          <svg viewBox="0 0 200 130" width="100%" style="max-width:220px;" aria-label="夕暮れの現場">
+            <circle cx="100" cy="100" r="50" fill="#ffce7a" opacity="0.65"/>
+            <circle cx="100" cy="100" r="34" fill="#ffd98f" opacity="0.7"/>
+            <g stroke="#ffe6b0" stroke-width="3" opacity="0.5"><line x1="0" y1="96" x2="200" y2="96"/><line x1="0" y1="104" x2="200" y2="104"/></g>
+            <rect x="0" y="112" width="200" height="18" fill="#241a14"/>
+            <rect x="14" y="70" width="34" height="42" fill="#2c2018"/>
+            <rect x="60" y="48" width="48" height="64" fill="#241a14"/>
+            <rect x="124" y="78" width="40" height="34" fill="#2c2018"/>
+            <line x1="140" y1="78" x2="140" y2="18" stroke="#1a120c" stroke-width="3"/>
+            <line x1="116" y1="18" x2="178" y2="18" stroke="#1a120c" stroke-width="3"/>
+            <g fill="#150f0a">
+              <circle cx="34" cy="100" r="6"/><rect x="28" y="106" width="12" height="14" rx="3"/>
+              <ellipse cx="34" cy="95" rx="8" ry="3"/><rect x="26" y="90" width="16" height="5" rx="2.5"/>
+            </g>
+            <g fill="#150f0a">
+              <circle cx="52" cy="102" r="5"/><rect x="47" y="107" width="11" height="13" rx="3"/>
+              <ellipse cx="52" cy="98" rx="7" ry="2.6"/><rect x="45" y="93" width="14" height="4.5" rx="2.5"/>
+            </g>
+          </svg>
+          <div class="bubble think center" style="text-align:center; font-size:0.84rem;">また明日も、<br>誰かの現場を支えるで。</div>
         </div>
       </div>
     </div>
@@ -881,10 +709,11 @@
     <div class="manga-cta">
       <span class="halftone"></span>
       <p style="font-size:0.7rem; font-weight:800; letter-spacing:0.3em; color:var(--gold); margin-bottom:16px; position:relative;">— RECRUIT</p>
-      <h2 class="manga-cta-title">こんな仕事、<span>してみませんか？</span></h2>
+      <h2 class="manga-cta-title">体ひとつで、<span>稼げる。</span><br>荷揚げ屋、はじめてみませんか？</h2>
       <p class="manga-cta-desc">
-        未経験からでもOK。チームで支え合いながら、建築現場の根幹を担う誇りある仕事です。<br>
-        「まずは話を聞いてみたい」だけでも、お気軽にどうぞ。
+        未経験OK・学歴不問。最初はみんな「初めての一枚」から。<br>
+        利他の精神でチームが支え合うから、安心して飛び込めます。<br>
+        まずは TikTok で現場の雰囲気を覗いてみてください。
       </p>
       <div class="manga-cta-buttons">
         <a href="recruit.html" class="btn-primary" style="color:var(--navy);">求人情報を見る →</a>
@@ -893,6 +722,16 @@
           Indeed で応募する
         </a>
         <a href="contact.html" class="btn-secondary" style="margin-left:0;">お問い合わせ</a>
+      </div>
+      <div class="sns-row">
+        <a href="https://www.tiktok.com/@yushin.inc129" target="_blank" rel="noopener" class="sns-chip tt">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M16.5 3c.3 2.1 1.6 3.7 3.5 4v2.6c-1.3 0-2.5-.4-3.5-1.1v6.1a5.6 5.6 0 1 1-5.6-5.6c.3 0 .6 0 .9.1v2.7a3 3 0 1 0 2.1 2.8V3h2.6z"/></svg>
+          TikTok @yushin.inc129
+        </a>
+        <a href="https://www.instagram.com/yushin.inc" target="_blank" rel="noopener" class="sns-chip ig">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff" stroke="none"/></svg>
+          Instagram @yushin.inc
+        </a>
       </div>
     </div>
 
