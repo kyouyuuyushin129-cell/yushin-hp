@@ -49,6 +49,23 @@
 
     var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* ---- FAQ accordion ---- */
+    document.querySelectorAll('.faq-item').forEach(function (item) {
+      var q = item.querySelector('.faq-q');
+      var a = item.querySelector('.faq-a');
+      if (!q || !a) return;
+      q.addEventListener('click', function () {
+        var open = item.classList.contains('open');
+        if (open) {
+          a.style.maxHeight = null;
+          item.classList.remove('open');
+        } else {
+          item.classList.add('open');
+          a.style.maxHeight = a.scrollHeight + 'px';
+        }
+      });
+    });
+
     /* ---- Count-up numbers ---- */
     var counters = document.querySelectorAll('[data-count]');
     if (counters.length) {
