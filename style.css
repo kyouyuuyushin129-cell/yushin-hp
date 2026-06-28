@@ -1523,3 +1523,39 @@ h1, h2, h3, h4 { font-feature-settings: 'palt' 1; }
   .flow-item { grid-template-columns: 50px 1fr; gap: 16px; }
   .flow-time { font-size: 0.85rem; }
 }
+
+/* ============================================================
+   RECRUIT page — training · benefits · voices
+   ============================================================ */
+.train-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 52px; }
+.train-step { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 30px 26px 28px; box-shadow: var(--shadow-sm); position: relative; transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease); }
+.train-step:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); }
+.train-step .t-no { font-family: 'Inter', var(--font-jp); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.16em; color: var(--gold); margin-bottom: 14px; }
+.train-step .t-ico { font-size: 1.7rem; margin-bottom: 14px; }
+.train-step h3 { font-size: 1rem; font-weight: 800; color: var(--gray-900); margin-bottom: 9px; line-height: 1.5; }
+.train-step p { font-size: 0.84rem; color: var(--gray-500); line-height: 1.85; }
+
+.benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 52px; }
+.benefit { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 28px 26px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 18px; transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease); }
+.benefit:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); border-color: rgba(199,154,60,0.4); }
+.benefit .bf-ico { width: 50px; height: 50px; flex-shrink: 0; border-radius: 14px; background: linear-gradient(135deg, rgba(199,154,60,0.16), rgba(199,154,60,0.05)); display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+.benefit h3 { font-size: 0.98rem; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+.benefit p { font-size: 0.8rem; color: var(--gray-500); line-height: 1.7; }
+
+.voice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-top: 52px; }
+.voice { background: #fff; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 34px 32px; box-shadow: var(--shadow-sm); position: relative; }
+.voice .v-head { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.voice .v-avatar { width: 56px; height: 56px; flex-shrink: 0; border-radius: 50%; background: linear-gradient(135deg, var(--navy), var(--navy-light)); color: var(--gold); display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
+.voice .v-role { font-size: 0.76rem; color: var(--gray-500); letter-spacing: 0.04em; }
+.voice .v-name { font-size: 1.05rem; font-weight: 800; color: var(--gray-900); margin-top: 2px; }
+.voice .v-quote { color: var(--gray-700); line-height: 2; font-size: 0.92rem; }
+.voice .v-quote::before { content: '\201C'; color: var(--gold); font-size: 2.2rem; font-weight: 800; margin-right: 4px; line-height: 0; vertical-align: -0.45em; }
+
+@media (max-width: 900px) {
+  .train-grid { grid-template-columns: repeat(2, 1fr); }
+  .benefit-grid { grid-template-columns: repeat(2, 1fr); }
+  .voice-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .train-grid, .benefit-grid { grid-template-columns: 1fr; }
+}
