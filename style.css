@@ -1559,3 +1559,69 @@ h1, h2, h3, h4 { font-feature-settings: 'palt' 1; }
 @media (max-width: 560px) {
   .train-grid, .benefit-grid { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   PREMIUM v5 — progress · to-top · mobile CTA · hero intro · image wipe · philosophy
+   ============================================================ */
+
+/* Scroll progress bar */
+.scroll-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 200;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light)); box-shadow: 0 0 8px rgba(199,154,60,0.5); }
+
+/* Back to top */
+.to-top { position: fixed; right: 22px; bottom: 24px; z-index: 95; width: 48px; height: 48px; border-radius: 50%;
+  background: rgba(10,16,32,0.92); color: var(--gold); border: 1px solid rgba(199,154,60,0.5);
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  opacity: 0; pointer-events: none; transform: translateY(12px);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease), background 0.2s; box-shadow: var(--shadow-md);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+.to-top:hover { background: var(--gold); color: var(--navy); }
+.to-top svg { width: 20px; height: 20px; }
+
+/* Mobile fixed CTA bar */
+.mobile-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 96; display: none; }
+.mobile-cta a { flex: 1; text-align: center; padding: 15px 8px; font-weight: 800; font-size: 0.9rem; letter-spacing: 0.04em; display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.mobile-cta .m-contact { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: var(--navy); }
+.mobile-cta .m-recruit { background: var(--navy); color: #fff; border-left: 1px solid rgba(199,154,60,0.4); }
+@media (max-width: 768px) {
+  .mobile-cta.show { display: flex; box-shadow: 0 -6px 20px rgba(0,0,0,0.18); }
+  .to-top { bottom: 74px; width: 44px; height: 44px; }
+  .site-footer { padding-bottom: 76px; }
+}
+
+/* Hero entrance animation */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-inner > * { opacity: 0; transform: translateY(22px); animation: heroIn 0.95s var(--ease) forwards; }
+  .hero-inner > .hero-label { animation-delay: 0.15s; }
+  .hero-inner > h1 { animation-delay: 0.30s; }
+  .hero-inner > .hero-desc { animation-delay: 0.46s; }
+  .hero-inner > .hero-buttons { animation-delay: 0.62s; }
+  .hero-inner > .hero-stats { animation-delay: 0.78s; }
+  .hero .scroll-cue { opacity: 0; animation: heroIn 0.95s var(--ease) 1.15s forwards; }
+  @keyframes heroIn { to { opacity: 1; transform: none; } }
+
+  .page-hero-inner > * { opacity: 0; transform: translateY(16px); animation: heroIn 0.8s var(--ease) forwards; }
+  .page-hero-inner > .section-label { animation-delay: 0.1s; }
+  .page-hero-inner > h1 { animation-delay: 0.22s; }
+  .page-hero-inner > .breadcrumb { animation-delay: 0.34s; }
+}
+
+/* Image wipe reveal */
+@media (prefers-reduced-motion: no-preference) {
+  html.js .reveal.reveal--img { opacity: 0; transform: none; clip-path: inset(0 0 100% 0); }
+  html.js .reveal.reveal--img.is-visible { opacity: 1; clip-path: inset(0 0 0 0);
+    transition: clip-path 1s var(--ease), opacity 0.5s var(--ease); }
+}
+
+/* Philosophy band (large editorial statement) */
+.philosophy { background: radial-gradient(circle at 50% 0%, #16243f 0%, var(--navy) 55%, #05080f 100%);
+  padding: 130px 24px; position: relative; overflow: hidden; text-align: center; }
+.philosophy .ph-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-family: 'Inter', var(--font-jp); font-size: clamp(5rem, 20vw, 16rem); font-weight: 800;
+  color: rgba(255,255,255,0.03); letter-spacing: 0.05em; white-space: nowrap; pointer-events: none; line-height: 1; }
+.philosophy-inner { position: relative; max-width: 880px; margin: 0 auto; }
+.philosophy .ph-eyebrow { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 28px; }
+.philosophy .ph-quote { font-size: clamp(1.5rem, 4vw, 2.7rem); font-weight: 800; color: #fff; line-height: 1.85; letter-spacing: 0.01em; }
+.philosophy .ph-quote em { font-style: normal; color: var(--gold); }
+.philosophy .ph-sub { color: rgba(255,255,255,0.62); margin-top: 30px; line-height: 2; font-size: 0.96rem; }

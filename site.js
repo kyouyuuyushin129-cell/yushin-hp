@@ -49,6 +49,36 @@
 
     var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* ---- Premium UI: progress bar · back-to-top · mobile CTA ---- */
+    var progress = document.createElement('div');
+    progress.className = 'scroll-progress';
+    document.body.appendChild(progress);
+
+    var toTop = document.createElement('button');
+    toTop.className = 'to-top';
+    toTop.setAttribute('aria-label', 'ページ上部へ戻る');
+    toTop.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>';
+    document.body.appendChild(toTop);
+    toTop.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+
+    var path = location.pathname.split('/').pop();
+    var mcta = document.createElement('div');
+    mcta.className = 'mobile-cta';
+    mcta.innerHTML =
+      (path === 'recruit.html' ? '' : '<a class="m-recruit" href="recruit.html">採用情報</a>') +
+      '<a class="m-contact" href="contact.html">お問い合わせ</a>';
+    document.body.appendChild(mcta);
+
+    var onScrollUI = function () {
+      var st = window.scrollY || document.documentElement.scrollTop;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.width = (h > 0 ? (st / h) * 100 : 0) + '%';
+      toTop.classList.toggle('show', st > 600);
+      mcta.classList.toggle('show', st > 480);
+    };
+    onScrollUI();
+    window.addEventListener('scroll', onScrollUI, { passive: true });
+
     /* ---- FAQ accordion ---- */
     document.querySelectorAll('.faq-item').forEach(function (item) {
       var q = item.querySelector('.faq-q');
@@ -100,12 +130,26 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.sec-head',
       '.section-inner > .section-label',
       '.section-inner > .section-title',
       '.section-inner > .section-desc',
       '.section-inner > .divider',
+      '.feature-body',
+      '.reveal--img',
+      '.fact',
+      '.stat-item',
       '.value-card',
+      '.reason',
+      '.svc-card',
       '.service-item',
+      '.flow-item',
+      '.work',
+      '.train-step',
+      '.benefit',
+      '.voice',
+      '.faq-item',
+      '.media-card',
       '.business-block',
       '.vision-inner',
       '.profile-table',
