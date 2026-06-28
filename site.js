@@ -47,8 +47,39 @@
       }
     }
 
-    /* ---- Scroll reveal ---- */
     var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    /* ---- Count-up numbers ---- */
+    var counters = document.querySelectorAll('[data-count]');
+    if (counters.length) {
+      var runCount = function (el) {
+        var target = parseInt(el.getAttribute('data-count'), 10);
+        if (isNaN(target)) return;
+        var small = el.querySelector('small');
+        var suffix = small ? small.outerHTML : '';
+        if (prefersReduced) { el.innerHTML = target + suffix; return; }
+        var dur = 1300, start = null;
+        var step = function (ts) {
+          if (!start) start = ts;
+          var p = Math.min((ts - start) / dur, 1);
+          var eased = 1 - Math.pow(1 - p, 3);
+          el.innerHTML = Math.round(target * eased) + suffix;
+          if (p < 1) requestAnimationFrame(step);
+          else el.innerHTML = target + suffix;
+        };
+        requestAnimationFrame(step);
+      };
+      if ('IntersectionObserver' in window) {
+        var cio = new IntersectionObserver(function (ents) {
+          ents.forEach(function (e) { if (e.isIntersecting) { runCount(e.target); cio.unobserve(e.target); } });
+        }, { threshold: 0.6 });
+        counters.forEach(function (el) { cio.observe(el); });
+      } else {
+        counters.forEach(runCount);
+      }
+    }
+
+    /* ---- Scroll reveal ---- */
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
