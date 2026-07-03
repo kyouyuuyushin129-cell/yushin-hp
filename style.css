@@ -1625,3 +1625,8 @@ h1, h2, h3, h4 { font-feature-settings: 'palt' 1; }
 .philosophy .ph-quote { font-size: clamp(1.5rem, 4vw, 2.7rem); font-weight: 800; color: #fff; line-height: 1.85; letter-spacing: 0.01em; }
 .philosophy .ph-quote em { font-style: normal; color: var(--gold); }
 .philosophy .ph-sub { color: rgba(255,255,255,0.62); margin-top: 30px; line-height: 2; font-size: 0.96rem; }
+
+/* Instagram media card */
+.media-card.instagram { background: linear-gradient(135deg, #405de6 0%, #5b51d8 20%, #833ab4 40%, #c13584 60%, #e1306c 78%, #fd1d1d 100%); color: #fff; }
+.media-card.instagram .mc-eyebrow, .media-card.instagram .mc-link { color: #fff; }
+.media-card.instagram p { color: rgba(255,255,255,0.85); }
