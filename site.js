@@ -130,6 +130,11 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.rc-job',
+      '.rc-cell',
+      '.rc-step',
+      '.rc-bene-cell',
+      '.rc-voice-card',
       '.bz-row',
       '.bz-why-cell',
       '.bz-veh-card',
