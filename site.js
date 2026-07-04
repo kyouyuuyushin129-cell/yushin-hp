@@ -130,6 +130,12 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.ab-vm-row',
+      '.ab-val-cell',
+      '.ab-msg-in',
+      '.ab-table',
+      '.ab-acc-info',
+      '.ab-map',
       '.rc-job',
       '.rc-cell',
       '.rc-step',

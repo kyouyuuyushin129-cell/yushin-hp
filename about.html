@@ -4,8 +4,89 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>会社概要 | 株式会社優心</title>
-  <meta name="description" content="株式会社優心の会社概要・ビジョン・組織についてご紹介します。">
+  <meta name="description" content="株式会社優心の会社概要。ビジョン・ミッション・バリュー、会社情報、代表メッセージ、アクセスをご紹介します。大阪市都島区の荷揚げ屋です。">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="home.css">
+  <style>
+    /* ---- about page ---- */
+    .ab-hero { position: relative; background: var(--coal); padding: 170px 0 96px; overflow: hidden; }
+    .ab-hero .ghost {
+      position: absolute; right: -1vw; bottom: -2.4vw;
+      font-family: 'Inter', var(--font-jp); font-weight: 800;
+      font-size: clamp(4.5rem, 14vw, 11rem); line-height: 1;
+      color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.12);
+      pointer-events: none; user-select: none;
+    }
+    .ab-hero .grid { position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(to right, var(--line-d) 1px, transparent 1px);
+      background-size: 25% 100%; opacity: 0.5; }
+    .ab-hero h1 { font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 900; color: #f6f3ec; margin-top: 24px; letter-spacing: 0.02em; }
+    .ab-hero .crumb { margin-top: 26px; font-size: 0.78rem; color: rgba(238,234,224,0.5); display: flex; gap: 10px; }
+    .ab-hero .crumb a:hover { color: var(--org); }
+
+    /* vision / mission */
+    .ab-vm { padding: 120px 0; }
+    .ab-vm-row { display: grid; grid-template-columns: 240px 1fr; gap: 44px; padding: 52px 0; border-top: 1px solid var(--line-d); align-items: start; }
+    .ab-vm-row:last-child { border-bottom: 1px solid var(--line-d); }
+    .ab-vm-row .lb { font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 1.5rem; color: transparent; -webkit-text-stroke: 1.2px var(--org); letter-spacing: 0.06em; }
+    .ab-vm-row .lb small { display: block; font-size: 0.7rem; -webkit-text-stroke: 0; color: rgba(238,234,224,0.5); letter-spacing: 0.24em; margin-top: 8px; font-weight: 700; }
+    .ab-vm-row .tx { font-family: var(--serif); font-weight: 800; font-size: clamp(1.15rem, 2.4vw, 1.7rem); color: #f4f1ea; line-height: 2; letter-spacing: 0.03em; }
+    .ab-vm-row .tx em { font-style: normal; color: var(--org); }
+
+    /* values */
+    .ab-val { padding: 120px 0; }
+    .ab-val-grid { display: grid; grid-template-columns: repeat(2, 1fr); margin-top: 60px; border: 1px solid var(--line-l); }
+    .ab-val-cell { padding: 44px 40px; border-right: 1px solid var(--line-l); border-bottom: 1px solid var(--line-l); background: #fff; }
+    .ab-val-cell:nth-child(2n) { border-right: none; }
+    .ab-val-cell:nth-child(n+3) { border-bottom: none; }
+    .ab-val-cell .no { font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.68rem; letter-spacing: 0.28em; color: var(--org); }
+    .ab-val-cell h3 { font-size: 1.22rem; font-weight: 900; color: var(--ink); margin: 14px 0 12px; }
+    .ab-val-cell p { font-size: 0.9rem; color: #5c574e; line-height: 2; }
+
+    /* message */
+    .ab-msg { padding: 130px 0; position: relative; overflow: hidden; }
+    .ab-msg .wm { position: absolute; top: 44%; left: 50%; transform: translate(-50%, -50%);
+      font-family: 'Inter', var(--font-jp); font-weight: 800;
+      font-size: clamp(4.5rem, 16vw, 13rem); letter-spacing: 0.04em; line-height: 1;
+      color: transparent; -webkit-text-stroke: 1px rgba(19,18,16,0.07);
+      white-space: nowrap; pointer-events: none; }
+    .ab-msg-in { position: relative; max-width: 800px; margin: 0 auto; }
+    .ab-msg .qt { font-family: var(--serif); font-weight: 800; font-size: clamp(1.5rem, 3.6vw, 2.3rem); color: var(--ink); line-height: 1.95; margin: 34px 0 36px; }
+    .ab-msg .qt em { font-style: normal; color: var(--org-deep); }
+    .ab-msg .bd p { color: #5c574e; line-height: 2.2; font-size: 0.95rem; margin-bottom: 20px; }
+    .ab-msg .sig { border-left: 3px solid var(--org); padding-left: 18px; margin-top: 38px; }
+    .ab-msg .sig .r { font-size: 0.76rem; color: #97917f; letter-spacing: 0.1em; margin-bottom: 4px; }
+    .ab-msg .sig .n { font-size: 1.3rem; font-weight: 900; color: var(--ink); }
+
+    /* profile table */
+    .ab-prof { padding: 120px 0; }
+    .ab-table { width: 100%; border-collapse: collapse; margin-top: 56px; border-top: 1px solid var(--line-d); }
+    .ab-table tr { border-bottom: 1px solid var(--line-d); }
+    .ab-table th { width: 28%; text-align: left; padding: 24px 18px 24px 2px; vertical-align: top;
+      font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.72rem; letter-spacing: 0.2em; color: var(--org); }
+    .ab-table td { padding: 24px 0; color: #e6e2d8; line-height: 1.9; font-size: 0.96rem; }
+
+    /* access */
+    .ab-acc { padding: 120px 0 130px; }
+    .ab-acc-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 44px; margin-top: 56px; align-items: start; }
+    .ab-acc-info { border-top: 1px solid var(--line-l); }
+    .ab-acc-info .r { display: grid; grid-template-columns: 110px 1fr; gap: 16px; padding: 22px 2px; border-bottom: 1px solid var(--line-l); }
+    .ab-acc-info .k { font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.7rem; letter-spacing: 0.18em; color: var(--org-deep); padding-top: 5px; }
+    .ab-acc-info .v { color: #5c574e; line-height: 1.9; font-size: 0.94rem; }
+    .ab-acc-info .v a { color: var(--org-deep); font-weight: 800; }
+    .ab-map { position: relative; }
+    .ab-map::after { content: ''; position: absolute; inset: 0; transform: translate(14px, 14px); background: var(--org); z-index: -1; }
+    .ab-map iframe { display: block; width: 100%; height: 380px; border: 1px solid var(--line-l); filter: grayscale(0.2); }
+
+    @media (max-width: 900px) {
+      .ab-vm-row { grid-template-columns: 1fr; gap: 18px; padding: 40px 0; }
+      .ab-val-grid { grid-template-columns: 1fr; }
+      .ab-val-cell { border-right: none !important; border-bottom: 1px solid var(--line-l) !important; }
+      .ab-val-cell:last-child { border-bottom: none !important; }
+      .ab-acc-grid { grid-template-columns: 1fr; }
+      .ab-table th { width: 36%; }
+    }
+  </style>
 </head>
 <body>
 
@@ -28,85 +109,117 @@
     </div>
   </header>
 
-  <main class="page-main">
+  <main>
 
-    <!-- Page Hero -->
-    <div class="page-hero">
-      <div class="page-hero-inner">
-        <p class="section-label">About Us</p>
+    <!-- ============ Page hero ============ -->
+    <section class="ab-hero">
+      <div class="grid"></div>
+      <span class="ghost" aria-hidden="true">ABOUT</span>
+      <div class="ed-wrap" style="position:relative;">
+        <p class="ed-index">About Us</p>
         <h1>会社概要</h1>
-        <nav class="breadcrumb" aria-label="パンくず">
-          <a href="index.html">ホーム</a>
-          <span>/</span>
-          <span>会社概要</span>
+        <nav class="crumb" aria-label="パンくず">
+          <a href="index.html">ホーム</a><span>/</span><span>会社概要</span>
         </nav>
       </div>
-    </div>
+    </section>
 
-    <!-- Vision & Mission -->
-    <div class="vision-block">
-      <div class="vision-inner">
-        <p class="section-label">Vision</p>
-        <h2 class="section-title" style="color: var(--white);">ビジョン</h2>
-        <div class="vision-text">
-          建築現場の根幹を担う専門集団として、<br>業界の信頼と発展に貢献する。
-        </div>
-
-        <p class="section-label" style="margin-top: 48px;">Mission</p>
-        <h2 class="section-title" style="color: var(--white);">ミッション</h2>
-        <div class="vision-text" style="font-size: 1rem;">
-          施工現場における搬入・荷上げを専門的に担うことで、<br>
-          建築業界の生産性と信頼性の向上に寄与し続ける。
-        </div>
+    <!-- ============ Tape ============ -->
+    <div class="tape" aria-hidden="true">
+      <div class="tape-track">
+        <span><span class="t">誠実</span><span class="s">/</span><span class="t">専門</span><span class="s">/</span><span class="t">敬意</span><span class="s">/</span><span class="t">利他</span><span class="s">/</span><span class="t">大阪・都島区</span><span class="s">/</span><span class="t">令和3年設立</span><span class="s">/</span></span>
+        <span><span class="t">誠実</span><span class="s">/</span><span class="t">専門</span><span class="s">/</span><span class="t">敬意</span><span class="s">/</span><span class="t">利他</span><span class="s">/</span><span class="t">大阪・都島区</span><span class="s">/</span><span class="t">令和3年設立</span><span class="s">/</span></span>
       </div>
     </div>
 
-    <!-- Values -->
-    <section class="section">
-      <div class="section-inner">
-        <p class="section-label">Values</p>
-        <h2 class="section-title">私たちのバリュー</h2>
-        <p class="section-desc">4つのバリューが、優心の行動指針の核心です。</p>
-        <div class="values-grid">
-          <div class="value-card">
-            <p class="value-number">VALUE 01</p>
-            <h3 class="value-title">誠実な現場主義</h3>
-            <p class="value-desc">
-              現場の仕事に手を抜かない。どんな状況でも、目の前の仕事に誠実であり続ける。
-            </p>
+    <!-- ============ Vision & Mission ============ -->
+    <section class="ab-vm dark-sec gridlines">
+      <div class="ed-wrap">
+        <p class="ed-index">01 / Vision &amp; Mission</p>
+        <h2 class="ed-title">私たちが目指す<span class="stroke">場所</span></h2>
+        <div style="margin-top:56px;">
+          <div class="ab-vm-row">
+            <div class="lb">VISION<small>ビジョン</small></div>
+            <p class="tx">建築現場の根幹を担う<em>専門集団</em>として、<br>業界の信頼と発展に貢献する。</p>
           </div>
-          <div class="value-card">
-            <p class="value-number">VALUE 02</p>
-            <h3 class="value-title">専門性の継続的な追求</h3>
-            <p class="value-desc">
-              搬入・荷上げのプロとして、技術と知識を磨き続ける。「なんとなく」で動かない。
-            </p>
-          </div>
-          <div class="value-card">
-            <p class="value-number">VALUE 03</p>
-            <h3 class="value-title">関わる人すべてへの敬意</h3>
-            <p class="value-desc">
-              一緒に働く仲間も、現場の取引先も、等しく尊重する。一人ひとりの可能性を信じ、向き合い続ける。
-            </p>
-          </div>
-          <div class="value-card">
-            <p class="value-number">VALUE 04</p>
-            <h3 class="value-title">利他の精神</h3>
-            <p class="value-desc">
-              仲間のために、職人さんのために、現場のために。誰かの「助かった」を生み出す行動こそが、優心の原動力。
-            </p>
+          <div class="ab-vm-row">
+            <div class="lb">MISSION<small>ミッション</small></div>
+            <p class="tx">施工現場における搬入・荷揚げを専門的に担うことで、<br>建築業界の<em>生産性と信頼性</em>の向上に寄与し続ける。</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Company Profile -->
-    <section class="profile-section" style="background: var(--gray-50);">
-      <div class="profile-inner">
-        <p class="section-label">Company Profile</p>
-        <h2 class="section-title">会社情報</h2>
-        <div class="divider"></div>
-        <table class="profile-table">
+    <!-- ============ Values ============ -->
+    <section class="ab-val light-sec">
+      <div class="ed-wrap">
+        <p class="ed-index">02 / Values</p>
+        <h2 class="ed-title">私たちのバリュー</h2>
+        <p class="ed-body" style="margin-top:22px; max-width:640px;">
+          4つのバリューが、優心の行動指針の核心です。
+        </p>
+        <div class="ab-val-grid">
+          <div class="ab-val-cell">
+            <p class="no">VALUE 01</p>
+            <h3>誠実な現場主義</h3>
+            <p>現場の仕事に手を抜かない。どんな状況でも、目の前の仕事に誠実であり続ける。</p>
+          </div>
+          <div class="ab-val-cell">
+            <p class="no">VALUE 02</p>
+            <h3>専門性の継続的な追求</h3>
+            <p>搬入・荷揚げのプロとして、技術と知識を磨き続ける。「なんとなく」で動かない。</p>
+          </div>
+          <div class="ab-val-cell">
+            <p class="no">VALUE 03</p>
+            <h3>関わる人すべてへの敬意</h3>
+            <p>一緒に働く仲間も、現場の取引先も、等しく尊重する。一人ひとりの可能性を信じ、向き合い続ける。</p>
+          </div>
+          <div class="ab-val-cell">
+            <p class="no">VALUE 04</p>
+            <h3>利他の精神</h3>
+            <p>仲間のために、職人さんのために、現場のために。誰かの「助かった」を生み出す行動こそが、優心の原動力。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Message ============ -->
+    <section class="ab-msg light-sec" style="background:var(--paper-2);">
+      <span class="wm" aria-hidden="true">MESSAGE</span>
+      <div class="ed-wrap">
+        <div class="ab-msg-in">
+          <p class="ed-index">03 / Message</p>
+          <p class="qt">誰かの「助かった」のために。<br>それが、<em>優心の原動力</em>です。</p>
+          <div class="bd">
+            <p>
+              「荷揚げ屋」は、建築現場で資材を上の階へと運ぶ、縁の下の力持ちの仕事です。
+              暑い・狭い・重い——決して楽な仕事ではありません。それでも私たちが胸を張れるのは、
+              この一歩一歩が、現場全体を前に進めているという誇りがあるからです。
+            </p>
+            <p>
+              優心が何より大切にしているのは <strong style="color:var(--ink);">"利他"</strong> の心。
+              仲間のために、職人さんのために、現場のために動く——その積み重ねが信頼になると信じています。
+              未経験から始めたスタッフも、今では立派に現場を支える一人です。
+            </p>
+            <p>
+              これからも、誠実に・安全に・前向きに。
+              関わるすべての人に「優心に頼んでよかった」と思っていただけるよう、現場とともに歩み続けます。
+            </p>
+          </div>
+          <div class="sig">
+            <p class="r">株式会社優心　代表取締役</p>
+            <p class="n">白谷 優始</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Company Profile ============ -->
+    <section class="ab-prof dark-sec gridlines">
+      <div class="ed-wrap">
+        <p class="ed-index">04 / Company Profile</p>
+        <h2 class="ed-title">会社<span class="stroke">情報</span></h2>
+        <table class="ab-table">
           <tbody>
             <tr>
               <th>会社名</th>
@@ -114,7 +227,7 @@
             </tr>
             <tr>
               <th>事業内容</th>
-              <td>建築現場における資材搬入・荷上げ業務</td>
+              <td>建築現場における資材搬入・荷揚げ業務</td>
             </tr>
             <tr>
               <th>設立</th>
@@ -138,77 +251,36 @@
             </tr>
             <tr>
               <th>建設業許可</th>
-              <td>大阪府知事許可（般-5）第159618号<br>（令和5年4月21日）</td>
+              <td>大阪府知事許可（般-5）第159618号（令和5年4月21日）</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Message -->
-    <section class="section" style="background: var(--gray-50);">
-      <div class="section-inner">
-        <p class="section-label">Message</p>
-        <h2 class="section-title">代表メッセージ</h2>
-        <div class="divider"></div>
-
-        <div style="margin-top: 48px; max-width: 760px;">
-          <p style="font-size: 1.15rem; font-weight: 700; color: var(--navy); line-height: 1.9; margin-bottom: 28px;">
-            誰かの「助かった」のために。<br>
-            それが、優心の原動力です。
-          </p>
-          <p style="color: var(--gray-700); line-height: 2.1; margin-bottom: 20px;">
-            「荷揚げ屋」は、建築現場で資材を上の階へと運ぶ、縁の下の力持ちの仕事です。
-            暑い・狭い・重い——決して楽な仕事ではありません。それでも私たちが胸を張れるのは、
-            この一歩一歩が、現場全体を前に進めているという誇りがあるからです。
-          </p>
-          <p style="color: var(--gray-700); line-height: 2.1; margin-bottom: 20px;">
-            優心が何より大切にしているのは <strong style="color: var(--navy);">"利他"</strong> の心。
-            仲間のために、職人さんのために、現場のために動く——その積み重ねが信頼になると信じています。
-            未経験から始めたスタッフも、今では立派に現場を支える一人です。
-          </p>
-          <p style="color: var(--gray-700); line-height: 2.1; margin-bottom: 36px;">
-            これからも、誠実に・安全に・前向きに。
-            関わるすべての人に「優心に頼んでよかった」と思っていただけるよう、現場とともに歩み続けます。
-          </p>
-          <div style="border-left: 3px solid var(--gold); padding-left: 18px;">
-            <p style="font-size: 0.8rem; color: var(--gray-500); letter-spacing: 0.1em; margin-bottom: 4px;">株式会社優心　代表取締役</p>
-            <p style="font-size: 1.25rem; font-weight: 800; color: var(--navy);">白谷 優始</p>
+    <!-- ============ Access ============ -->
+    <section class="ab-acc light-sec">
+      <div class="ed-wrap">
+        <p class="ed-index">05 / Access</p>
+        <h2 class="ed-title">アクセス</h2>
+        <div class="ab-acc-grid">
+          <div class="ab-acc-info">
+            <div class="r">
+              <span class="k">所在地</span>
+              <span class="v">〒534-0002<br>大阪府大阪市都島区大東町3丁目4-29</span>
+            </div>
+            <div class="r">
+              <span class="k">事業所</span>
+              <span class="v">株式会社優心</span>
+            </div>
+            <div class="r">
+              <span class="k">お問い合わせ</span>
+              <span class="v"><a href="contact.html">お問い合わせフォーム →</a></span>
+            </div>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Access -->
-    <section class="section">
-      <div class="section-inner">
-        <p class="section-label">Access</p>
-        <h2 class="section-title">アクセス</h2>
-        <div class="divider"></div>
-
-        <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; align-items: start;">
-          <div>
-            <table class="profile-table">
-              <tbody>
-                <tr>
-                  <th>所在地</th>
-                  <td>〒534-0002<br>大阪府大阪市都島区大東町3丁目4-29</td>
-                </tr>
-                <tr>
-                  <th>事業所</th>
-                  <td>株式会社優心</td>
-                </tr>
-                <tr>
-                  <th>お問い合わせ</th>
-                  <td><a href="contact.html" style="color: var(--gold); font-weight: 700;">お問い合わせフォーム →</a></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div style="border: 1px solid var(--gray-100); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+          <div class="ab-map">
             <iframe
               src="https://maps.google.com/maps?q=%E5%A4%A7%E9%98%AA%E5%BA%9C%E5%A4%A7%E9%98%AA%E5%B8%82%E9%83%BD%E5%B3%B6%E5%8C%BA%E5%A4%A7%E6%9D%B1%E7%94%BA3-4-29&z=16&output=embed"
-              width="100%" height="340" style="border: 0; display: block;"
               loading="lazy" referrerpolicy="no-referrer-when-downgrade"
               title="株式会社優心 所在地マップ"></iframe>
           </div>
@@ -216,11 +288,12 @@
       </div>
     </section>
 
-    <!-- CTA -->
-    <div class="cta-banner">
-      <h2 class="cta-title">お仕事のご相談・お問い合わせ</h2>
-      <p class="cta-desc">搬入・荷上げ業務についてのご質問はお気軽にどうぞ。</p>
-      <a href="contact.html" class="btn-primary">お問い合わせはこちら →</a>
+    <!-- ============ CTA ============ -->
+    <div class="last-cta">
+      <span class="wm" aria-hidden="true">CONTACT</span>
+      <h2>お仕事のご相談・<br>お問い合わせ</h2>
+      <p>搬入・荷揚げ業務についてのご質問は、お気軽にどうぞ。</p>
+      <a href="contact.html" class="b-solid">お問い合わせはこちら <span class="b-arrow">→</span></a>
     </div>
 
   </main>
@@ -231,7 +304,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <div class="footer-logo"><span>優心</span> 株式会社</div>
-          <p>建築現場における資材搬入・荷上げを専門とする会社です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
+          <p>建築現場における資材搬入・荷揚げを専門とする「利他的な荷揚げ屋」です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
         </div>
         <div>
           <p class="footer-nav-title">Menu</p>
@@ -247,6 +320,8 @@
           <p class="footer-nav-title">Contact</p>
           <ul class="footer-nav-links">
             <li><a href="contact.html">お問い合わせフォーム</a></li>
+            <li><a href="https://www.tiktok.com/@yushin.inc129" target="_blank" rel="noopener">TikTok</a></li>
+            <li><a href="https://www.instagram.com/yushin.inc" target="_blank" rel="noopener">Instagram</a></li>
           </ul>
         </div>
       </div>
