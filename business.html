@@ -42,6 +42,21 @@
     .bz-tags { display: flex; flex-wrap: wrap; gap: 8px; }
     .bz-tags span { font-size: 0.76rem; font-weight: 800; color: var(--org-deep); border: 1.5px solid rgba(255,196,0,0.5); padding: 6px 14px; }
 
+    /* lineup grid (services 03-06) */
+    .bz-lineup { padding: 20px 0 120px; }
+    .bz-lineup-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 54px; }
+    .bz-card { position: relative; background: #fff; border: 1px solid var(--line-l); padding: 40px 36px; overflow: hidden; transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease); }
+    .bz-card::before { content: ''; position: absolute; left: 0; top: 0; height: 4px; width: 100%; background: var(--org); transform: scaleX(0); transform-origin: left; transition: transform 0.35s var(--ease); }
+    .bz-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(19,18,16,0.10); }
+    .bz-card:hover::before { transform: scaleX(1); }
+    .bz-card .cno { position: absolute; top: 22px; right: 26px; font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 2.7rem; line-height: 1; color: transparent; -webkit-text-stroke: 1.4px rgba(19,18,16,0.16); }
+    .bz-card .clabel { display: inline-block; font-family: 'Inter', var(--font-jp); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.16em; color: var(--org-ink); margin-bottom: 14px; }
+    .bz-card h3 { font-size: 1.24rem; font-weight: 900; color: var(--ink); margin-bottom: 12px; line-height: 1.5; padding-right: 40px; }
+    .bz-card p { font-size: 0.88rem; color: #5c574e; line-height: 1.95; }
+    .bz-card .soon { display: inline-block; margin-top: 18px; font-size: 0.72rem; font-weight: 800; color: #16130f; background: var(--org); padding: 5px 13px; letter-spacing: 0.05em; }
+    .bz-card.future { background: #faf8f0; }
+    @media (max-width: 760px) { .bz-lineup-grid { grid-template-columns: 1fr; } }
+
     /* strengths */
     .bz-why { padding: 120px 0; }
     .bz-why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 60px; border: 1px solid var(--line-d); }
@@ -123,8 +138,8 @@
     <!-- ============ Tape ============ -->
     <div class="tape" aria-hidden="true">
       <div class="tape-track">
-        <span><span class="t">資材搬入</span><span class="s">/</span><span class="t">上棟作業</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span><span class="t">安全第一</span><span class="s">/</span></span>
-        <span><span class="t">資材搬入</span><span class="s">/</span><span class="t">上棟作業</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span><span class="t">安全第一</span><span class="s">/</span></span>
+        <span><span class="t">資材搬入業</span><span class="s">/</span><span class="t">上棟作業</span><span class="s">/</span><span class="t">産廃収集運搬</span><span class="s">/</span><span class="t">独立サポート</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span></span>
+        <span><span class="t">資材搬入業</span><span class="s">/</span><span class="t">上棟作業</span><span class="s">/</span><span class="t">産廃収集運搬</span><span class="s">/</span><span class="t">独立サポート</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span></span>
       </div>
     </div>
 
@@ -147,7 +162,7 @@
           </div>
           <div class="bz-body">
             <p class="ed-index">Service 01</p>
-            <h2>資材搬入</h2>
+            <h2>資材搬入業</h2>
             <p>
               建築現場への各種資材の搬入を、段取りから完了まで責任を持って対応します。
               重量物・大型資材の取り扱いにも対応しており、スムーズな現場進行をサポート。
@@ -175,6 +190,45 @@
             <div class="bz-tags">
               <span>建て方・上棟</span><span>木造・鉄骨</span><span>クレーン対応</span><span>チーム施工</span>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Business Lineup (03-06) ============ -->
+    <section class="bz-lineup light-sec">
+      <div class="ed-wrap">
+        <p class="ed-index">Business Lineup</p>
+        <h2 class="ed-title">広がる、優心の<span class="stroke">事業領域</span>。</h2>
+        <p class="ed-body" style="margin-top:22px; max-width:660px;">
+          搬入・上棟を軸に、現場の"前後"までワンストップで担える体制へ。優心は事業領域を広げ続けています。
+        </p>
+        <div class="bz-lineup-grid">
+          <div class="bz-card">
+            <span class="cno">03</span>
+            <span class="clabel">SERVICE 03</span>
+            <h3>産業廃棄物収集運搬</h3>
+            <p>建設現場で発生する廃材・産業廃棄物を、許可事業者として適正に収集・運搬します。分別から搬出まで、法令に沿って安全に処理します。</p>
+          </div>
+          <div class="bz-card">
+            <span class="cno">04</span>
+            <span class="clabel">SERVICE 04</span>
+            <h3>資材搬入業の独立サポート</h3>
+            <p>「いつか独立したい」荷揚げ職人を全面支援。案件の紹介から実務ノウハウ、独立準備まで、優心が培った仕組みで一人親方・開業を後押しします。</p>
+          </div>
+          <div class="bz-card future">
+            <span class="cno">05</span>
+            <span class="clabel">SERVICE 05</span>
+            <h3>運送業</h3>
+            <p>自社車両を活かした運送事業を準備中。資材の配送から一般貨物まで、搬入と一貫した物流を目指します。</p>
+            <span class="soon">2027年4月 開始予定</span>
+          </div>
+          <div class="bz-card future">
+            <span class="cno">06</span>
+            <span class="clabel">SERVICE 06</span>
+            <h3>倉庫業（引き取り込み）</h3>
+            <p>資材の保管・在庫管理を担う倉庫事業を準備中。引き取り・入出庫まで、現場の"前工程"をまるごとお預かりします。</p>
+            <span class="soon">2027年4月 開始予定</span>
           </div>
         </div>
       </div>
