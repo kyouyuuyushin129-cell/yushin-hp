@@ -4,8 +4,85 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>事業内容 | 株式会社優心</title>
-  <meta name="description" content="株式会社優心の事業内容をご紹介します。建築現場における資材搬入・荷上げを専門的に担います。">
+  <meta name="description" content="株式会社優心の事業内容。建築現場における資材搬入・荷揚げ・現場サポートを専門チームが担います。ユニック車・平ボディ車も自社保有。全国対応。">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="home.css">
+  <style>
+    /* ---- business page ---- */
+    .bz-hero { position: relative; background: var(--coal); padding: 170px 0 96px; overflow: hidden; }
+    .bz-hero .ghost {
+      position: absolute; right: -1vw; bottom: -2.4vw;
+      font-family: 'Inter', var(--font-jp); font-weight: 800;
+      font-size: clamp(4.5rem, 14vw, 11rem); line-height: 1; letter-spacing: 0.02em;
+      color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.12);
+      pointer-events: none; user-select: none;
+    }
+    .bz-hero .grid { position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(to right, var(--line-d) 1px, transparent 1px);
+      background-size: 25% 100%; opacity: 0.5; }
+    .bz-hero h1 { font-size: clamp(2.6rem, 7vw, 5rem); font-weight: 900; color: #f6f3ec; margin-top: 24px; letter-spacing: 0.02em; }
+    .bz-hero .crumb { margin-top: 26px; font-size: 0.78rem; color: rgba(238,234,224,0.5); display: flex; gap: 10px; }
+    .bz-hero .crumb a:hover { color: var(--org); }
+
+    .bz-svc { padding: 120px 0 40px; }
+    .bz-row { display: grid; grid-template-columns: 1fr 1.06fr; gap: 70px; align-items: center; padding: 60px 0; }
+    .bz-row + .bz-row { border-top: 1px solid var(--line-l); }
+    .bz-row.rev .bz-media { order: 2; }
+    .bz-media { position: relative; }
+    .bz-media img { width: 100%; aspect-ratio: 4/3; object-fit: cover; filter: grayscale(1) contrast(1.08); transition: filter 0.6s var(--ease); }
+    .bz-media:hover img { filter: none; }
+    .bz-media::after { content: ''; position: absolute; inset: 0; transform: translate(14px, 14px); background: var(--org); z-index: -1; }
+    .bz-media .no {
+      position: absolute; top: -26px; left: -10px;
+      font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 4.4rem; line-height: 1;
+      color: transparent; -webkit-text-stroke: 1.6px var(--ink); opacity: 0.7;
+    }
+    .bz-body h2 { font-size: clamp(1.5rem, 3.2vw, 2.2rem); font-weight: 900; color: var(--ink); margin: 16px 0 18px; }
+    .bz-body p { color: #5c574e; line-height: 2.1; font-size: 0.95rem; margin-bottom: 24px; }
+    .bz-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .bz-tags span { font-size: 0.76rem; font-weight: 800; color: var(--org-deep); border: 1.5px solid rgba(255,90,31,0.5); padding: 6px 14px; }
+
+    /* strengths */
+    .bz-why { padding: 120px 0; }
+    .bz-why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 60px; border: 1px solid var(--line-d); }
+    .bz-why-cell { padding: 46px 36px; border-right: 1px solid var(--line-d); position: relative; }
+    .bz-why-cell:last-child { border-right: none; }
+    .bz-why-cell .no { font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.68rem; letter-spacing: 0.28em; color: var(--org); }
+    .bz-why-cell h3 { font-size: 1.2rem; font-weight: 900; color: #f4f1ea; margin: 16px 0 14px; line-height: 1.6; }
+    .bz-why-cell p { font-size: 0.88rem; color: rgba(230,226,216,0.62); line-height: 2; }
+
+    /* vehicles */
+    .bz-veh { padding: 120px 0; }
+    .bz-veh-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 56px; }
+    .bz-veh-card { position: relative; overflow: hidden; border: 1px solid var(--line-l); background: #fff; }
+    .bz-veh-card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; object-position: center bottom; transition: transform 0.7s var(--ease); }
+    .bz-veh-card:hover img { transform: scale(1.05); }
+    .bz-veh-card .cap { padding: 22px 24px; }
+    .bz-veh-card .cap h3 { font-size: 1.08rem; font-weight: 900; color: var(--ink); margin-bottom: 6px; }
+    .bz-veh-card .cap p { font-size: 0.85rem; color: #6b6558; line-height: 1.9; }
+
+    /* flow */
+    .bz-flow { padding: 120px 0 130px; }
+    .bz-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 60px; border-top: 2px solid var(--ink); }
+    .bz-step { padding: 30px 20px 8px; border-right: 1px dashed var(--line-l); position: relative; }
+    .bz-step:last-child { border-right: none; }
+    .bz-step::before { content: ''; position: absolute; top: -6px; left: 20px; width: 10px; height: 10px; background: var(--org); }
+    .bz-step .no { font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.66rem; letter-spacing: 0.26em; color: var(--org); }
+    .bz-step h3 { font-size: 1rem; font-weight: 900; color: var(--ink); margin: 12px 0 8px; }
+    .bz-step p { font-size: 0.82rem; color: #6b6558; line-height: 1.9; }
+
+    @media (max-width: 900px) {
+      .bz-row { grid-template-columns: 1fr; gap: 42px; padding: 48px 0; }
+      .bz-row.rev .bz-media { order: 0; }
+      .bz-why-grid { grid-template-columns: 1fr; }
+      .bz-why-cell { border-right: none; border-bottom: 1px solid var(--line-d); }
+      .bz-why-cell:last-child { border-bottom: none; }
+      .bz-veh-grid { grid-template-columns: 1fr; }
+      .bz-steps { grid-template-columns: repeat(2, 1fr); border-top: none; }
+      .bz-step { border-top: 2px solid var(--ink); margin-bottom: 8px; }
+    }
+    @media (max-width: 560px) { .bz-steps { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
 
@@ -28,170 +105,190 @@
     </div>
   </header>
 
-  <main class="page-main">
+  <main>
 
-    <!-- Page Hero -->
-    <div class="page-hero">
-      <div class="page-hero-inner">
-        <p class="section-label">Business</p>
+    <!-- ============ Page hero ============ -->
+    <section class="bz-hero">
+      <div class="grid"></div>
+      <span class="ghost" aria-hidden="true">SERVICE</span>
+      <div class="ed-wrap" style="position:relative;">
+        <p class="ed-index">Services</p>
         <h1>事業内容</h1>
-        <nav class="breadcrumb" aria-label="パンくず">
-          <a href="index.html">ホーム</a>
-          <span>/</span>
-          <span>事業内容</span>
+        <nav class="crumb" aria-label="パンくず">
+          <a href="index.html">ホーム</a><span>/</span><span>事業内容</span>
         </nav>
+      </div>
+    </section>
+
+    <!-- ============ Tape ============ -->
+    <div class="tape" aria-hidden="true">
+      <div class="tape-track">
+        <span><span class="t">資材搬入</span><span class="s">/</span><span class="t">荷揚げ作業</span><span class="s">/</span><span class="t">現場サポート</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span></span>
+        <span><span class="t">資材搬入</span><span class="s">/</span><span class="t">荷揚げ作業</span><span class="s">/</span><span class="t">現場サポート</span><span class="s">/</span><span class="t">全国対応</span><span class="s">/</span><span class="t">自社車両あり</span><span class="s">/</span></span>
       </div>
     </div>
 
-    <!-- Lead -->
-    <section class="section" style="padding-bottom: 48px;">
-      <div class="section-inner">
-        <p class="section-label">Our Services</p>
-        <h2 class="section-title">搬入・荷上げの専門集団として<br>建築現場を支えます</h2>
-        <p class="section-desc">
-          施工現場において不可欠な搬入・荷上げ業務を、専門のチームが確実・安全に担当します。
-          施工会社・ゼネコン・住宅メーカーなど、さまざまな現場でのご依頼に対応しています。
-        </p>
-      </div>
-    </section>
+    <!-- ============ Services ============ -->
+    <section class="bz-svc light-sec">
+      <div class="ed-wrap">
+        <div style="max-width:720px;">
+          <p class="ed-index">01 / What We Do</p>
+          <h2 class="ed-title">搬入・荷揚げの専門集団として、<br>建築現場を支える。</h2>
+          <p class="ed-body" style="margin-top:24px;">
+            施工現場に欠かせない搬入・荷揚げ業務を、専門チームが確実・安全に担当します。
+            施工会社・ゼネコン・住宅メーカーなど、さまざまな現場のご依頼に全国で対応しています。
+          </p>
+        </div>
 
-    <!-- Business Detail -->
-    <section class="business-detail">
-      <div class="business-inner">
-
-        <div class="business-block">
-          <div class="business-img">🏗️</div>
-          <div>
-            <p class="business-tag">Service 01</p>
-            <h3 class="business-title">資材搬入作業</h3>
-            <p class="business-desc">
+        <div class="bz-row" style="margin-top:30px;">
+          <div class="bz-media">
+            <span class="no">01</span>
+            <img src="IMG_3528.JPG" alt="資材搬入作業">
+          </div>
+          <div class="bz-body">
+            <p class="ed-index">Service 01</p>
+            <h2>資材搬入作業</h2>
+            <p>
               建築現場への各種資材の搬入を、段取りから完了まで責任を持って対応します。
-              重量物・大型資材の取り扱いにも対応しており、スムーズな現場進行をサポートします。
+              重量物・大型資材の取り扱いにも対応しており、スムーズな現場進行をサポート。
               搬入スケジュールの調整から現場での配置確認まで、丁寧に取り組みます。
             </p>
-            <div class="feature-tags">
-              <span class="feature-tag">重量物対応</span>
-              <span class="feature-tag">スケジュール管理</span>
-              <span class="feature-tag">大型資材</span>
-              <span class="feature-tag">丁寧な取り扱い</span>
+            <div class="bz-tags">
+              <span>重量物対応</span><span>スケジュール管理</span><span>大型資材</span><span>丁寧な取り扱い</span>
             </div>
           </div>
         </div>
 
-        <div class="business-block reverse">
-          <div class="business-img">📦</div>
-          <div>
-            <p class="business-tag">Service 02</p>
-            <h3 class="business-title">荷上げ作業</h3>
-            <p class="business-desc">
-              高層・中高層建築現場での荷上げ作業を専門的に担当します。
-              安全管理を徹底した上で、迅速かつ確実な荷上げを実現します。
+        <div class="bz-row rev">
+          <div class="bz-media">
+            <span class="no">02</span>
+            <img src="IMG_3526.JPG" alt="荷揚げ作業">
+          </div>
+          <div class="bz-body">
+            <p class="ed-index">Service 02</p>
+            <h2>荷揚げ作業</h2>
+            <p>
+              高層・中高層建築現場での荷揚げ作業を専門的に担当します。
+              安全管理を徹底した上で、迅速かつ確実な荷揚げを実現。
               夜間対応・長時間作業など、現場のニーズに合わせた柔軟な対応が可能です。
             </p>
-            <div class="feature-tags">
-              <span class="feature-tag">高層・中高層対応</span>
-              <span class="feature-tag">夜間作業</span>
-              <span class="feature-tag">安全管理徹底</span>
-              <span class="feature-tag">長時間対応</span>
+            <div class="bz-tags">
+              <span>高層・中高層対応</span><span>夜間作業</span><span>安全管理徹底</span><span>長時間対応</span>
             </div>
           </div>
         </div>
 
-        <div class="business-block">
-          <div class="business-img">🤝</div>
-          <div>
-            <p class="business-tag">Service 03</p>
-            <h3 class="business-title">現場サポート</h3>
-            <p class="business-desc">
-              搬入・荷上げに付随する各種現場作業をトータルでサポートします。
-              施工会社のご要望に応じて、柔軟にご対応いたします。
-              現場監督との密な連携を通じて、作業品質の向上を追求します。
+        <div class="bz-row">
+          <div class="bz-media">
+            <span class="no">03</span>
+            <img src="IMG_3527.JPG" alt="現場サポート">
+          </div>
+          <div class="bz-body">
+            <p class="ed-index">Service 03</p>
+            <h2>現場サポート</h2>
+            <p>
+              搬入・荷揚げに付随する各種現場作業をトータルでサポートします。
+              施工会社のご要望に応じて柔軟に対応。現場監督との密な連携を通じて、
+              作業品質の向上を追求します。
             </p>
-            <div class="feature-tags">
-              <span class="feature-tag">柔軟対応</span>
-              <span class="feature-tag">現場連携</span>
-              <span class="feature-tag">トータルサポート</span>
+            <div class="bz-tags">
+              <span>柔軟対応</span><span>現場連携</span><span>トータルサポート</span>
             </div>
           </div>
         </div>
-
       </div>
     </section>
 
-    <!-- Feature Highlights -->
-    <section class="section" style="background: var(--gray-50);">
-      <div class="section-inner">
-        <p class="section-label">Why Choose Us</p>
-        <h2 class="section-title">選ばれる理由</h2>
-        <div class="values-grid" style="margin-top: 48px;">
-          <div class="value-card">
-            <p class="value-number">POINT 01</p>
-            <h3 class="value-title">専門チームによる確実な対応</h3>
-            <p class="value-desc">
-              搬入・荷上げに特化した専門チームが現場に入ります。
-              豊富な経験と技術で、スムーズな作業を実現します。
-            </p>
+    <!-- ============ Why ============ -->
+    <section class="bz-why dark-sec gridlines">
+      <div class="ed-wrap">
+        <p class="ed-index">02 / Why Choose Us</p>
+        <h2 class="ed-title">選ばれる<span class="stroke">理由</span></h2>
+        <div class="bz-why-grid">
+          <div class="bz-why-cell">
+            <p class="no">POINT 01</p>
+            <h3>専門チームによる<br>確実な対応</h3>
+            <p>搬入・荷揚げに特化した専門チームが現場に入ります。豊富な経験と段取り力で、スムーズな作業を実現します。</p>
           </div>
-          <div class="value-card">
-            <p class="value-number">POINT 02</p>
-            <h3 class="value-title">安全最優先の作業</h3>
-            <p class="value-desc">
-              すべての作業において安全を最優先とし、事故ゼロを目指します。
-              現場クレーム・事故件数ゼロを目標に取り組んでいます。
-            </p>
+          <div class="bz-why-cell">
+            <p class="no">POINT 02</p>
+            <h3>安全最優先の<br>作業</h3>
+            <p>すべての作業において安全を最優先とし、事故ゼロを目指します。現場クレーム・事故件数ゼロを目標に取り組んでいます。</p>
           </div>
-          <div class="value-card">
-            <p class="value-number">POINT 03</p>
-            <h3 class="value-title">柔軟なスケジュール対応</h3>
-            <p class="value-desc">
-              ショート・ロング・夜間など、現場のスケジュールに合わせた柔軟な対応が可能です。
-              急なご要望にも誠実に対応いたします。
-            </p>
+          <div class="bz-why-cell">
+            <p class="no">POINT 03</p>
+            <h3>柔軟な<br>スケジュール対応</h3>
+            <p>ショート・ロング・夜間など、現場のスケジュールに合わせた柔軟な対応が可能です。急なご要望にも誠実に対応します。</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Flow -->
-    <section class="section">
-      <div class="section-inner">
-        <p class="section-label">Work Flow</p>
-        <h2 class="section-title">ご依頼の流れ</h2>
-        <div class="divider"></div>
-        <div style="margin-top: 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2px; background: var(--gray-100); border-radius: 8px; overflow: hidden;">
-          <div style="background: var(--white); padding: 32px 24px; text-align: center;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">📞</div>
-            <div style="font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 8px;">STEP 01</div>
-            <div style="font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">お問い合わせ</div>
-            <div style="font-size: 0.8rem; color: var(--gray-500);">フォームまたはお電話でご連絡ください</div>
+    <!-- ============ Vehicles ============ -->
+    <section class="bz-veh light-sec">
+      <div class="ed-wrap">
+        <div class="sec-head" style="max-width:720px;">
+          <p class="ed-index">03 / Our Fleet</p>
+          <h2 class="ed-title">自社車両を保有</h2>
+          <p class="ed-body" style="margin-top:22px;">
+            ユニック車・平ボディ車を自社で保有。配送から搬入・荷揚げまで、ワンストップでお任せいただけます。
+          </p>
+        </div>
+        <div class="bz-veh-grid">
+          <div class="bz-veh-card">
+            <img src="IMG_3530.JPG" alt="ユニック車">
+            <div class="cap">
+              <h3>ユニック車</h3>
+              <p>クレーン付きトラックで、重量物の積み降ろしもスムーズ。現場条件に合わせて活躍します。</p>
+            </div>
           </div>
-          <div style="background: var(--white); padding: 32px 24px; text-align: center;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">📋</div>
-            <div style="font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 8px;">STEP 02</div>
-            <div style="font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">ヒアリング・お見積り</div>
-            <div style="font-size: 0.8rem; color: var(--gray-500);">現場の詳細をお伺いし、お見積りをご提示します</div>
-          </div>
-          <div style="background: var(--white); padding: 32px 24px; text-align: center;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">✅</div>
-            <div style="font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 8px;">STEP 03</div>
-            <div style="font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">ご契約・日程調整</div>
-            <div style="font-size: 0.8rem; color: var(--gray-500);">ご確認後、作業日程を調整します</div>
-          </div>
-          <div style="background: var(--white); padding: 32px 24px; text-align: center;">
-            <div style="font-size: 1.5rem; margin-bottom: 12px;">🏗️</div>
-            <div style="font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 8px;">STEP 04</div>
-            <div style="font-weight: 700; color: var(--gray-900); margin-bottom: 8px;">作業実施</div>
-            <div style="font-size: 0.8rem; color: var(--gray-500);">専門チームが現場で丁寧に作業を行います</div>
+          <div class="bz-veh-card">
+            <img src="IMG_3529.JPG" alt="平ボディ車">
+            <div class="cap">
+              <h3>平ボディ車</h3>
+              <p>長尺・大型資材の運搬に対応。資材のサイズ・数量に合わせて柔軟に配車します。</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- CTA -->
-    <div class="cta-banner">
-      <h2 class="cta-title">まずはお気軽にご相談ください</h2>
-      <p class="cta-desc">現場の規模・内容を問わず、搬入・荷上げに関することはなんでもご相談ください。</p>
-      <a href="contact.html" class="btn-primary">お問い合わせはこちら →</a>
+    <!-- ============ Flow ============ -->
+    <section class="bz-flow light-sec" style="background:var(--paper-2);">
+      <div class="ed-wrap">
+        <p class="ed-index">04 / Work Flow</p>
+        <h2 class="ed-title">ご依頼の流れ</h2>
+        <div class="bz-steps">
+          <div class="bz-step">
+            <p class="no">STEP 01</p>
+            <h3>お問い合わせ</h3>
+            <p>フォームまたはお電話でお気軽にご連絡ください。</p>
+          </div>
+          <div class="bz-step">
+            <p class="no">STEP 02</p>
+            <h3>ヒアリング・お見積り</h3>
+            <p>現場の詳細をお伺いし、最適なお見積りをご提示します。</p>
+          </div>
+          <div class="bz-step">
+            <p class="no">STEP 03</p>
+            <h3>ご契約・日程調整</h3>
+            <p>内容ご確認後、作業日程を調整します。</p>
+          </div>
+          <div class="bz-step">
+            <p class="no">STEP 04</p>
+            <h3>作業実施</h3>
+            <p>専門チームが現場で丁寧・確実に作業を行います。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <div class="last-cta">
+      <span class="wm" aria-hidden="true">CONTACT</span>
+      <h2>まずはお気軽に、<br>ご相談ください。</h2>
+      <p>現場の規模・内容を問わず、搬入・荷揚げに関することはなんでもどうぞ。</p>
+      <a href="contact.html" class="b-solid">お問い合わせはこちら <span class="b-arrow">→</span></a>
     </div>
 
   </main>
@@ -202,7 +299,7 @@
       <div class="footer-top">
         <div class="footer-brand">
           <div class="footer-logo"><span>優心</span> 株式会社</div>
-          <p>建築現場における資材搬入・荷上げを専門とする会社です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
+          <p>建築現場における資材搬入・荷揚げを専門とする「利他的な荷揚げ屋」です。誠実な現場主義で、業界の信頼と発展に貢献します。</p>
         </div>
         <div>
           <p class="footer-nav-title">Menu</p>
@@ -218,6 +315,8 @@
           <p class="footer-nav-title">Contact</p>
           <ul class="footer-nav-links">
             <li><a href="contact.html">お問い合わせフォーム</a></li>
+            <li><a href="https://www.tiktok.com/@yushin.inc129" target="_blank" rel="noopener">TikTok</a></li>
+            <li><a href="https://www.instagram.com/yushin.inc" target="_blank" rel="noopener">Instagram</a></li>
           </ul>
         </div>
       </div>

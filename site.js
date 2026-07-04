@@ -130,6 +130,10 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.bz-row',
+      '.bz-why-cell',
+      '.bz-veh-card',
+      '.bz-step',
       '.manga-stage .panel',
       '.mg-divider',
       '.manga-cta',
