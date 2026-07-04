@@ -130,8 +130,8 @@ body { background: var(--coal); color: #d8d4ca; }
 .hv-kicker::before { content: ''; width: 40px; height: 2px; background: var(--org); }
 .hv-title {
   margin: 30px 0 0; color: #f6f3ec;
-  font-size: clamp(3.2rem, 10.5vw, 8rem);
-  font-weight: 900; line-height: 1.08; letter-spacing: 0.015em;
+  font-size: clamp(2.1rem, 6.2vw, 4.7rem);
+  font-weight: 900; line-height: 1.42; letter-spacing: 0.02em;
 }
 .hv-title .org { color: var(--org); }
 .hv-sub {
