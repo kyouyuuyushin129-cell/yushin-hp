@@ -130,6 +130,17 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.ed-index',
+      '.ed-title',
+      '.sns-card',
+      '.about-media',
+      '.about-facts .f',
+      '.num-b',
+      '.svc-row',
+      '.philo-in',
+      '.day-cell',
+      '.gal-item',
+      '.rec-in',
       '.sec-head',
       '.section-inner > .section-label',
       '.section-inner > .section-title',
