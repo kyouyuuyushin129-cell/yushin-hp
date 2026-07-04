@@ -79,6 +79,69 @@
     onScrollUI();
     window.addEventListener('scroll', onScrollUI, { passive: true });
 
+    /* ---- Custom cursor (desktop) ---- */
+    if (window.matchMedia('(pointer: fine)').matches && !prefersReduced) {
+      var dot = document.createElement('div');
+      var ring = document.createElement('div');
+      dot.className = 'cur-dot'; ring.className = 'cur-ring';
+      document.body.appendChild(dot); document.body.appendChild(ring);
+      doc.classList.add('cursor-on');
+
+      var mx = -100, my = -100, rx = -100, ry = -100;
+      document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; }, { passive: true });
+      document.addEventListener('mousedown', function () { doc.classList.add('cursor-down'); });
+      document.addEventListener('mouseup', function () { doc.classList.remove('cursor-down'); });
+      var loop = function () {
+        dot.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
+        rx += (mx - rx) * 0.18; ry += (my - ry) * 0.18;
+        ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+        requestAnimationFrame(loop);
+      };
+      requestAnimationFrame(loop);
+
+      var hoverSel = 'a, button, [role="button"], input, select, textarea, label, summary';
+      document.addEventListener('mouseover', function (e) {
+        if (e.target.closest(hoverSel)) doc.classList.add('cursor-hover');
+      });
+      document.addEventListener('mouseout', function (e) {
+        if (e.target.closest(hoverSel)) doc.classList.remove('cursor-hover');
+      });
+
+      /* ---- Magnetic buttons ---- */
+      document.querySelectorAll('.b-solid, .b-ghost, .btn-primary, .nav-cta').forEach(function (btn) {
+        btn.addEventListener('mousemove', function (e) {
+          var r = btn.getBoundingClientRect();
+          var dx = (e.clientX - (r.left + r.width / 2)) / r.width;
+          var dy = (e.clientY - (r.top + r.height / 2)) / r.height;
+          btn.style.transform = 'translate(' + dx * 8 + 'px,' + (dy * 6 - 2) + 'px)';
+        });
+        btn.addEventListener('mouseleave', function () { btn.style.transform = ''; });
+      });
+    }
+
+    /* ---- Parallax ghost words ---- */
+    if (!prefersReduced) {
+      var ghosts = document.querySelectorAll('.hv-ghost, .bz-hero .ghost, .rc-hero .ghost, .ab-hero .ghost, .philo-sec .wm, .last-cta .wm, .ab-msg .wm, .manga-title-block .ghost');
+      if (ghosts.length) {
+        var ticking = false;
+        var para = function () {
+          ticking = false;
+          var vh = window.innerHeight;
+          ghosts.forEach(function (el) {
+            var r = (el.parentElement || el).getBoundingClientRect();
+            var mid = r.top + r.height / 2 - vh / 2;
+            el.style.willChange = 'transform';
+            var base = el.classList.contains('wm') ? 'translate(-50%, -50%) ' : '';
+            el.style.transform = base + 'translateY(' + (mid * -0.12) + 'px)';
+          });
+        };
+        window.addEventListener('scroll', function () {
+          if (!ticking) { ticking = true; requestAnimationFrame(para); }
+        }, { passive: true });
+        para();
+      }
+    }
+
     /* ---- FAQ accordion ---- */
     document.querySelectorAll('.faq-item').forEach(function (item) {
       var q = item.querySelector('.faq-q');
