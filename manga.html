@@ -9,57 +9,107 @@
   <style>
     :root {
       --ink: #14110d;
+      --coal: #151310;
       --paper: #f4f1e8;
+      --org: #ff5a1f;
+      --org-deep: #e04a12;
     }
-    body { background: #d9d4c6; }
+    body { background: #100f0d; }
+
+    /* ---- site chrome (orange accents, this page only) ---- */
+    .site-header { background: rgba(16,15,13,0.85); border-bottom: 1px solid rgba(255,90,31,0.22); }
+    .site-header.scrolled { background: rgba(16,15,13,0.96); }
+    .logo-text span { color: var(--org); }
+    .nav-links a:hover, .nav-links a.active { color: var(--org); }
+    .nav-links a::after { background: var(--org); }
+    .nav-cta { background: var(--org) !important; color: #fff !important; }
+    .nav-cta:hover { background: var(--org-deep) !important; }
+    .scroll-progress { background: var(--org); box-shadow: 0 0 8px rgba(255,90,31,0.55); }
+    .to-top { background: rgba(16,15,13,0.9); color: var(--org); border-color: rgba(255,90,31,0.5); }
+    .to-top:hover { background: var(--org); color: #fff; }
+    .mobile-cta .m-contact { background: var(--org); color: #fff; }
+    .mobile-cta .m-recruit { background: #100f0d; border-left-color: rgba(255,90,31,0.4); }
+    .site-footer { background: #100f0d; border-top: 1px solid rgba(255,90,31,0.25); }
+    .footer-logo span { color: var(--org); }
+    .footer-nav-links a:hover { color: var(--org); }
+    ::selection { background: rgba(255,90,31,0.35); color: #fff; }
 
     /* ===== Manga Stage ===== */
     .manga-stage {
-      max-width: 880px;
+      max-width: 900px;
       margin: 0 auto;
-      padding: 40px 18px 90px;
+      padding: 48px 18px 100px;
     }
-    .manga-stage .row { margin-bottom: 10px; }
+    .manga-stage .row { margin-bottom: 14px; }
 
     /* ===== Title ===== */
     .manga-title-block {
-      background: radial-gradient(circle at 30% 20%, #15294a 0%, var(--navy) 55%, #04060c 100%);
-      border: 5px solid var(--ink);
-      box-shadow: 8px 8px 0 rgba(0,0,0,0.25);
-      padding: 60px 40px 52px;
+      background:
+        radial-gradient(circle at 78% 12%, rgba(255,90,31,0.22), transparent 46%),
+        radial-gradient(circle at 30% 20%, #26221c 0%, var(--coal) 55%, #0a0908 100%);
+      border: 4px solid #000;
+      box-shadow: 10px 10px 0 rgba(255,90,31,0.9);
+      padding: 68px 40px 60px;
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 14px;
       position: relative;
       overflow: hidden;
     }
-    .manga-title-block .focus { position: absolute; inset: 0; opacity: 0.5; }
+    .manga-title-block .focus { position: absolute; inset: 0; opacity: 0.35; }
     .manga-title-block .halftone {
       position: absolute; inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1.4px, transparent 1.5px);
+      background-image: radial-gradient(circle, rgba(255,255,255,0.10) 1.4px, transparent 1.5px);
       background-size: 11px 11px;
       mask-image: linear-gradient(to bottom right, #000, transparent 70%);
       -webkit-mask-image: linear-gradient(to bottom right, #000, transparent 70%);
     }
+    .manga-title-block .ep {
+      position: absolute; top: 22px; left: 22px;
+      font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.66rem;
+      letter-spacing: 0.3em; color: rgba(255,255,255,0.55);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .manga-title-block .ep::before { content: ''; width: 26px; height: 2px; background: var(--org); }
+    .manga-title-block .ghost {
+      position: absolute; right: -10px; bottom: -18px;
+      font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: clamp(4rem, 13vw, 8rem);
+      line-height: 1; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.10);
+      pointer-events: none;
+    }
     .manga-label {
       display: inline-block;
       font-size: 0.7rem; font-weight: 800; letter-spacing: 0.3em;
-      color: var(--navy); background: var(--gold);
-      padding: 5px 16px; border-radius: 2px;
-      margin-bottom: 20px; position: relative;
+      color: #fff; background: var(--org);
+      padding: 6px 18px;
+      margin-bottom: 22px; position: relative;
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
     }
     .manga-main-title {
-      font-size: clamp(2.3rem, 7.5vw, 4.4rem);
-      font-weight: 900; color: #fff;
-      letter-spacing: 0.06em; position: relative; line-height: 1.1;
-      text-shadow: 3px 3px 0 var(--gold), 6px 6px 0 rgba(0,0,0,0.5);
+      font-size: clamp(2.4rem, 8vw, 4.8rem);
+      font-weight: 900; color: #f6f3ec;
+      letter-spacing: 0.05em; position: relative; line-height: 1.12;
+      text-shadow: 4px 4px 0 rgba(255,90,31,0.85), 8px 8px 0 rgba(0,0,0,0.55);
     }
-    .manga-main-title .accent { color: var(--gold); text-shadow: 3px 3px 0 #fff, 6px 6px 0 rgba(0,0,0,0.5); }
-    .manga-sub-title { font-size: 1.05rem; color: rgba(255,255,255,0.88); margin-top: 18px; letter-spacing: 0.18em; position: relative; font-weight: 700; }
-    .title-tags { margin-top: 18px; position: relative; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    .title-tags span { font-size: 0.74rem; font-weight: 800; color: var(--gold); border: 1.5px solid rgba(245,192,0,0.5); border-radius: 20px; padding: 4px 12px; }
+    .manga-main-title .accent { color: var(--org); text-shadow: 4px 4px 0 #f6f3ec, 8px 8px 0 rgba(0,0,0,0.55); }
+    .manga-sub-title { font-size: 1.02rem; color: rgba(255,255,255,0.85); margin-top: 20px; letter-spacing: 0.2em; position: relative; font-weight: 700; }
+    .title-tags { margin-top: 20px; position: relative; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .title-tags span { font-size: 0.74rem; font-weight: 800; color: #ffb894; border: 1.5px solid rgba(255,90,31,0.55); padding: 4px 14px; }
+
+    /* ===== Chapter divider ===== */
+    .mg-divider {
+      display: flex; align-items: center; gap: 18px;
+      margin: 34px 2px 18px;
+      color: #f0ece2;
+    }
+    .mg-divider .no {
+      font-family: 'Inter', var(--font-jp); font-weight: 800; font-size: 0.66rem;
+      letter-spacing: 0.3em; color: var(--org);
+    }
+    .mg-divider .tt { font-weight: 900; font-size: 1.14rem; letter-spacing: 0.14em; }
+    .mg-divider .ln { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, var(--org) 0 14px, transparent 14px 22px); opacity: 0.75; }
 
     /* ===== Panels ===== */
-    .panel-row { display: grid; gap: 10px; }
+    .panel-row { display: grid; gap: 14px; }
     .panel-row.col2 { grid-template-columns: 1fr 1fr; }
     .panel-row.col3 { grid-template-columns: 1fr 1fr 1fr; }
     .panel-row.col-6-4 { grid-template-columns: 6fr 4fr; }
@@ -69,15 +119,15 @@
 
     .panel {
       background: var(--paper);
-      border: 4px solid var(--ink);
-      box-shadow: 5px 5px 0 rgba(0,0,0,0.18);
+      border: 4px solid #000;
+      box-shadow: 7px 7px 0 rgba(0,0,0,0.55);
       min-height: 240px; position: relative; overflow: hidden;
       display: flex; flex-direction: column; padding: 18px;
     }
     .panel.tall { min-height: 360px; }
     .panel.sky { background: linear-gradient(to bottom, #cfeafd 0%, #eaf6ff 55%, #f4f1e8 100%); }
     .panel.dawn { background: linear-gradient(to bottom, #ffe1c4 0%, #ffd0a8 45%, #f9ead8 100%); }
-    .panel.dark { background: radial-gradient(circle at 50% 35%, #1e2b48 0%, #0d1424 80%); }
+    .panel.dark { background: radial-gradient(circle at 50% 35%, #2a2620 0%, #12100d 80%); }
     .panel.warm { background: linear-gradient(160deg, #fff7e0 0%, #ffeccb 100%); }
 
     /* ===== Photo panel (実写を漫画風に加工) ===== */
@@ -113,11 +163,12 @@
 
     .panel-caption {
       font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
-      color: var(--ink); margin-bottom: 8px; align-self: flex-start;
-      background: var(--gold); padding: 4px 12px 4px 10px;
-      position: relative; z-index: 3; box-shadow: 2px 2px 0 rgba(0,0,0,0.2);
+      color: #fff; margin-bottom: 8px; align-self: flex-start;
+      background: var(--org); padding: 5px 14px 5px 11px;
+      position: relative; z-index: 3; box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
     }
-    .panel-caption.ghost { background: rgba(255,255,255,0.92); border-left: 4px solid var(--gold); }
+    .panel-caption.ghost { background: rgba(255,255,255,0.94); color: var(--ink); border-left: 4px solid var(--org); clip-path: none; }
 
     /* ===== Speech bubbles ===== */
     .bubble {
@@ -144,13 +195,13 @@
       padding: 18px 22px;
     }
     .bubble.shout::after, .bubble.shout::before { display: none; }
-    .bubble.dark { background: var(--navy); color: #fff; border-color: var(--ink); }
-    .bubble.dark::before { border-top-color: var(--navy); }
-    .bubble.dark.top::before { border-top: none; border-bottom-color: var(--navy); }
+    .bubble.dark { background: var(--coal); color: #fff; border-color: #000; }
+    .bubble.dark::before { border-top-color: var(--coal); }
+    .bubble.dark.top::before { border-top: none; border-bottom-color: var(--coal); }
 
     /* ===== SFX ===== */
     .sfx { font-size: 3.4rem; font-weight: 900; font-style: italic; letter-spacing: -0.02em; line-height: 0.95; color: var(--ink); -webkit-text-stroke: 1px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.18); display: block; position: relative; z-index: 4; }
-    .sfx.gold { color: var(--gold); -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.45); }
+    .sfx.gold { color: var(--org); -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.45); }
     .sfx.white { color: #fff; -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 rgba(0,0,0,0.6); }
     .sfx.sm { font-size: 1.7rem; }
     .sfx.lg { font-size: 4.4rem; }
@@ -161,7 +212,8 @@
     .lines-bg { position: absolute; inset: 0; pointer-events: none; }
 
     .narr { background: #fffaf0; border: 2.5px solid var(--ink); padding: 7px 13px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; display: inline-block; align-self: flex-start; box-shadow: 3px 3px 0 rgba(0,0,0,0.14); position: relative; z-index: 3; }
-    .pill { background: rgba(245,192,0,0.18); border: 1.6px solid var(--gold); border-radius: 20px; padding: 5px 14px; font-size: 0.75rem; font-weight: 800; color: var(--gold); display: inline-block; }
+    .pill { background: rgba(255,90,31,0.14); border: 1.6px solid var(--org); padding: 5px 14px; font-size: 0.75rem; font-weight: 800; color: var(--org); display: inline-block; }
+    .panel.dark .pill { color: #ffb894; }
 
     /* ===== TikTok-style frame ===== */
     .tiktok-frame {
@@ -175,21 +227,24 @@
     .tt-rec .dot { width: 9px; height: 9px; border-radius: 50%; background: #ff3b3b; box-shadow: 0 0 6px #ff3b3b; }
     .tt-counter { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 4; gap: 2px; }
     .tt-counter .lbl { font-size: 0.66rem; font-weight: 800; color: rgba(255,255,255,0.8); letter-spacing: 0.12em; }
-    .tt-counter .num { font-size: 3.6rem; font-weight: 900; color: var(--gold); line-height: 1; -webkit-text-stroke: 2px #000; text-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
+    .tt-counter .num { font-size: 3.6rem; font-weight: 900; color: var(--org); line-height: 1; -webkit-text-stroke: 2px #000; text-shadow: 3px 3px 0 rgba(0,0,0,0.5); }
     .tt-counter .unit { font-size: 0.9rem; font-weight: 800; color: #fff; }
     .tt-side { position: absolute; right: 8px; bottom: 56px; display: flex; flex-direction: column; gap: 14px; align-items: center; z-index: 5; color: #fff; }
     .tt-side div { display: flex; flex-direction: column; align-items: center; font-size: 0.55rem; font-weight: 700; gap: 2px; }
     .tt-side svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
     .tt-cap { position: absolute; left: 10px; right: 40px; bottom: 10px; z-index: 5; text-align: left; }
     .tt-cap .acc { font-size: 0.66rem; font-weight: 800; color: #fff; }
-    .tt-cap .tags { font-size: 0.6rem; font-weight: 700; color: var(--gold); line-height: 1.5; margin-top: 2px; }
+    .tt-cap .tags { font-size: 0.6rem; font-weight: 700; color: #ffb894; line-height: 1.5; margin-top: 2px; }
 
     /* ===== Recruit CTA ===== */
-    .manga-cta { background: radial-gradient(circle at 50% 0%, #15294a 0%, var(--navy) 60%, #04060c 100%); border: 5px solid var(--ink); box-shadow: 8px 8px 0 rgba(0,0,0,0.25); padding: 56px 40px; text-align: center; position: relative; overflow: hidden; }
-    .manga-cta .halftone { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(245,192,0,0.10) 1.4px, transparent 1.6px); background-size: 12px 12px; mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); }
-    .manga-cta-title { font-size: clamp(1.7rem, 5vw, 2.7rem); font-weight: 900; color: #fff; margin-bottom: 14px; position: relative; line-height: 1.3; }
-    .manga-cta-title span { color: var(--gold); }
-    .manga-cta-desc { color: rgba(255,255,255,0.78); margin-bottom: 30px; position: relative; line-height: 1.9; }
+    .manga-cta { background: radial-gradient(circle at 78% -10%, rgba(255,90,31,0.3), transparent 50%), radial-gradient(circle at 50% 0%, #26221c 0%, var(--coal) 60%, #0a0908 100%); border: 4px solid #000; box-shadow: 10px 10px 0 rgba(255,90,31,0.9); padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+    .manga-cta .halftone { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,90,31,0.12) 1.4px, transparent 1.6px); background-size: 12px 12px; mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); }
+    .manga-cta-title { font-size: clamp(1.7rem, 5vw, 2.7rem); font-weight: 900; color: #f6f3ec; margin-bottom: 14px; position: relative; line-height: 1.35; }
+    .manga-cta-title span { color: var(--org); }
+    .manga-cta-desc { color: rgba(255,255,255,0.75); margin-bottom: 30px; position: relative; line-height: 1.9; }
+    .manga-cta .btn-primary { background: var(--org); color: #fff; border-radius: 0; box-shadow: none; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+    .manga-cta .btn-primary:hover { background: var(--org-deep); filter: none; }
+    .manga-cta .btn-secondary { border-color: rgba(255,255,255,0.5); color: #f0ede5; border-radius: 0; }
     .manga-cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; }
     .indeed-btn { display: inline-flex; align-items: center; gap: 8px; background: #2164f3; color: #fff; padding: 14px 32px; border-radius: 4px; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: background 0.2s, transform 0.2s; }
     .indeed-btn:hover { background: #1a52d4; transform: translateY(-2px); }
@@ -244,8 +299,10 @@
 
     <!-- ===================== ① タイトル ===================== -->
     <div class="manga-title-block">
+      <span class="ep">YUSHIN COMIC — EPISODE 01</span>
+      <span class="ghost" aria-hidden="true">NIAGE</span>
       <svg class="focus" viewBox="0 0 880 280" preserveAspectRatio="none">
-        <g stroke="#d4a030" stroke-width="2">
+        <g stroke="#ff5a1f" stroke-width="2">
           <line x1="440" y1="140" x2="0" y2="-40"/><line x1="440" y1="140" x2="150" y2="-40"/>
           <line x1="440" y1="140" x2="300" y2="-40"/><line x1="440" y1="140" x2="440" y2="-40"/>
           <line x1="440" y1="140" x2="580" y2="-40"/><line x1="440" y1="140" x2="730" y2="-40"/>
@@ -257,7 +314,7 @@
         </g>
       </svg>
       <span class="halftone"></span>
-      <span class="manga-label">YUSHIN COMIC ／ TikTokでも発信中</span>
+      <span class="manga-label">TikTokでも発信中</span>
       <h1 class="manga-main-title">担いで、<span class="accent">上</span>へ。</h1>
       <p class="manga-sub-title">― 利他的な荷揚げ屋・優心の１日 ―</p>
       <div class="title-tags">
@@ -266,6 +323,7 @@
     </div>
 
     <!-- ===================== ② 朝・現場到着 ===================== -->
+    <div class="mg-divider"><span class="no">SCENE 01</span><span class="tt">朝、現場へ。</span><span class="ln"></span></div>
     <div class="panel-row col-5-7 row">
 
       <!-- 出発 -->
@@ -317,6 +375,7 @@
     </div>
 
     <!-- ===================== ③ 利他レクチャー ===================== -->
+    <div class="mg-divider"><span class="no">SCENE 02</span><span class="tt">はじめての一枚。</span><span class="ln"></span></div>
     <div class="panel-row col2 row">
 
       <!-- 担ぎ方を教える（利他） -->
@@ -548,7 +607,7 @@
           <div style="font-size:0.9rem; font-weight:700; line-height:1.95;">
             「何枚担げる？」の枚数チャレンジや、職人技の担ぎ方、<br>
             現場のワイワイした雰囲気を毎日アップ。<br>
-            <b style="color:var(--gold);">見て楽しい・やってみたくなる</b>、そんな荷揚げ屋を目指してます。
+            <b style="color:var(--org);">見て楽しい・やってみたくなる</b>、そんな荷揚げ屋を目指してます。
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <span class="pill">枚数チャレンジ</span><span class="pill">担ぎ方講座</span><span class="pill">現場の日常</span>
@@ -558,6 +617,7 @@
     </div>
 
     <!-- ===================== ⑥ 利他：助け合い ===================== -->
+    <div class="mg-divider"><span class="no">SCENE 03</span><span class="tt">「利他」の現場。</span><span class="ln"></span></div>
     <div class="panel-row col2 row">
 
       <!-- 新人がバテる→先輩がフォロー -->
@@ -616,7 +676,7 @@
       <!-- チームで連携 -->
       <div class="panel dark" style="justify-content:flex-start;">
         <svg class="lines-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <g stroke="rgba(245,192,0,0.16)" stroke-width="1.2">
+          <g stroke="rgba(255,90,31,0.22)" stroke-width="1.2">
             <line x1="50" y1="45" x2="-10" y2="-10"/><line x1="50" y1="45" x2="50" y2="-10"/><line x1="50" y1="45" x2="110" y2="-10"/>
             <line x1="50" y1="45" x2="-10" y2="110"/><line x1="50" y1="45" x2="110" y2="110"/>
             <line x1="50" y1="45" x2="-10" y2="50"/><line x1="50" y1="45" x2="110" y2="50"/>
@@ -632,7 +692,18 @@
       </div>
     </div>
 
+    <!-- ===================== ⑥.5 実写：置き方まで丁寧に ===================== -->
+    <div class="panel photo row" style="min-height:300px;">
+      <img class="ph-img" src="IMG_3526.JPG" alt="搬入先にきれいに立てられたボード">
+      <span class="ph-tone"></span>
+      <span class="ph-vig"></span>
+      <span class="photo-sfx">スッ…</span>
+      <p class="panel-caption">搬入先で、きれいに整列</p>
+      <div class="bubble" style="align-self:flex-start;">運ぶだけやない。<b>置き方まで丁寧に</b>——それが優心の仕事や。</div>
+    </div>
+
     <!-- ===================== ⑦ 完了・夕暮れ ===================== -->
+    <div class="mg-divider"><span class="no">SCENE 04</span><span class="tt">やり切った、その先に。</span><span class="ln"></span></div>
     <div class="panel-row col-6-4 row">
 
       <!-- 完了 -->
@@ -663,8 +734,8 @@
             <path d="M48 38 Q75 0 102 38 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
             <ellipse cx="75" cy="38" rx="33" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
             <ellipse cx="64" cy="24" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
-            <text x="6" y="40" font-size="18" font-weight="900" fill="#d4a030">✦</text>
-            <text x="128" y="92" font-size="14" font-weight="900" fill="#d4a030">✧</text>
+            <text x="6" y="40" font-size="18" font-weight="900" fill="#ff5a1f">✦</text>
+            <text x="128" y="92" font-size="14" font-weight="900" fill="#ff5a1f">✧</text>
           </svg>
           <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
             <div class="bubble right">やり切った！<br>今日もええ汗かいたわ〜！</div>
@@ -704,7 +775,7 @@
     <!-- ===================== ⑧ CTA ===================== -->
     <div class="manga-cta">
       <span class="halftone"></span>
-      <p style="font-size:0.7rem; font-weight:800; letter-spacing:0.3em; color:var(--gold); margin-bottom:16px; position:relative;">— RECRUIT</p>
+      <p style="font-size:0.7rem; font-weight:800; letter-spacing:0.3em; color:var(--org); margin-bottom:16px; position:relative;">— RECRUIT</p>
       <h2 class="manga-cta-title">体ひとつで、<span>稼げる。</span><br>荷揚げ屋、はじめてみませんか？</h2>
       <p class="manga-cta-desc">
         未経験OK・学歴不問。最初はみんな「初めての一枚」から。<br>
@@ -712,7 +783,7 @@
         まずは TikTok で現場の雰囲気を覗いてみてください。
       </p>
       <div class="manga-cta-buttons">
-        <a href="recruit.html" class="btn-primary" style="color:var(--navy);">求人情報を見る →</a>
+        <a href="recruit.html" class="btn-primary">求人情報を見る →</a>
         <a href="https://jp.indeed.com/job/%E5%BB%BA%E7%AF%89%E8%B3%87%E6%9D%90%E6%90%AC%E5%85%A5%E8%BB%BD%E4%BD%9C%E6%A5%AD%E3%82%B9%E3%82%BF%E3%83%83%E3%83%95-bbd0196dc9024f7a" target="_blank" rel="noopener" class="indeed-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-1 14H5c-.55 0-1-.45-1-1V7l8 5 8-5v10c0 .55-.45 1-1 1zm-7-7L4 6h16l-8 5z"/></svg>
           Indeed で応募する

@@ -130,6 +130,9 @@
     if (prefersReduced || !('IntersectionObserver' in window)) return;
 
     var selectors = [
+      '.manga-stage .panel',
+      '.mg-divider',
+      '.manga-cta',
       '.ed-index',
       '.ed-title',
       '.sns-card',
