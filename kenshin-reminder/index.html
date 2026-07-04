@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健診リマインダー | 従業員健康診断管理</title>
+<meta name="description" content="従業員の健康診断予定をまとめて管理・LINE通知">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23166b4f'/><path d='M28 52 l16 16 l30 -34' stroke='white' stroke-width='12' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+<style>
+:root{
+  --green-900:#0d3b2e; --green-800:#125240; --green-700:#166b4f; --green-600:#1d8563;
+  --green-100:#d7ede3; --green-50:#ecf6f1;
+  --amber-600:#b45309; --amber-100:#fef3c7;
+  --red-600:#b91c1c; --red-100:#fee2e2;
+  --blue-600:#1d4ed8; --blue-100:#dbeafe;
+  --ink:#1c2b26; --ink-2:#4b5f57; --ink-3:#7d8f88;
+  --bg:#f2f5f3; --card:#ffffff; --line:#e2e8e4;
+  --radius:14px;
+  --shadow:0 1px 2px rgba(13,59,46,.06),0 4px 16px rgba(13,59,46,.07);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic UI",Meiryo,system-ui,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.65;min-height:100vh;
+}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:16px}
+
+/* ===== ヘッダー ===== */
+.site-head{
+  background:linear-gradient(135deg,var(--green-900) 0%,var(--green-700) 100%);
+  color:#fff;padding:28px 20px 84px;
+}
+.head-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.head-mark{
+  width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.14);
+  display:grid;place-items:center;flex-shrink:0;
+}
+.head-mark svg{width:26px;height:26px}
+.head-title{font-size:22px;font-weight:800;letter-spacing:.04em}
+.head-sub{font-size:12.5px;opacity:.82;margin-top:2px}
+.head-date{margin-left:auto;text-align:right;font-size:12px;opacity:.85;line-height:1.5;white-space:nowrap}
+
+/* ===== 集計カード ===== */
+.stats{max-width:960px;margin:-56px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:14px 16px;border-top:3px solid var(--line);cursor:pointer;transition:transform .15s;
+  text-align:left;border-right:none;border-bottom:none;border-left:none;
+}
+.stat:hover{transform:translateY(-2px)}
+.stat .n{font-size:26px;font-weight:800;line-height:1.2;font-variant-numeric:tabular-nums}
+.stat .l{font-size:11.5px;color:var(--ink-2);letter-spacing:.03em}
+.stat.total{border-top-color:var(--green-600)} .stat.total .n{color:var(--green-700)}
+.stat.soon{border-top-color:#d97706} .stat.soon .n{color:var(--amber-600)}
+.stat.over{border-top-color:#dc2626} .stat.over .n{color:var(--red-600)}
+.stat.month{border-top-color:#3b82f6} .stat.month .n{color:var(--blue-600)}
+
+/* ===== タブ ===== */
+main{max-width:960px;margin:0 auto;padding:18px 20px 80px}
+.tabs{
+  display:flex;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:6px;gap:4px;margin-bottom:18px;overflow-x:auto;
+}
+.tab{
+  flex:1;border:none;background:transparent;padding:10px 8px;border-radius:10px;
+  font-size:13.5px;font-weight:700;color:var(--ink-2);white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s,color .15s;
+}
+.tab:hover{background:var(--green-50)}
+.tab.active{background:var(--green-700);color:#fff}
+.tab .badge{
+  min-width:20px;height:20px;padding:0 6px;border-radius:10px;font-size:11px;font-weight:800;
+  display:inline-grid;place-items:center;background:var(--line);color:var(--ink-2);
+}
+.tab.active .badge{background:rgba(255,255,255,.25);color:#fff}
+.tab .badge.hot{background:var(--red-600);color:#fff}
+.tab .badge.warm{background:#d97706;color:#fff}
+
+/* ===== カード共通 ===== */
+.panel{display:none}
+.panel.active{display:block;animation:fadein .2s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:16px}
+.card h2{font-size:16.5px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.card .desc{font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
+
+/* ===== 従業員リスト ===== */
+.emp{
+  display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid var(--line);
+  flex-wrap:wrap;
+}
+.emp:last-child{border-bottom:none}
+.emp .avatar{
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;
+  font-weight:800;font-size:15px;color:#fff;background:var(--green-600);
+}
+.emp .who{min-width:0;flex:1}
+.emp .name{font-weight:700;font-size:15px}
+.emp .meta{font-size:12px;color:var(--ink-3)}
+.emp .when{text-align:right;white-space:nowrap}
+.emp .date{font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.pill{
+  display:inline-block;font-size:11px;font-weight:800;padding:2px 10px;border-radius:999px;margin-top:2px;
+}
+.pill.ok{background:var(--green-100);color:var(--green-800)}
+.pill.soon{background:var(--amber-100);color:var(--amber-600)}
+.pill.over{background:var(--red-100);color:var(--red-600)}
+.pill.none{background:#eef1ef;color:var(--ink-3)}
+.emp .acts{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{
+  border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;
+  font-size:12px;font-weight:700;color:var(--ink-2);transition:all .15s;white-space:nowrap;
+}
+.icon-btn:hover{border-color:var(--green-600);color:var(--green-700);background:var(--green-50)}
+.icon-btn.danger:hover{border-color:#dc2626;color:var(--red-600);background:var(--red-100)}
+.icon-btn.primary{background:var(--green-700);border-color:var(--green-700);color:#fff}
+.icon-btn.primary:hover{background:var(--green-800)}
+
+.empty{
+  border:2px dashed var(--line);border-radius:var(--radius);padding:44px 20px;text-align:center;
+  color:var(--ink-3);font-size:13.5px;background:#fbfcfb;
+}
+.empty b{display:block;color:var(--ink-2);font-size:15px;margin-bottom:6px}
+
+/* ===== ツールバー ===== */
+.toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.toolbar input[type=search]{
+  flex:1;min-width:180px;border:1px solid var(--line);border-radius:10px;padding:9px 14px;
+  background:#fff;outline:none;
+}
+.toolbar input[type=search]:focus{border-color:var(--green-600);box-shadow:0 0 0 3px var(--green-100)}
+.toolbar select{
+  border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;outline:none;font-size:13.5px;
+}
+
+/* ===== フォーム ===== */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12.5px;font-weight:700;color:var(--ink-2)}
+.field label .req{color:var(--red-600);font-size:11px;margin-left:4px}
+.field input,.field select,.field textarea{
+  border:1.5px solid var(--line);border-radius:10px;padding:10px 14px;background:#fff;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--green-600);box-shadow:0 0 0 3px var(--green-100);
+}
+.field .hint{font-size:11.5px;color:var(--ink-3)}
+.btn{
+  border:none;border-radius:11px;padding:13px 24px;font-size:15px;font-weight:800;
+  background:var(--green-700);color:#fff;width:100%;transition:background .15s;letter-spacing:.05em;
+}
+.btn:hover{background:var(--green-800)}
+.btn.sub{background:#fff;color:var(--green-700);border:1.5px solid var(--green-600);width:auto;padding:10px 18px;font-size:13px}
+.btn.sub:hover{background:var(--green-50)}
+.btn-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+
+/* ===== トースト・モーダル ===== */
+#toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(80px);
+  background:var(--ink);color:#fff;padding:12px 22px;border-radius:12px;font-size:13.5px;font-weight:700;
+  box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transition:all .25s;z-index:99;max-width:90vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-bg{
+  position:fixed;inset:0;background:rgba(13,43,34,.45);display:none;place-items:center;z-index:50;padding:20px;
+}
+.modal-bg.show{display:grid}
+.modal{
+  background:#fff;border-radius:16px;max-width:460px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3);
+  max-height:88vh;overflow-y:auto;
+}
+.modal h3{font-size:16px;font-weight:800;margin-bottom:14px}
+
+/* ===== LINE設定 ===== */
+.steps{counter-reset:s;margin:10px 0 18px;padding:0;list-style:none}
+.steps li{
+  counter-increment:s;position:relative;padding:0 0 14px 40px;font-size:13px;color:var(--ink-2);
+}
+.steps li::before{
+  content:counter(s);position:absolute;left:0;top:0;width:26px;height:26px;border-radius:50%;
+  background:var(--green-100);color:var(--green-800);font-weight:800;font-size:13px;display:grid;place-items:center;
+}
+.steps li:not(:last-child)::after{
+  content:"";position:absolute;left:12.5px;top:28px;bottom:2px;width:1.5px;background:var(--line);
+}
+code{background:var(--green-50);border:1px solid var(--green-100);border-radius:6px;padding:1px 7px;font-size:12px;color:var(--green-800);word-break:break-all}
+details.gas{border:1px solid var(--line);border-radius:10px;margin-top:6px}
+details.gas summary{padding:10px 14px;font-size:13px;font-weight:700;color:var(--green-700);cursor:pointer}
+details.gas pre{
+  background:#0f231c;color:#c8e6d8;font-size:11.5px;padding:14px;overflow-x:auto;border-radius:0 0 10px 10px;
+  line-height:1.55;font-family:ui-monospace,Menlo,Consolas,monospace;
+}
+
+/* ===== 通知プレビュー ===== */
+.line-preview{
+  background:#7494c0;border-radius:14px;padding:16px;margin-top:10px;
+}
+.line-bubble{
+  background:#fff;border-radius:4px 16px 16px 16px;padding:12px 14px;font-size:13px;max-width:88%;
+  white-space:pre-wrap;box-shadow:0 1px 2px rgba(0,0,0,.15);line-height:1.6;
+}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+  .head-date{display:none}
+  .emp .when{text-align:left}
+  .emp .acts{width:100%;justify-content:flex-start;flex-wrap:wrap}
+  .tab{font-size:12px;padding:9px 5px}
+  .site-head{padding-bottom:76px}
+}
+@media print{.site-head,.tabs,.toolbar,.emp .acts,.stat{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="head-inner">
+    <div class="head-mark">
+      <svg viewBox="0 0 100 100" fill="none"><path d="M22 52 l20 20 l36 -42" stroke="#fff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <div class="head-title">健診リマインダー</div>
+      <div class="head-sub">従業員の健康診断予定をまとめて管理・LINE通知</div>
+    </div>
+    <div class="head-date" id="todayLabel"></div>
+  </div>
+</header>
+
+<!-- 集計 -->
+<div class="stats">
+  <button class="stat total" onclick="switchTab('all')"><div class="n" id="statTotal">0</div><div class="l">登録従業員</div></button>
+  <button class="stat soon" onclick="switchTab('due')"><div class="n" id="statSoon">0</div><div class="l">通知対象（期限間近）</div></button>
+  <button class="stat over" onclick="switchTab('overdue')"><div class="n" id="statOver">0</div><div class="l">未受診（期限超過）</div></button>
+  <button class="stat month" onclick="switchTab('all')"><div class="n" id="statMonth">0</div><div class="l">今月の受診予定</div></button>
+</div>
+
+<main>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="due">通知対象 <span class="badge" id="badgeDue">0</span></button>
+    <button class="tab" data-tab="overdue">未受診 <span class="badge" id="badgeOver">0</span></button>
+    <button class="tab" data-tab="all">全員の予定 <span class="badge" id="badgeAll">0</span></button>
+    <button class="tab" data-tab="add">従業員登録</button>
+    <button class="tab" data-tab="line">LINE設定</button>
+  </nav>
+
+  <!-- 通知対象 -->
+  <section class="panel active" id="panel-due">
+    <div class="card">
+      <h2>🔔 通知対象の従業員</h2>
+      <p class="desc">健診予定日まで <b id="dueWindowLabel">30</b> 日以内の従業員です。（日数は「LINE設定」タブで変更できます）</p>
+      <div class="btn-row" id="dueBulkRow" style="margin-bottom:10px;display:none">
+        <button class="btn sub" onclick="sendBulk('due')">📤 通知対象全員にLINE送信</button>
+        <button class="btn sub" onclick="copyBulk('due')">📋 まとめてコピー</button>
+      </div>
+      <div id="listDue"></div>
+    </div>
+  </section>
+
+  <!-- 未受診 -->
+  <section class="panel" id="panel-overdue">
+    <div class="card">
+      <h2>⚠️ 未受診（期限超過）の従業員</h2>
+      <p class="desc">健診予定日を過ぎても「受診済み」になっていない従業員です。受診が確認できたら「受診済み」を押してください。</p>
+      <div class="btn-row" id="overBulkRow" style="margin-bottom:10px;display:none">
+        <button class="btn sub" onclick="sendBulk('overdue')">📤 未受診者全員にLINE送信</button>
+        <button class="btn sub" onclick="copyBulk('overdue')">📋 まとめてコピー</button>
+      </div>
+      <div id="listOverdue"></div>
+    </div>
+  </section>
+
+  <!-- 全員の予定 -->
+  <section class="panel" id="panel-all">
+    <div class="card">
+      <h2>📅 全員の予定</h2>
+      <p class="desc">登録されている全従業員の健診予定です。</p>
+      <div class="toolbar">
+        <input type="search" id="searchBox" placeholder="🔍 名前・部署で検索" oninput="render()">
+        <select id="sortSel" onchange="render()">
+          <option value="date">予定日が近い順</option>
+          <option value="dateDesc">予定日が遠い順</option>
+          <option value="name">名前順</option>
+          <option value="dept">部署順</option>
+        </select>
+      </div>
+      <div id="listAll"></div>
+      <div class="btn-row">
+        <button class="btn sub" onclick="exportCSV()">⬇️ CSVエクスポート</button>
+        <button class="btn sub" onclick="document.getElementById('csvFile').click()">⬆️ CSVインポート</button>
+        <input type="file" id="csvFile" accept=".csv,text/csv" style="display:none" onchange="importCSV(this)">
+      </div>
+    </div>
+  </section>
+
+  <!-- 従業員登録 -->
+  <section class="panel" id="panel-add">
+    <div class="card">
+      <h2>👤 従業員を追加</h2>
+      <p class="desc">氏名と次回健診予定日を入力してください。部署・前回受診日・メモは任意です。</p>
+      <form id="addForm" onsubmit="return addEmployee(event)">
+        <div class="form-grid">
+          <div class="field">
+            <label>氏名 <span class="req">必須</span></label>
+            <input type="text" id="fName" placeholder="例：山田 太郎" required maxlength="40" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>部署・所属</label>
+            <input type="text" id="fDept" placeholder="例：大阪支店 / 現場A" maxlength="40" autocomplete="off">
+          </div>
+          <div class="field">
+            <label>次回健診予定日 <span class="req">必須</span></label>
+            <input type="date" id="fNext" required>
+          </div>
+          <div class="field">
+            <label>前回受診日</label>
+            <input type="date" id="fLast">
+            <span class="hint">入力すると受診サイクルの管理に使われます</span>
+          </div>
+          <div class="field full">
+            <label>メモ</label>
+            <input type="text" id="fNote" placeholder="例：午前指定 / ○○クリニック" maxlength="100" autocomplete="off">
+          </div>
+          <div class="field full">
+            <button type="submit" class="btn">追加する</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- LINE設定 -->
+  <section class="panel" id="panel-line">
+    <div class="card">
+      <h2>💬 LINE通知の設定</h2>
+      <p class="desc">Google Apps Script（GAS）で作った送信用URL（Webhook）を登録すると、このアプリからワンタップでLINEに通知できます。URLが未設定でも「コピー」ボタンでメッセージを作成し、LINEに貼り付けて送れます。</p>
+
+      <div class="form-grid">
+        <div class="field full">
+          <label>送信用URL（GAS WebアプリのURL）</label>
+          <input type="url" id="sWebhook" placeholder="https://script.google.com/macros/s/xxxxx/exec" oninput="saveSettings()">
+          <span class="hint">下の「設定手順」に従って作成したURLを貼り付けてください</span>
+        </div>
+        <div class="field">
+          <label>何日前から通知対象にするか</label>
+          <select id="sDays" onchange="saveSettings();render()">
+            <option value="7">7日前</option>
+            <option value="14">14日前</option>
+            <option value="30" selected>30日前</option>
+            <option value="60">60日前</option>
+            <option value="90">90日前</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>メッセージテンプレート</label>
+          <textarea id="sTemplate" rows="5" oninput="saveSettings();renderPreview()"></textarea>
+          <span class="hint">使える差し込み： <code>{name}</code> 氏名 ／ <code>{date}</code> 予定日 ／ <code>{days}</code> 残り日数 ／ <code>{dept}</code> 部署</span>
+        </div>
+      </div>
+
+      <label style="font-size:12.5px;font-weight:700;color:var(--ink-2);display:block;margin-top:14px">プレビュー</label>
+      <div class="line-preview"><div class="line-bubble" id="linePreview"></div></div>
+
+      <div class="btn-row" style="margin-top:14px">
+        <button class="btn sub" onclick="testSend()">🚀 テスト送信</button>
+        <button class="btn sub" onclick="resetTemplate()">テンプレートを初期化</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🛠 設定手順（初回のみ）</h2>
+      <p class="desc">LINE公式アカウント（Messaging API）+ Google Apps Script を使った無料構成です。</p>
+      <ol class="steps">
+        <li><b>LINE Developers</b>（developers.line.biz）でMessaging APIチャネルを作成し、<b>チャネルアクセストークン（長期）</b>を発行する。</li>
+        <li>通知を受け取りたいLINEアカウント（またはグループ）に作成した公式アカウントを友だち追加し、<b>ユーザーID / グループID</b>を控える。</li>
+        <li><b>script.google.com</b> で新規プロジェクトを作成し、下の「GASコード」を貼り付けて、トークンと送信先IDを書き換える。</li>
+        <li>「デプロイ → 新しいデプロイ → ウェブアプリ」で <b>全員がアクセス可能</b> にして公開し、発行されたURLを上の「送信用URL」に貼り付ける。</li>
+        <li>「テスト送信」でLINEに届けば設定完了。</li>
+      </ol>
+      <details class="gas">
+        <summary>📄 GASコードを表示（コピーして使用）</summary>
+<pre>const TOKEN = 'ここにチャネルアクセストークン';
+const TO    = 'ここに送信先のユーザーID/グループID';
+
+function doPost(e) {
+  const body = JSON.parse(e.postData.contents);
+  UrlFetchApp.fetch('https://api.line.me/v2/bot/message/push', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + TOKEN },
+    payload: JSON.stringify({
+      to: TO,
+      messages: [{ type: 'text', text: body.message }]
+    })
+  });
+  return ContentService.createTextOutput('ok');
+}</pre>
+      </details>
+    </div>
+
+    <div class="card">
+      <h2>🗂 データ管理</h2>
+      <p class="desc">データはこの端末のブラウザ内（localStorage）に保存されます。別の端末と共有する場合はCSVエクスポート/インポートを使ってください。</p>
+      <div class="btn-row">
+        <button class="btn sub" onclick="exportCSV()">⬇️ CSVエクスポート</button>
+        <button class="btn sub danger" style="color:var(--red-600);border-color:#fca5a5" onclick="wipeAll()">🗑 全データ削除</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- 編集モーダル -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <h3>従業員情報を編集</h3>
+    <form onsubmit="return saveEdit(event)">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="field"><label>氏名 <span class="req">必須</span></label><input type="text" id="eName" required maxlength="40"></div>
+        <div class="field"><label>部署・所属</label><input type="text" id="eDept" maxlength="40"></div>
+        <div class="field"><label>次回健診予定日 <span class="req">必須</span></label><input type="date" id="eNext" required></div>
+        <div class="field"><label>前回受診日</label><input type="date" id="eLast"></div>
+        <div class="field"><label>メモ</label><input type="text" id="eNote" maxlength="100"></div>
+        <div class="btn-row">
+          <button type="submit" class="btn" style="flex:1">保存</button>
+          <button type="button" class="btn sub" onclick="closeModal()">キャンセル</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ================= データ ================= */
+const LS_EMP='kenshin.employees', LS_SET='kenshin.settings';
+const DEFAULT_TEMPLATE='【健診リマインド】\n{name} さん（{dept}）\n次回の健康診断予定日は {date} です（あと{days}日）。\n予約・受診をお願いします。';
+
+let employees = load(LS_EMP, []);
+let settings  = Object.assign({webhook:'', days:30, template:DEFAULT_TEMPLATE}, load(LS_SET, {}));
+let editingId = null;
+
+function load(k, fb){ try{ return JSON.parse(localStorage.getItem(k)) ?? fb; }catch(e){ return fb; } }
+function persist(){ localStorage.setItem(LS_EMP, JSON.stringify(employees)); }
+function persistSettings(){ localStorage.setItem(LS_SET, JSON.stringify(settings)); }
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* ================= 日付ユーティリティ ================= */
+function today0(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function parseD(s){ if(!s) return null; const d=new Date(s+'T00:00:00'); return isNaN(d)?null:d; }
+function daysUntil(s){ const d=parseD(s); if(!d) return null; return Math.round((d-today0())/86400000); }
+function toYMD(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtD(s){
+  const d=parseD(s); if(!d) return '未設定';
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日(${'日月火水木金土'[d.getDay()]})`;
+}
+
+/* ================= ステータス ================= */
+function statusOf(emp){
+  const n = daysUntil(emp.next);
+  if(n===null) return {key:'none', label:'予定なし'};
+  if(n<0)  return {key:'over', label:`${-n}日超過`};
+  if(n<=Number(settings.days)) return {key:'soon', label: n===0?'本日':`あと${n}日`};
+  return {key:'ok', label:`あと${n}日`};
+}
+
+/* ================= 描画 ================= */
+function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function empRow(emp, context){
+  const st = statusOf(emp);
+  const initial = (emp.name||'?').trim().charAt(0);
+  const hue = [...emp.id].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
+  const meta = [emp.dept, emp.last?`前回: ${fmtD(emp.last)}`:'', emp.note].filter(Boolean).join('　');
+  const notifyBtn = (context!=='all')
+    ? `<button class="icon-btn primary" onclick="sendOne('${emp.id}')">LINE通知</button>
+       <button class="icon-btn" onclick="copyOne('${emp.id}')">コピー</button>` : '';
+  return `<div class="emp">
+    <div class="avatar" style="background:hsl(${hue},45%,42%)">${esc(initial)}</div>
+    <div class="who">
+      <div class="name">${esc(emp.name)}</div>
+      ${meta?`<div class="meta">${esc(meta)}</div>`:''}
+    </div>
+    <div class="when">
+      <div class="date">${fmtD(emp.next)}</div>
+      <span class="pill ${st.key}">${st.label}</span>
+    </div>
+    <div class="acts">
+      ${notifyBtn}
+      <button class="icon-btn" onclick="markDone('${emp.id}')">✓ 受診済み</button>
+      <button class="icon-btn" onclick="openEdit('${emp.id}')">編集</button>
+      <button class="icon-btn danger" onclick="removeEmp('${emp.id}')">削除</button>
+    </div>
+  </div>`;
+}
+
+function emptyBox(title, sub){ return `<div class="empty"><b>${title}</b>${sub}</div>`; }
+
+function targets(kind){
+  if(kind==='due') return employees.filter(e=>{ const n=daysUntil(e.next); return n!==null && n>=0 && n<=Number(settings.days); })
+    .sort((a,b)=>(daysUntil(a.next)??1e9)-(daysUntil(b.next)??1e9));
+  if(kind==='overdue') return employees.filter(e=>{ const n=daysUntil(e.next); return n!==null && n<0; })
+    .sort((a,b)=>(daysUntil(a.next)??0)-(daysUntil(b.next)??0));
+  return employees;
+}
+
+function render(){
+  const due = targets('due'), over = targets('overdue');
+  const now = new Date();
+  const monthCnt = employees.filter(e=>{ const d=parseD(e.next); return d && d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth(); }).length;
+
+  // 集計
+  statTotal.textContent = employees.length;
+  statSoon.textContent  = due.length;
+  statOver.textContent  = over.length;
+  statMonth.textContent = monthCnt;
+  badgeDue.textContent  = due.length;  badgeDue.className  = 'badge'+(due.length?' warm':'');
+  badgeOver.textContent = over.length; badgeOver.className = 'badge'+(over.length?' hot':'');
+  badgeAll.textContent  = employees.length;
+  dueWindowLabel.textContent = settings.days;
+
+  // 通知対象
+  listDue.innerHTML = due.length ? due.map(e=>empRow(e,'due')).join('')
+    : emptyBox('通知対象はいません', `予定日まで${settings.days}日以内の従業員がここに表示されます。`);
+  dueBulkRow.style.display = due.length ? 'flex' : 'none';
+
+  // 未受診
+  listOverdue.innerHTML = over.length ? over.map(e=>empRow(e,'overdue')).join('')
+    : emptyBox('未受診者はいません', '全員が期限内です。この調子で管理を続けましょう 👏');
+  overBulkRow.style.display = over.length ? 'flex' : 'none';
+
+  // 全員
+  const q = (searchBox.value||'').trim().toLowerCase();
+  let all = employees.filter(e => !q || (e.name+' '+(e.dept||'')).toLowerCase().includes(q));
+  const sort = sortSel.value;
+  all.sort((a,b)=>{
+    if(sort==='name') return a.name.localeCompare(b.name,'ja');
+    if(sort==='dept') return (a.dept||'').localeCompare(b.dept||'','ja') || a.name.localeCompare(b.name,'ja');
+    const da=daysUntil(a.next)??1e9, db=daysUntil(b.next)??1e9;
+    return sort==='dateDesc' ? db-da : da-db;
+  });
+  listAll.innerHTML = all.length ? all.map(e=>empRow(e,'all')).join('')
+    : (employees.length ? emptyBox('該当する従業員がいません','検索条件を変えてお試しください。')
+                        : emptyBox('まだ登録されていません','「従業員登録」タブから追加してください。'));
+  renderPreview();
+}
+
+/* ================= タブ ================= */
+document.getElementById('tabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tab'); if(!btn) return;
+  switchTab(btn.dataset.tab);
+});
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ================= CRUD ================= */
+function addEmployee(ev){
+  ev.preventDefault();
+  const name = fName.value.trim();
+  if(!name || !fNext.value){ toast('氏名と次回健診予定日を入力してください'); return false; }
+  employees.push({ id:uid(), name, dept:fDept.value.trim(), next:fNext.value, last:fLast.value||'', note:fNote.value.trim() });
+  persist(); ev.target.reset(); render();
+  toast(`✅ ${name} さんを追加しました`);
+  return false;
+}
+function removeEmp(id){
+  const e = employees.find(x=>x.id===id); if(!e) return;
+  if(!confirm(`${e.name} さんを削除しますか？`)) return;
+  employees = employees.filter(x=>x.id!==id); persist(); render();
+  toast(`${e.name} さんを削除しました`);
+}
+function markDone(id){
+  const e = employees.find(x=>x.id===id); if(!e) return;
+  const base = parseD(e.next) ?? today0();
+  const next = new Date(base); next.setFullYear(next.getFullYear()+1);
+  const nextStr = toYMD(next);
+  if(!confirm(`${e.name} さんを受診済みにしますか？\n次回予定を1年後（${fmtD(nextStr)}）に設定します。\n（あとから「編集」で変更できます）`)) return;
+  e.last = e.next; e.next = nextStr;
+  persist(); render();
+  toast(`✅ ${e.name} さん：次回は ${fmtD(nextStr)} に設定しました`);
+}
+function openEdit(id){
+  const e = employees.find(x=>x.id===id); if(!e) return;
+  editingId = id;
+  eName.value=e.name; eDept.value=e.dept||''; eNext.value=e.next||''; eLast.value=e.last||''; eNote.value=e.note||'';
+  editModal.classList.add('show');
+}
+function saveEdit(ev){
+  ev.preventDefault();
+  const e = employees.find(x=>x.id===editingId); if(!e) return false;
+  e.name=eName.value.trim(); e.dept=eDept.value.trim(); e.next=eNext.value; e.last=eLast.value||''; e.note=eNote.value.trim();
+  persist(); closeModal(); render(); toast('保存しました');
+  return false;
+}
+function closeModal(){ editModal.classList.remove('show'); editingId=null; }
+editModal.addEventListener('click', e=>{ if(e.target===editModal) closeModal(); });
+
+/* ================= 設定 ================= */
+function saveSettings(){
+  settings.webhook = sWebhook.value.trim();
+  settings.days = Number(sDays.value);
+  settings.template = sTemplate.value;
+  persistSettings();
+}
+function resetTemplate(){ sTemplate.value = DEFAULT_TEMPLATE; saveSettings(); renderPreview(); toast('テンプレートを初期化しました'); }
+
+/* ================= メッセージ生成・送信 ================= */
+function buildMsg(emp){
+  const n = daysUntil(emp.next);
+  return (settings.template||DEFAULT_TEMPLATE)
+    .replaceAll('{name}', emp.name)
+    .replaceAll('{date}', fmtD(emp.next))
+    .replaceAll('{days}', n===null?'-':String(n))
+    .replaceAll('{dept}', emp.dept||'所属なし');
+}
+function renderPreview(){
+  const sample = employees[0] ?? {id:'x',name:'山田 太郎',dept:'大阪支店',next:toYMD(new Date(Date.now()+14*86400000))};
+  linePreview.textContent = buildMsg(sample);
+}
+async function postLine(message){
+  if(!settings.webhook) return false;
+  try{
+    await fetch(settings.webhook, { method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'text/plain'}, body: JSON.stringify({message}) });
+    return true;
+  }catch(err){ return false; }
+}
+async function sendOne(id){
+  const e = employees.find(x=>x.id===id); if(!e) return;
+  if(!settings.webhook){ toast('送信用URLが未設定です。「LINE設定」タブで設定するか「コピー」をご利用ください'); switchTab('line'); return; }
+  toast('送信中…');
+  const ok = await postLine(buildMsg(e));
+  toast(ok ? `📤 ${e.name} さんの通知を送信しました` : '❌ 送信に失敗しました。URLをご確認ください');
+}
+async function sendBulk(kind){
+  const list = targets(kind);
+  if(!list.length) return;
+  if(!settings.webhook){ toast('送信用URLが未設定です。「LINE設定」タブで設定してください'); switchTab('line'); return; }
+  if(!confirm(`${list.length}名分の通知をLINEに送信しますか？`)) return;
+  toast('送信中…');
+  const msg = list.map(buildMsg).join('\n\n────────\n\n');
+  const ok = await postLine(msg);
+  toast(ok ? `📤 ${list.length}名分の通知を送信しました` : '❌ 送信に失敗しました');
+}
+async function testSend(){
+  saveSettings();
+  if(!settings.webhook){ toast('送信用URLを入力してください'); return; }
+  toast('送信中…');
+  const ok = await postLine('【健診リマインダー】テスト送信です。この通知が届けば設定は完了です ✅');
+  toast(ok ? '📤 テスト送信しました。LINEをご確認ください' : '❌ 送信に失敗しました。URLをご確認ください');
+}
+function copyText(text, doneMsg){
+  navigator.clipboard?.writeText(text).then(()=>toast(doneMsg)).catch(()=>{
+    prompt('以下をコピーしてください', text);
+  });
+}
+function copyOne(id){
+  const e = employees.find(x=>x.id===id); if(!e) return;
+  copyText(buildMsg(e), '📋 コピーしました。LINEに貼り付けて送信してください');
+}
+function copyBulk(kind){
+  const list = targets(kind); if(!list.length) return;
+  copyText(list.map(buildMsg).join('\n\n────────\n\n'), `📋 ${list.length}名分をコピーしました`);
+}
+
+/* ================= CSV ================= */
+function exportCSV(){
+  const head = '氏名,部署,次回健診予定日,前回受診日,メモ';
+  const rows = employees.map(e=>[e.name,e.dept||'',e.next||'',e.last||'',e.note||'']
+    .map(v=>`"${String(v).replaceAll('"','""')}"`).join(','));
+  const blob = new Blob(['﻿'+[head,...rows].join('\r\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `健診リマインダー_${toYMD(new Date())}.csv`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('⬇️ CSVをダウンロードしました');
+}
+function importCSV(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const lines = String(reader.result).replace(/^﻿/,'').split(/\r?\n/).filter(l=>l.trim());
+      let added = 0;
+      for(const line of lines.slice(1)){
+        const cols = parseCSVLine(line);
+        const [name, dept='', next='', last='', note=''] = cols;
+        if(!name || !/^\d{4}-\d{2}-\d{2}$/.test(next)) continue;
+        employees.push({id:uid(), name:name.trim(), dept:dept.trim(), next, last:/^\d{4}-\d{2}-\d{2}$/.test(last)?last:'', note:note.trim()});
+        added++;
+      }
+      persist(); render();
+      toast(added ? `⬆️ ${added}名をインポートしました` : 'インポートできる行がありませんでした（1行目は見出しとして無視されます）');
+    }catch(err){ toast('❌ CSVの読み込みに失敗しました'); }
+    input.value='';
+  };
+  reader.readAsText(file);
+}
+function parseCSVLine(line){
+  const out=[]; let cur='', inQ=false;
+  for(let i=0;i<line.length;i++){
+    const c=line[i];
+    if(inQ){
+      if(c==='"' && line[i+1]==='"'){ cur+='"'; i++; }
+      else if(c==='"') inQ=false;
+      else cur+=c;
+    }else{
+      if(c==='"') inQ=true;
+      else if(c===','){ out.push(cur); cur=''; }
+      else cur+=c;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+/* ================= その他 ================= */
+function wipeAll(){
+  if(!confirm('登録した従業員データと設定をすべて削除します。よろしいですか？')) return;
+  if(!confirm('本当に削除しますか？（この操作は元に戻せません）')) return;
+  localStorage.removeItem(LS_EMP); localStorage.removeItem(LS_SET);
+  location.reload();
+}
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+/* ================= 初期化 ================= */
+(function init(){
+  const now = new Date();
+  todayLabel.innerHTML = `今日<br><b style="font-size:14px">${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日(${'日月火水木金土'[now.getDay()]})</b>`;
+  sWebhook.value = settings.webhook;
+  sDays.value = String(settings.days);
+  sTemplate.value = settings.template;
+  render();
+})();
+</script>
+</body>
+</html>
