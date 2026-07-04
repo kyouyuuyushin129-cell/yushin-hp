@@ -1668,19 +1668,19 @@ body::after {
     transform: translate(-50%, -50%);
   }
   .cur-dot {
-    width: 7px; height: 7px; background: #ff5a1f;
+    width: 7px; height: 7px; background: #ffc400;
     transition: opacity 0.2s;
   }
   .cur-ring {
     width: 38px; height: 38px;
-    border: 1.5px solid rgba(255,90,31,0.75);
+    border: 1.5px solid rgba(255,196,0,0.75);
     transition: width 0.25s cubic-bezier(0.22,0.61,0.36,1), height 0.25s cubic-bezier(0.22,0.61,0.36,1),
                 border-color 0.25s, background 0.25s, opacity 0.2s;
   }
   html.cursor-hover .cur-ring {
     width: 58px; height: 58px;
-    background: rgba(255,90,31,0.12);
-    border-color: rgba(255,90,31,0.95);
+    background: rgba(255,196,0,0.12);
+    border-color: rgba(255,196,0,0.95);
   }
   html.cursor-hover .cur-dot { opacity: 0; }
   html.cursor-down .cur-ring { width: 30px; height: 30px; }

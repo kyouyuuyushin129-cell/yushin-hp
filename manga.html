@@ -11,28 +11,28 @@
       --ink: #14110d;
       --coal: #151310;
       --paper: #f4f1e8;
-      --org: #ff5a1f;
-      --org-deep: #e04a12;
+      --org: #ffc400;
+      --org-deep: #e8b400;
     }
     body { background: #100f0d; }
 
     /* ---- site chrome (orange accents, this page only) ---- */
-    .site-header { background: rgba(16,15,13,0.85); border-bottom: 1px solid rgba(255,90,31,0.22); }
+    .site-header { background: rgba(16,15,13,0.85); border-bottom: 1px solid rgba(255,196,0,0.22); }
     .site-header.scrolled { background: rgba(16,15,13,0.96); }
     .logo-text span { color: var(--org); }
     .nav-links a:hover, .nav-links a.active { color: var(--org); }
     .nav-links a::after { background: var(--org); }
-    .nav-cta { background: var(--org) !important; color: #fff !important; }
+    .nav-cta { background: var(--org) !important; color: #16130f !important; }
     .nav-cta:hover { background: var(--org-deep) !important; }
-    .scroll-progress { background: var(--org); box-shadow: 0 0 8px rgba(255,90,31,0.55); }
-    .to-top { background: rgba(16,15,13,0.9); color: var(--org); border-color: rgba(255,90,31,0.5); }
-    .to-top:hover { background: var(--org); color: #fff; }
-    .mobile-cta .m-contact { background: var(--org); color: #fff; }
-    .mobile-cta .m-recruit { background: #100f0d; border-left-color: rgba(255,90,31,0.4); }
-    .site-footer { background: #100f0d; border-top: 1px solid rgba(255,90,31,0.25); }
+    .scroll-progress { background: var(--org); box-shadow: 0 0 8px rgba(255,196,0,0.55); }
+    .to-top { background: rgba(16,15,13,0.9); color: var(--org); border-color: rgba(255,196,0,0.5); }
+    .to-top:hover { background: var(--org); color: #16130f; }
+    .mobile-cta .m-contact { background: var(--org); color: #16130f; }
+    .mobile-cta .m-recruit { background: #100f0d; border-left-color: rgba(255,196,0,0.4); }
+    .site-footer { background: #100f0d; border-top: 1px solid rgba(255,196,0,0.25); }
     .footer-logo span { color: var(--org); }
     .footer-nav-links a:hover { color: var(--org); }
-    ::selection { background: rgba(255,90,31,0.35); color: #fff; }
+    ::selection { background: rgba(255,196,0,0.35); color: #fff; }
 
     /* ===== Manga Stage ===== */
     .manga-stage {
@@ -45,10 +45,10 @@
     /* ===== Title ===== */
     .manga-title-block {
       background:
-        radial-gradient(circle at 78% 12%, rgba(255,90,31,0.22), transparent 46%),
+        radial-gradient(circle at 78% 12%, rgba(255,196,0,0.22), transparent 46%),
         radial-gradient(circle at 30% 20%, #26221c 0%, var(--coal) 55%, #0a0908 100%);
       border: 4px solid #000;
-      box-shadow: 10px 10px 0 rgba(255,90,31,0.9);
+      box-shadow: 10px 10px 0 rgba(255,196,0,0.9);
       padding: 68px 40px 60px;
       text-align: center;
       margin-bottom: 14px;
@@ -79,7 +79,7 @@
     .manga-label {
       display: inline-block;
       font-size: 0.7rem; font-weight: 800; letter-spacing: 0.3em;
-      color: #fff; background: var(--org);
+      color: var(--ink); background: var(--org);
       padding: 6px 18px;
       margin-bottom: 22px; position: relative;
       clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
@@ -88,12 +88,12 @@
       font-size: clamp(2.4rem, 8vw, 4.8rem);
       font-weight: 900; color: #f6f3ec;
       letter-spacing: 0.05em; position: relative; line-height: 1.12;
-      text-shadow: 4px 4px 0 rgba(255,90,31,0.85), 8px 8px 0 rgba(0,0,0,0.55);
+      text-shadow: 4px 4px 0 rgba(255,196,0,0.85), 8px 8px 0 rgba(0,0,0,0.55);
     }
     .manga-main-title .accent { color: var(--org); text-shadow: 4px 4px 0 #f6f3ec, 8px 8px 0 rgba(0,0,0,0.55); }
     .manga-sub-title { font-size: 1.02rem; color: rgba(255,255,255,0.85); margin-top: 20px; letter-spacing: 0.2em; position: relative; font-weight: 700; }
     .title-tags { margin-top: 20px; position: relative; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
-    .title-tags span { font-size: 0.74rem; font-weight: 800; color: #ffb894; border: 1.5px solid rgba(255,90,31,0.55); padding: 4px 14px; }
+    .title-tags span { font-size: 0.74rem; font-weight: 800; color: #ffe08a; border: 1.5px solid rgba(255,196,0,0.55); padding: 4px 14px; }
 
     /* ===== Chapter divider ===== */
     .mg-divider {
@@ -163,7 +163,7 @@
 
     .panel-caption {
       font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
-      color: #fff; margin-bottom: 8px; align-self: flex-start;
+      color: var(--ink); margin-bottom: 8px; align-self: flex-start;
       background: var(--org); padding: 5px 14px 5px 11px;
       position: relative; z-index: 3; box-shadow: 3px 3px 0 rgba(0,0,0,0.35);
       clip-path: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
@@ -212,8 +212,8 @@
     .lines-bg { position: absolute; inset: 0; pointer-events: none; }
 
     .narr { background: #fffaf0; border: 2.5px solid var(--ink); padding: 7px 13px; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; display: inline-block; align-self: flex-start; box-shadow: 3px 3px 0 rgba(0,0,0,0.14); position: relative; z-index: 3; }
-    .pill { background: rgba(255,90,31,0.14); border: 1.6px solid var(--org); padding: 5px 14px; font-size: 0.75rem; font-weight: 800; color: var(--org); display: inline-block; }
-    .panel.dark .pill { color: #ffb894; }
+    .pill { background: rgba(255,196,0,0.16); border: 1.6px solid rgba(153,122,0,0.6); padding: 5px 14px; font-size: 0.75rem; font-weight: 800; color: #997a00; display: inline-block; }
+    .panel.dark .pill { color: #ffe08a; }
 
     /* ===== TikTok-style frame ===== */
     .tiktok-frame {
@@ -234,15 +234,15 @@
     .tt-side svg { filter: drop-shadow(0 1px 2px rgba(0,0,0,0.6)); }
     .tt-cap { position: absolute; left: 10px; right: 40px; bottom: 10px; z-index: 5; text-align: left; }
     .tt-cap .acc { font-size: 0.66rem; font-weight: 800; color: #fff; }
-    .tt-cap .tags { font-size: 0.6rem; font-weight: 700; color: #ffb894; line-height: 1.5; margin-top: 2px; }
+    .tt-cap .tags { font-size: 0.6rem; font-weight: 700; color: #ffe08a; line-height: 1.5; margin-top: 2px; }
 
     /* ===== Recruit CTA ===== */
-    .manga-cta { background: radial-gradient(circle at 78% -10%, rgba(255,90,31,0.3), transparent 50%), radial-gradient(circle at 50% 0%, #26221c 0%, var(--coal) 60%, #0a0908 100%); border: 4px solid #000; box-shadow: 10px 10px 0 rgba(255,90,31,0.9); padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
-    .manga-cta .halftone { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,90,31,0.12) 1.4px, transparent 1.6px); background-size: 12px 12px; mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); }
+    .manga-cta { background: radial-gradient(circle at 78% -10%, rgba(255,196,0,0.3), transparent 50%), radial-gradient(circle at 50% 0%, #26221c 0%, var(--coal) 60%, #0a0908 100%); border: 4px solid #000; box-shadow: 10px 10px 0 rgba(255,196,0,0.9); padding: 60px 40px; text-align: center; position: relative; overflow: hidden; }
+    .manga-cta .halftone { position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,196,0,0.12) 1.4px, transparent 1.6px); background-size: 12px 12px; mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); -webkit-mask-image: radial-gradient(circle at 50% 0%, #000, transparent 70%); }
     .manga-cta-title { font-size: clamp(1.7rem, 5vw, 2.7rem); font-weight: 900; color: #f6f3ec; margin-bottom: 14px; position: relative; line-height: 1.35; }
     .manga-cta-title span { color: var(--org); }
     .manga-cta-desc { color: rgba(255,255,255,0.75); margin-bottom: 30px; position: relative; line-height: 1.9; }
-    .manga-cta .btn-primary { background: var(--org); color: #fff; border-radius: 0; box-shadow: none; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+    .manga-cta .btn-primary { background: var(--org); color: var(--ink); border-radius: 0; box-shadow: none; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
     .manga-cta .btn-primary:hover { background: var(--org-deep); filter: none; }
     .manga-cta .btn-secondary { border-color: rgba(255,255,255,0.5); color: #f0ede5; border-radius: 0; }
     .manga-cta-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; position: relative; }
@@ -302,7 +302,7 @@
       <span class="ep">YUSHIN COMIC — EPISODE 01</span>
       <span class="ghost" aria-hidden="true">NIAGE</span>
       <svg class="focus" viewBox="0 0 880 280" preserveAspectRatio="none">
-        <g stroke="#ff5a1f" stroke-width="2">
+        <g stroke="#ffc400" stroke-width="2">
           <line x1="440" y1="140" x2="0" y2="-40"/><line x1="440" y1="140" x2="150" y2="-40"/>
           <line x1="440" y1="140" x2="300" y2="-40"/><line x1="440" y1="140" x2="440" y2="-40"/>
           <line x1="440" y1="140" x2="580" y2="-40"/><line x1="440" y1="140" x2="730" y2="-40"/>
@@ -607,7 +607,7 @@
           <div style="font-size:0.9rem; font-weight:700; line-height:1.95;">
             「何枚担げる？」の枚数チャレンジや、職人技の担ぎ方、<br>
             現場のワイワイした雰囲気を毎日アップ。<br>
-            <b style="color:var(--org);">見て楽しい・やってみたくなる</b>、そんな荷揚げ屋を目指してます。
+            <b style="color:#997a00;">見て楽しい・やってみたくなる</b>、そんな荷揚げ屋を目指してます。
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <span class="pill">枚数チャレンジ</span><span class="pill">担ぎ方講座</span><span class="pill">現場の日常</span>
@@ -676,7 +676,7 @@
       <!-- チームで連携 -->
       <div class="panel dark" style="justify-content:flex-start;">
         <svg class="lines-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <g stroke="rgba(255,90,31,0.22)" stroke-width="1.2">
+          <g stroke="rgba(255,196,0,0.22)" stroke-width="1.2">
             <line x1="50" y1="45" x2="-10" y2="-10"/><line x1="50" y1="45" x2="50" y2="-10"/><line x1="50" y1="45" x2="110" y2="-10"/>
             <line x1="50" y1="45" x2="-10" y2="110"/><line x1="50" y1="45" x2="110" y2="110"/>
             <line x1="50" y1="45" x2="-10" y2="50"/><line x1="50" y1="45" x2="110" y2="50"/>
@@ -734,8 +734,8 @@
             <path d="M48 38 Q75 0 102 38 Z" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
             <ellipse cx="75" cy="38" rx="33" ry="8" fill="url(#helmet)" stroke="#000" stroke-width="3"/>
             <ellipse cx="64" cy="24" rx="6" ry="11" fill="rgba(255,255,255,0.4)"/>
-            <text x="6" y="40" font-size="18" font-weight="900" fill="#ff5a1f">✦</text>
-            <text x="128" y="92" font-size="14" font-weight="900" fill="#ff5a1f">✧</text>
+            <text x="6" y="40" font-size="18" font-weight="900" fill="#ffc400">✦</text>
+            <text x="128" y="92" font-size="14" font-weight="900" fill="#ffc400">✧</text>
           </svg>
           <div style="flex:1; display:flex; flex-direction:column; gap:12px;">
             <div class="bubble right">やり切った！<br>今日もええ汗かいたわ〜！</div>
