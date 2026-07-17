@@ -54,7 +54,8 @@ body { background: var(--coal); color: #d8d4ca; }
 }
 .ed-title .stroke { color: transparent; }
 .dark-sec .ed-title .stroke { -webkit-text-stroke: 1.5px #f4f1ea; }
-.light-sec .ed-title .stroke { -webkit-text-stroke: 1.5px var(--ink); }
+/* light backgrounds: solid amber (outline text doubled/rendered poorly on some devices) */
+.light-sec .ed-title .stroke { -webkit-text-stroke: 0; color: #c79a3c; }
 .dark-sec { background: var(--coal); color: #e6e2d8; }
 .dark-sec .ed-title { color: #f4f1ea; }
 .light-sec { background: var(--paper); color: #3c3933; }
