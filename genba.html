@@ -256,7 +256,7 @@
     <div id="page-edit">
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。一度コピー・保存した業者や現場はこの端末が覚えて、次回の読み取りで担当者・電話番号・住所などを自動補完します。ファイルもデータも端末の中だけで処理され、外部には送信されません。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。ファイルもデータも端末の中だけで処理され、外部には送信されません。</p>
         <div class="import-btns">
           <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
@@ -997,10 +997,27 @@
     };
 
     $("btn-ocr").addEventListener("click", () => $("ocr-file").click());
-    $("ocr-file").addEventListener("change", async (e) => {
+    $("ocr-file").addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       e.target.value = "";
-      if (!file) return;
+      if (file) handleImportFile(file);
+    });
+    // 画面のどこにでもPDF・画像を投げ込み（ドラッグ＆ドロップ）、コピー画像の貼り付けにも対応
+    document.addEventListener("dragover", (e) => e.preventDefault());
+    document.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) { showPage("edit"); handleImportFile(f); return; }
+      const t = e.dataTransfer && e.dataTransfer.getData("text/plain");
+      if (t && t.trim()) { showPage("edit"); $("paste-text").value = t; $("btn-paste-run").click(); }
+    });
+    document.addEventListener("paste", (e) => {
+      if (/^(INPUT|TEXTAREA)$/.test(document.activeElement && document.activeElement.tagName)) return;
+      const f = e.clipboardData && e.clipboardData.files && e.clipboardData.files[0];
+      if (f) { e.preventDefault(); showPage("edit"); handleImportFile(f); }
+    });
+
+    const handleImportFile = async (file) => {
       const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
       try {
         let text, fromOcr;
@@ -1047,7 +1064,7 @@
         setOcrStatus("");
         toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
       }
-    });
+    };
 
     /* ---------- toast ---------- */
     let toastTimer;
@@ -1278,8 +1295,51 @@
       }
       return best;
     };
-    const autoPlace = () => {
+    // 業者ごとに前回の配置を記憶・再現（学習）
+    const saveVendorLayout = () => {
+      const key = normName(readForm().client);
+      if (!key || !V.items) return;
+      const c = $("vendor-canvas");
+      if (!c.width) return;
+      const items = {};
+      Object.entries(V.items).forEach(([k, it]) => {
+        items[k] = { fx: it.x / c.width, fy: it.y / c.height };
+        if (it.w) items[k].fw = it.w / c.width;
+      });
+      const layouts = loadV().layouts || {};
+      layouts[key] = {
+        items,
+        size: $("v-size").value,
+        strike: $("v-strike").checked,
+        sama: $("v-sama").checked,
+        seal: $("v-seal").value,
+        greet: $("v-greet").value
+      };
+      saveV({ layouts });
+    };
+    const applySavedLayout = () => {
+      const layout = (loadV().layouts || {})[normName(readForm().client)];
+      if (!layout) return false;
+      const c = $("vendor-canvas");
+      Object.entries(layout.items || {}).forEach(([k, it]) => {
+        if (V.items[k]) {
+          V.items[k] = { x: it.fx * c.width, y: it.fy * c.height };
+          if (it.fw) V.items[k].w = it.fw * c.width;
+        }
+      });
+      if (layout.size) $("v-size").value = layout.size;
+      $("v-strike").checked = layout.strike !== false;
+      $("v-sama").checked = layout.sama !== false;
+      if (layout.seal) { saveV({ seal: layout.seal }); refreshSeals(); }
+      if (layout.greet) $("v-greet").value = layout.greet;
+      vendorRedraw();
+      toast("この業者の前回の配置を再現しました");
+      return true;
+    };
+
+    const autoPlace = (force) => {
       if (!V.img || !V.items) { return; }
+      if (force !== true && applySavedLayout()) return;
       buildInkMap();
       const c = $("vendor-canvas");
       const ctx = c.getContext("2d");
@@ -1469,7 +1529,7 @@
     $("v-greet").addEventListener("input", vendorRedraw);
     $("v-fare-print").addEventListener("change", vendorRedraw);
     $("v-size").addEventListener("input", vendorRedraw);
-    $("v-auto").addEventListener("click", autoPlace);
+    $("v-auto").addEventListener("click", () => autoPlace(true));
     $("v-strike").addEventListener("change", vendorRedraw);
     $("v-sama").addEventListener("change", vendorRedraw);
 
@@ -1491,8 +1551,10 @@
       } catch { toast("ファイルを開けませんでした"); }
     });
 
-    // 返信画像の共有・保存
+    // 返信画像の共有・保存（このとき配置と業者情報を学習）
     $("v-share").addEventListener("click", () => {
+      saveVendorLayout();
+      learnCurrent();
       $("vendor-canvas").toBlob(async (blob) => {
         if (!blob) return;
         const fname = "FAX返信_" + ($("f-date").value || "genba") + ".png";
