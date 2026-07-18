@@ -404,8 +404,8 @@
           </div>
           <div class="row2">
             <div class="field">
-              <label>日付（作成・編集の日付が入ります）</label>
-              <input type="text" id="v-date-view" readonly placeholder="日付未入力">
+              <label>日付（読み込んだ日が自動で入ります）</label>
+              <input type="date" id="v-date">
             </div>
             <div class="field">
               <label>印鑑（名前）</label>
@@ -1223,6 +1223,9 @@
             sama: { x: w * 0.5, y: c.height * 0.16 }
           };
           $("v-greet").value = buildGreet();
+          // 日付＝読み込んだ日（今日）を自動セット
+          const now = new Date();
+          $("v-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
           $("vendor-editor").classList.remove("hidden");
           autoPlace();
         };
@@ -1365,14 +1368,20 @@
           placed.push({ x: V.items.strike.x - 10, y: V.items.strike.y - 10, w: V.items.strike.w + 20, h: 64 });
         }
         const cn = readForm()["contact-name"];
+        let samaAnchored = false;
         if (cn) {
           const nw = V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox);
           if (nw) {
             V.items.sama = { x: nw.bbox.x1 * sx + 8, y: nw.bbox.y0 * sy };
             const fs = base * 1.2;
             placed.push({ x: V.items.sama.x - 14, y: V.items.sama.y - 14, w: fs * 2 + 28, h: fs * 1.6 + 28 });
+            samaAnchored = true;
           }
         }
+        // 「様」は名前の横に置けたときだけ表示（見つからなければ非表示。手動でONにすれば出せる）
+        $("v-sama").checked = samaAnchored;
+      } else {
+        $("v-sama").checked = false;
       }
       // 2) 空白を探して定型文・日付・交通費・印鑑を配置
       const putText = (key, text) => {
@@ -1385,7 +1394,7 @@
         }
       };
       putText("greet", $("v-greet").value.trim());
-      putText("date", fmtDateJp($("f-date").value));
+      putText("date", fmtDateJp($("v-date").value));
       if ($("v-fare-print").checked && V.fareText) putText("fare", V.fareText);
       if ($("v-seal").value) {
         const dm = hankoSize();
@@ -1402,7 +1411,6 @@
       ctx.clearRect(0, 0, c.width, c.height);
       ctx.drawImage(V.img, 0, 0, c.width, c.height);
       V.hit = [];
-      $("v-date-view").value = fmtDateJp($("f-date").value);
       const base = vendorBase();
       const drawText = (key, text, color) => {
         if (!text) return;
@@ -1427,7 +1435,7 @@
         greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
       }
       drawText("greet", greetText, "#16418c");
-      drawText("date", fmtDateJp($("f-date").value), "#16418c");
+      drawText("date", fmtDateJp($("v-date").value), "#16418c");
       if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
       // 「御中」を消す棒線
       if ($("v-strike").checked) {
@@ -1549,6 +1557,7 @@
     $("v-auto").addEventListener("click", () => autoPlace(true));
     $("v-strike").addEventListener("change", vendorRedraw);
     $("v-sama").addEventListener("change", vendorRedraw);
+    $("v-date").addEventListener("change", vendorRedraw);
 
     // 業者用タブから直接FAXを開く
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
