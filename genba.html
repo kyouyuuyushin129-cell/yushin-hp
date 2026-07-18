@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>現場詳細メーカー | 株式会社優心</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Shippori+Mincho+B1:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #131210;
+      --coal: #0e0e0c;
+      --coal-2: #171613;
+      --paper: #f2efe8;
+      --paper-2: #e9e5da;
+      --org: #ffc400;
+      --org-deep: #e8b400;
+      --line-d: rgba(255,255,255,0.10);
+      --sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+      --serif: 'Shippori Mincho B1', 'Hiragino Mincho ProN', serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--sans);
+      background: var(--coal);
+      color: #d8d4ca;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .app-header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(14,14,12,0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,196,0,0.25);
+      padding: 14px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .app-title {
+      font-family: var(--serif);
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--paper);
+      letter-spacing: 0.04em;
+    }
+    .app-title span { color: var(--org); }
+    .app-sub { font-size: 0.65rem; color: rgba(216,212,202,0.55); letter-spacing: 0.08em; }
+    .btn-new {
+      background: transparent; color: var(--org);
+      border: 1px solid rgba(255,196,0,0.5);
+      border-radius: 8px; padding: 8px 14px;
+      font-family: var(--sans); font-weight: 700; font-size: 0.8rem;
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn-new:active { background: rgba(255,196,0,0.15); }
+
+    .wrap { max-width: 720px; margin: 0 auto; padding: 16px 16px 90px; }
+
+    /* ---------- tabs ---------- */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab {
+      flex: 1; text-align: center; padding: 10px 0;
+      border-radius: 10px; font-weight: 700; font-size: 0.88rem;
+      background: var(--coal-2); color: rgba(216,212,202,0.6);
+      border: 1px solid var(--line-d); cursor: pointer; user-select: none;
+    }
+    .tab.active { background: var(--org); color: #16130f; border-color: var(--org); }
+
+    /* ---------- form ---------- */
+    .card {
+      background: var(--coal-2);
+      border: 1px solid var(--line-d);
+      border-radius: 14px;
+      padding: 18px 16px;
+      margin-bottom: 16px;
+    }
+    .card h2 {
+      font-size: 0.8rem; font-weight: 700; color: var(--org);
+      letter-spacing: 0.12em; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card h2::before { content: ""; width: 4px; height: 14px; background: var(--org); border-radius: 2px; }
+    .field { margin-bottom: 13px; }
+    .field:last-child { margin-bottom: 0; }
+    .field label {
+      display: block; font-size: 0.72rem; font-weight: 700;
+      color: rgba(216,212,202,0.75); margin-bottom: 5px; letter-spacing: 0.05em;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--line-d);
+      border-radius: 9px;
+      padding: 11px 12px;
+      color: var(--paper);
+      font-family: var(--sans);
+      font-size: 16px; /* prevents iOS zoom */
+      outline: none;
+    }
+    .field input:focus, .field textarea:focus { border-color: rgba(255,196,0,0.6); }
+    .field textarea { resize: vertical; min-height: 64px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ---------- preview ---------- */
+    .sheet {
+      background: var(--paper);
+      color: var(--ink);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    }
+    .sheet-head {
+      background: var(--ink);
+      padding: 16px 18px 14px;
+      border-bottom: 3px solid var(--org);
+    }
+    .sheet-badge {
+      display: inline-block;
+      background: var(--org); color: #16130f;
+      font-size: 0.62rem; font-weight: 900; letter-spacing: 0.15em;
+      padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
+    }
+    .sheet-title {
+      font-family: var(--serif); font-weight: 800;
+      font-size: 1.25rem; color: var(--paper); line-height: 1.35;
+    }
+    .sheet-date { color: var(--org); font-weight: 700; font-size: 0.85rem; margin-top: 5px; }
+    .sheet-body { padding: 6px 18px 16px; }
+    .sheet-row {
+      display: flex; gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px dashed rgba(19,18,16,0.18);
+      font-size: 0.9rem; line-height: 1.55;
+    }
+    .sheet-row:last-child { border-bottom: none; }
+    .sheet-row .k {
+      flex: 0 0 84px;
+      font-size: 0.7rem; font-weight: 900; color: #8a8375;
+      letter-spacing: 0.06em; padding-top: 3px;
+    }
+    .sheet-row .v { flex: 1; font-weight: 500; white-space: pre-wrap; word-break: break-word; }
+    .sheet-row .v strong { font-weight: 900; }
+    .sheet-row .v a { color: #a8760a; font-weight: 700; }
+    .sheet-foot {
+      background: var(--paper-2);
+      padding: 10px 18px;
+      font-size: 0.68rem; color: #8a8375;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sheet-foot b { font-family: var(--serif); color: var(--ink); }
+
+    /* ---------- actions ---------- */
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .btn {
+      padding: 14px 10px; border-radius: 11px;
+      font-family: var(--sans); font-weight: 800; font-size: 0.9rem;
+      border: none; cursor: pointer; letter-spacing: 0.03em;
+    }
+    .btn-gold { background: var(--org); color: #16130f; grid-column: 1 / -1; }
+    .btn-gold:active { background: var(--org-deep); }
+    .btn-dark { background: var(--coal-2); color: var(--paper); border: 1px solid var(--line-d); }
+    .btn-dark:active { background: rgba(255,255,255,0.08); }
+
+    /* ---------- saved list ---------- */
+    .saved-item {
+      background: var(--coal-2);
+      border: 1px solid var(--line-d);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 12px;
+      cursor: pointer;
+    }
+    .saved-item:active { border-color: rgba(255,196,0,0.5); }
+    .saved-info { flex: 1; min-width: 0; }
+    .saved-name { font-weight: 700; color: var(--paper); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .saved-meta { font-size: 0.72rem; color: rgba(216,212,202,0.55); margin-top: 3px; }
+    .saved-del {
+      background: transparent; border: 1px solid rgba(255,120,120,0.4);
+      color: #ff9d9d; border-radius: 8px; padding: 7px 11px;
+      font-size: 0.72rem; font-weight: 700; cursor: pointer; flex-shrink: 0;
+    }
+    .empty {
+      text-align: center; padding: 48px 20px;
+      color: rgba(216,212,202,0.45); font-size: 0.85rem; line-height: 1.9;
+    }
+    .empty .big { font-size: 2rem; display: block; margin-bottom: 8px; }
+
+    /* ---------- toast ---------- */
+    .toast {
+      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(20px);
+      background: var(--org); color: #16130f;
+      font-weight: 800; font-size: 0.85rem;
+      padding: 12px 22px; border-radius: 999px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .hidden { display: none !important; }
+    .note { font-size: 0.68rem; color: rgba(216,212,202,0.4); text-align: center; margin-top: 18px; line-height: 1.8; }
+
+    @media print {
+      body { background: #fff; }
+      .app-header, .tabs, .actions, #form-area, .note, .toast { display: none !important; }
+      .wrap { padding: 0; max-width: none; }
+      .sheet { box-shadow: none; border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <div class="app-title">現場詳細<span>メーカー</span></div>
+      <div class="app-sub">株式会社優心｜社内用ツール</div>
+    </div>
+    <button class="btn-new" id="btn-new" type="button">＋ 新規作成</button>
+  </header>
+
+  <div class="wrap">
+    <div class="tabs">
+      <div class="tab active" id="tab-edit">作成・編集</div>
+      <div class="tab" id="tab-list">保存した現場 <span id="saved-count"></span></div>
+    </div>
+
+    <!-- ============ 作成画面 ============ -->
+    <div id="page-edit">
+      <div id="form-area">
+        <div class="card">
+          <h2>基本情報</h2>
+          <div class="field">
+            <label>現場名 *</label>
+            <input type="text" id="f-name" placeholder="例）梅田○○ビル新築工事">
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>日付</label>
+              <input type="date" id="f-date">
+            </div>
+            <div class="field">
+              <label>集合時間</label>
+              <input type="time" id="f-meet-time">
+            </div>
+          </div>
+          <div class="field">
+            <label>作業時間（目安）</label>
+            <input type="text" id="f-work-time" placeholder="例）8:00〜17:00（昼休憩あり）">
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>場所</h2>
+          <div class="field">
+            <label>現場住所</label>
+            <input type="text" id="f-address" placeholder="例）大阪市北区梅田1-1-1">
+          </div>
+          <div class="field">
+            <label>集合場所</label>
+            <input type="text" id="f-meet-place" placeholder="例）現場前 1階搬入口">
+          </div>
+          <div class="field">
+            <label>駐車場</label>
+            <input type="text" id="f-parking" placeholder="例）近隣コインP（領収書もらうこと）">
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>作業内容</h2>
+          <div class="field">
+            <label>作業内容</label>
+            <textarea id="f-work" placeholder="例）PB（プラスターボード）搬入&#10;3階まで階段上げ 約300枚"></textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>人数</label>
+              <input type="text" id="f-people" placeholder="例）4名">
+            </div>
+            <div class="field">
+              <label>元請・取引先</label>
+              <input type="text" id="f-client" placeholder="例）株式会社○○工務店">
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>連絡・その他</h2>
+          <div class="row2">
+            <div class="field">
+              <label>現場担当者</label>
+              <input type="text" id="f-contact-name" placeholder="例）山田様">
+            </div>
+            <div class="field">
+              <label>連絡先</label>
+              <input type="tel" id="f-contact-tel" placeholder="例）090-0000-0000">
+            </div>
+          </div>
+          <div class="field">
+            <label>持ち物・服装</label>
+            <input type="text" id="f-items" placeholder="例）ヘルメット・安全帯・グリーンサイト登録">
+          </div>
+          <div class="field">
+            <label>備考・注意事項</label>
+            <textarea id="f-note" placeholder="例）朝礼あり（7:50〜）。搬入口が狭いので台車は小さめ。"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- プレビュー -->
+      <div class="sheet" id="sheet">
+        <div class="sheet-head">
+          <span class="sheet-badge">現場詳細</span>
+          <div class="sheet-title" id="p-name">（現場名を入力してください）</div>
+          <div class="sheet-date" id="p-date"></div>
+        </div>
+        <div class="sheet-body" id="p-body"></div>
+        <div class="sheet-foot">
+          <span><b>株式会社優心</b>｜搬入・荷揚げ</span>
+          <span id="p-stamp"></span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-gold" id="btn-copy" type="button">📋 LINE用テキストをコピー</button>
+        <button class="btn btn-dark" id="btn-share" type="button">共有する</button>
+        <button class="btn btn-dark" id="btn-save" type="button">保存する</button>
+      </div>
+      <p class="note">入力内容はこの端末（スマホ／PC）の中だけに保存されます。<br>インターネット上には送信されません。</p>
+    </div>
+
+    <!-- ============ 保存一覧 ============ -->
+    <div id="page-list" class="hidden">
+      <div id="saved-list"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    "use strict";
+    const $ = (id) => document.getElementById(id);
+    const FIELDS = ["name","date","meet-time","work-time","address","meet-place","parking","work","people","client","contact-name","contact-tel","items","note"];
+    const STORE_KEY = "yushin-genba-v1";
+    let currentId = null;
+
+    /* ---------- data ---------- */
+    const loadAll = () => {
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || []; }
+      catch { return []; }
+    };
+    const saveAll = (list) => localStorage.setItem(STORE_KEY, JSON.stringify(list));
+
+    const readForm = () => {
+      const d = {};
+      FIELDS.forEach(f => d[f] = $("f-" + f).value.trim());
+      return d;
+    };
+    const writeForm = (d) => {
+      FIELDS.forEach(f => $("f-" + f).value = (d && d[f]) || "");
+      render();
+    };
+
+    /* ---------- helpers ---------- */
+    const fmtDate = (iso) => {
+      if (!iso) return "";
+      const [y, m, day] = iso.split("-").map(Number);
+      const w = ["日","月","火","水","木","金","土"][new Date(y, m - 1, day).getDay()];
+      return `${y}年${m}月${day}日（${w}）`;
+    };
+    const mapUrl = (addr) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr);
+    const esc = (s) => s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+
+    /* ---------- preview ---------- */
+    const render = () => {
+      const d = readForm();
+      $("p-name").textContent = d.name || "（現場名を入力してください）";
+
+      let dateLine = fmtDate(d.date);
+      if (d["meet-time"]) dateLine += (dateLine ? "　" : "") + "集合 " + d["meet-time"];
+      $("p-date").textContent = dateLine;
+
+      const rows = [];
+      const add = (k, vHtml) => { if (vHtml) rows.push(`<div class="sheet-row"><div class="k">${k}</div><div class="v">${vHtml}</div></div>`); };
+
+      add("作業時間", d["work-time"] && esc(d["work-time"]));
+      add("住所", d.address && `${esc(d.address)}<br><a href="${mapUrl(d.address)}" target="_blank" rel="noopener">📍 地図を開く</a>`);
+      add("集合場所", d["meet-place"] && `<strong>${esc(d["meet-place"])}</strong>`);
+      add("駐車場", d.parking && esc(d.parking));
+      add("作業内容", d.work && esc(d.work));
+      add("人数", d.people && esc(d.people));
+      add("元請", d.client && esc(d.client));
+      const contact = [d["contact-name"], d["contact-tel"] && `<a href="tel:${esc(d["contact-tel"])}">${esc(d["contact-tel"])}</a>`].filter(Boolean).join("　");
+      add("担当者", contact);
+      add("持ち物", d.items && esc(d.items));
+      add("備考", d.note && esc(d.note));
+
+      $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
+    };
+
+    /* ---------- LINE text ---------- */
+    const buildText = () => {
+      const d = readForm();
+      const L = [];
+      L.push("━━━━━━━━━━━━");
+      L.push("■ 現場詳細");
+      L.push("━━━━━━━━━━━━");
+      if (d.name) L.push("【現場】" + d.name);
+      if (d.date) L.push("【日付】" + fmtDate(d.date));
+      if (d["meet-time"]) L.push("【集合】" + d["meet-time"] + (d["meet-place"] ? "　" + d["meet-place"] : ""));
+      else if (d["meet-place"]) L.push("【集合場所】" + d["meet-place"]);
+      if (d["work-time"]) L.push("【作業時間】" + d["work-time"]);
+      if (d.address) { L.push("【住所】" + d.address); L.push(mapUrl(d.address)); }
+      if (d.parking) L.push("【駐車場】" + d.parking);
+      if (d.work) L.push("【作業内容】\n" + d.work);
+      if (d.people) L.push("【人数】" + d.people);
+      if (d.client) L.push("【元請】" + d.client);
+      const c = [d["contact-name"], d["contact-tel"]].filter(Boolean).join("　");
+      if (c) L.push("【担当者】" + c);
+      if (d.items) L.push("【持ち物】" + d.items);
+      if (d.note) L.push("【備考】\n" + d.note);
+      L.push("━━━━━━━━━━━━");
+      L.push("株式会社優心");
+      return L.join("\n");
+    };
+
+    /* ---------- toast ---------- */
+    let toastTimer;
+    const toast = (msg) => {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+    };
+
+    /* ---------- actions ---------- */
+    $("btn-copy").addEventListener("click", async () => {
+      const text = buildText();
+      try {
+        await navigator.clipboard.writeText(text);
+        toast("コピーしました！LINEに貼り付けてください");
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        toast("コピーしました！LINEに貼り付けてください");
+      }
+    });
+
+    $("btn-share").addEventListener("click", async () => {
+      const text = buildText();
+      if (navigator.share) {
+        try { await navigator.share({ text }); } catch {}
+      } else {
+        await navigator.clipboard.writeText(text).catch(() => {});
+        toast("この端末は共有非対応のためコピーしました");
+      }
+    });
+
+    $("btn-save").addEventListener("click", () => {
+      const d = readForm();
+      if (!d.name) { toast("現場名を入力してください"); $("f-name").focus(); return; }
+      const list = loadAll();
+      if (currentId) {
+        const i = list.findIndex(x => x.id === currentId);
+        if (i >= 0) { list[i] = { ...list[i], ...d, updated: new Date().toISOString() }; }
+        else { currentId = null; }
+      }
+      if (!currentId) {
+        currentId = "g" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        list.unshift({ id: currentId, ...d, updated: new Date().toISOString() });
+      }
+      saveAll(list);
+      renderList();
+      toast("保存しました");
+    });
+
+    $("btn-new").addEventListener("click", () => {
+      currentId = null;
+      writeForm(null);
+      showPage("edit");
+      window.scrollTo({ top: 0 });
+    });
+
+    /* ---------- saved list ---------- */
+    const renderList = () => {
+      const list = loadAll();
+      $("saved-count").textContent = list.length ? `(${list.length})` : "";
+      const box = $("saved-list");
+      if (!list.length) {
+        box.innerHTML = `<div class="empty"><span class="big">📂</span>保存した現場はまだありません。<br>「作成・編集」で入力して「保存する」を押すと<br>ここに一覧表示されます。</div>`;
+        return;
+      }
+      box.innerHTML = list.map(g => {
+        const meta = [fmtDate(g.date), g["meet-time"] && "集合 " + g["meet-time"], g.client].filter(Boolean).join("　");
+        return `<div class="saved-item" data-id="${g.id}">
+          <div class="saved-info">
+            <div class="saved-name">${esc(g.name || "（無題）")}</div>
+            <div class="saved-meta">${esc(meta) || "詳細未入力"}</div>
+          </div>
+          <button class="saved-del" data-del="${g.id}" type="button">削除</button>
+        </div>`;
+      }).join("");
+    };
+
+    $("saved-list").addEventListener("click", (e) => {
+      const delId = e.target.getAttribute("data-del");
+      if (delId) {
+        if (confirm("この現場を削除しますか？")) {
+          saveAll(loadAll().filter(x => x.id !== delId));
+          if (currentId === delId) currentId = null;
+          renderList();
+          toast("削除しました");
+        }
+        return;
+      }
+      const item = e.target.closest(".saved-item");
+      if (!item) return;
+      const g = loadAll().find(x => x.id === item.getAttribute("data-id"));
+      if (!g) return;
+      currentId = g.id;
+      writeForm(g);
+      showPage("edit");
+      window.scrollTo({ top: 0 });
+      toast("読み込みました");
+    });
+
+    /* ---------- tabs ---------- */
+    const showPage = (which) => {
+      $("page-edit").classList.toggle("hidden", which !== "edit");
+      $("page-list").classList.toggle("hidden", which !== "list");
+      $("tab-edit").classList.toggle("active", which === "edit");
+      $("tab-list").classList.toggle("active", which === "list");
+    };
+    $("tab-edit").addEventListener("click", () => showPage("edit"));
+    $("tab-list").addEventListener("click", () => { renderList(); showPage("list"); });
+
+    /* ---------- init ---------- */
+    FIELDS.forEach(f => $("f-" + f).addEventListener("input", render));
+    render();
+    renderList();
+  </script>
+</body>
+</html>
