@@ -417,6 +417,16 @@
             <button class="btn-import" id="v-seal-del" type="button">－ 印鑑を削除</button>
           </div>
           <div class="field" style="margin-top:13px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="checkbox" id="v-strike" checked style="width:18px;height:18px;"> 宛名の「御中」を棒線で消す
+            </label>
+          </div>
+          <div class="field">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="checkbox" id="v-sama" checked style="width:18px;height:18px;"> 相手の名前の横に「様」を入れる
+            </label>
+          </div>
+          <div class="field" style="margin-top:13px;">
             <label>文字の大きさ</label>
             <input type="range" id="v-size" min="60" max="170" value="100" style="width:100%;">
           </div>
@@ -933,7 +943,7 @@
       im.src = url;
     });
 
-    const ocrSources = async (sources) => {
+    const ocrSources = async (sources, captureWords) => {
       setOcrStatus("読み取り準備中…（初回は少し時間がかかります）");
       await loadTesseract();
       const total = sources.length;
@@ -950,6 +960,10 @@
       for (const src of sources) {
         const { data } = await worker.recognize(src);
         text += (data.text || "") + "\n";
+        // 1ページ目の単語座標を保存（「御中」の棒線・「様」の自動配置に使う）
+        if (captureWords && pageNo === 1 && src.width) {
+          V.ocrWords = { words: data.words || [], w: src.width, h: src.height };
+        }
         pageNo++;
       }
       await worker.terminate();
@@ -1003,7 +1017,7 @@
             const pageCanvases = await pdfToCanvases(pdf);
             setVendorImage(pageCanvases[0]);
             const canvases = pageCanvases.map(preprocessCanvas);
-            let ocrText = await ocrSources(canvases);
+            let ocrText = await ocrSources(canvases, true);
             // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
             const p1 = countParsed(ocrText).d;
             if (!p1.address || !p1.name) {
@@ -1024,7 +1038,7 @@
         } else {
           const c = await imageToCanvas(file);
           setVendorImage(c);
-          text = await ocrSources([preprocessCanvas(c)]);
+          text = await ocrSources([preprocessCanvas(c)], true);
           fromOcr = true;
         }
         setOcrStatus("");
@@ -1164,17 +1178,8 @@
       ctx.closePath();
     };
 
-    // 宛名（会社は御中・個人は様）＋定型文
-    const honorific = (s) => /株式会社|有限会社|工務店|工業|建設|建材|商店|センター|組|店$/.test(s) ? " 御中" : " 様";
-    const buildGreet = () => {
-      const d = readForm();
-      const L = [];
-      if (d.client) L.push(d.client + honorific(d.client));
-      if (d["contact-name"]) L.push(withSama(d["contact-name"]));
-      if (L.length) L.push("");
-      L.push("大変お世話になっております。", "上記、喜んで手配させていただきます。", "ありがとうございます。");
-      return L.join("\n");
-    };
+    // 定型文（宛名はFAX原文の名前に「様」を足し、「御中」は棒線で消す方式）
+    const buildGreet = () => "大変お世話になっております。\n上記、喜んで手配させていただきます。\nありがとうございます。";
 
     const setVendorImage = (canvas) => {
       try {
@@ -1190,7 +1195,9 @@
             greet: { x: w * 0.06, y: c.height * 0.17 },
             date: { x: w * 0.06, y: c.height * 0.115 },
             hanko: { x: w * 0.78, y: c.height * 0.12 },
-            fare: { x: w * 0.06, y: c.height * 0.31 }
+            fare: { x: w * 0.06, y: c.height * 0.31 },
+            strike: { x: w * 0.11, y: c.height * 0.07, w: w * 0.1 },
+            sama: { x: w * 0.5, y: c.height * 0.16 }
           };
           $("v-greet").value = buildGreet();
           $("vendor-editor").classList.remove("hidden");
@@ -1262,7 +1269,7 @@
           (opts.avoid || []).forEach(b => {
             const ox = Math.max(0, Math.min(x + bw, b.x + b.w) - Math.max(x, b.x));
             const oy = Math.max(0, Math.min(y + bh, b.y + b.h) - Math.max(y, b.y));
-            score += 3 * (ox * oy) / (bw * bh);
+            score += 8 * (ox * oy) / (bw * bh);
           });
           score += 0.22 * (y / c.height);          // なるべく上へ
           if (opts.rightBias) score += 0.25 * (1 - (x + bw) / c.width);  // なるべく右へ
@@ -1278,6 +1285,30 @@
       const ctx = c.getContext("2d");
       const base = vendorBase();
       const placed = [];
+      // 1) OCRの単語座標から「御中」の棒線・担当者名の右の「様」を先に確定し、その領域を避ける
+      if (V.ocrWords && V.ocrWords.words && V.ocrWords.words.length) {
+        const sx = c.width / V.ocrWords.w, sy = c.height / V.ocrWords.h;
+        const gw = V.ocrWords.words.find(w => w.text && w.text.includes("御中") && w.bbox);
+        if (gw) {
+          const bw = (gw.bbox.x1 - gw.bbox.x0) * sx;
+          V.items.strike = {
+            x: gw.bbox.x0 * sx - bw * 0.1,
+            y: ((gw.bbox.y0 + gw.bbox.y1) / 2) * sy - 22,
+            w: bw * 1.2
+          };
+          placed.push({ x: V.items.strike.x - 10, y: V.items.strike.y - 10, w: V.items.strike.w + 20, h: 64 });
+        }
+        const cn = readForm()["contact-name"];
+        if (cn) {
+          const nw = V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox);
+          if (nw) {
+            V.items.sama = { x: nw.bbox.x1 * sx + 8, y: nw.bbox.y0 * sy };
+            const fs = base * 1.2;
+            placed.push({ x: V.items.sama.x - 14, y: V.items.sama.y - 14, w: fs * 2 + 28, h: fs * 1.6 + 28 });
+          }
+        }
+      }
+      // 2) 空白を探して定型文・日付・交通費・印鑑を配置
       const putText = (key, text) => {
         if (!text) return;
         const m = vendorMeasure(ctx, text, base);
@@ -1322,6 +1353,34 @@
       drawText("greet", $("v-greet").value.trim(), "#16418c");
       drawText("date", fmtDateJp($("f-date").value), "#16418c");
       if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
+      // 「御中」を消す棒線
+      if ($("v-strike").checked) {
+        const it = V.items.strike;
+        const H = 44;
+        ctx.save();
+        ctx.strokeStyle = "#16418c";
+        ctx.lineWidth = Math.max(3, base * 0.13);
+        ctx.beginPath();
+        ctx.moveTo(it.x, it.y + H / 2);
+        ctx.lineTo(it.x + it.w, it.y + H / 2);
+        ctx.stroke();
+        ctx.restore();
+        V.hit.push({ key: "strike", x: it.x - 8, y: it.y, w: it.w + 16, h: H });
+      }
+      // 相手の名前の横に付ける「様」
+      if ($("v-sama").checked) {
+        const it = V.items.sama;
+        const fs = base * 1.2;
+        ctx.save();
+        ctx.font = `700 ${fs}px 'Noto Sans JP', sans-serif`;
+        ctx.strokeStyle = "rgba(255,255,255,0.9)";
+        ctx.lineWidth = fs * 0.25;
+        ctx.strokeText("様", it.x, it.y + fs);
+        ctx.fillStyle = "#16418c";
+        ctx.fillText("様", it.x, it.y + fs);
+        ctx.restore();
+        V.hit.push({ key: "sama", x: it.x - 8, y: it.y - 8, w: fs + 16, h: fs * 1.25 + 16 });
+      }
       // 印鑑（朱色の丸に縦書きの名前）
       const seal = $("v-seal").value;
       if (seal) {
@@ -1411,6 +1470,8 @@
     $("v-fare-print").addEventListener("change", vendorRedraw);
     $("v-size").addEventListener("input", vendorRedraw);
     $("v-auto").addEventListener("click", autoPlace);
+    $("v-strike").addEventListener("change", vendorRedraw);
+    $("v-sama").addEventListener("change", vendorRedraw);
 
     // 業者用タブから直接FAXを開く
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
