@@ -392,6 +392,7 @@
       <div id="vendor-editor" class="hidden">
         <div class="card">
           <canvas id="vendor-canvas" style="width:100%;display:block;border-radius:8px;touch-action:none;background:#fff;"></canvas>
+          <button class="btn-import" id="v-auto" type="button" style="margin-top:10px;width:100%;">✨ 空白に自動配置し直す</button>
         </div>
         <div class="card">
           <h2>重ねる内容</h2>
@@ -415,6 +416,10 @@
             <button class="btn-import" id="v-seal-add" type="button">＋ 印鑑を追加</button>
             <button class="btn-import" id="v-seal-del" type="button">－ 印鑑を削除</button>
           </div>
+          <div class="field" style="margin-top:13px;">
+            <label>文字の大きさ</label>
+            <input type="range" id="v-size" min="60" max="170" value="100" style="width:100%;">
+          </div>
         </div>
         <div class="actions" style="margin-top:0;">
           <button class="btn btn-gold" id="v-share" type="button">📤 返信画像を共有・保存</button>
@@ -423,31 +428,18 @@
 
       <div class="card" style="margin-top:16px;">
         <h2>交通費</h2>
-        <p class="hint">事務所住所と単価を一度設定すれば、「作成・編集」の現場住所までの道のり距離で交通費を計算します（距離の計算時のみ、住所を地図サービスに送信します）。</p>
+        <p class="hint">「経路を地図で確認」でGoogleマップに事務所→現場の経路と距離が出るので、それを見て金額を決めて入力してください。</p>
         <div class="field">
-          <label>事務所の住所</label>
+          <label>事務所の住所（経路の出発地）</label>
           <input type="text" id="v-office" placeholder="例）大阪市◯◯区◯◯1-2-3">
         </div>
-        <div class="row2">
-          <div class="field">
-            <label>単価（円/km）</label>
-            <input type="number" id="v-rate" placeholder="例）100">
-          </div>
-          <div class="field">
-            <label>距離（km・自動計算可）</label>
-            <input type="number" id="v-km" placeholder="自動 or 手入力">
-          </div>
-        </div>
-        <div class="field">
-          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-            <input type="checkbox" id="v-round" checked style="width:18px;height:18px;"> 往復で計算する
-          </label>
-        </div>
         <div class="import-btns">
-          <button class="btn-import" id="v-calc" type="button">🧮 交通費を計算</button>
-          <button class="btn-import" id="v-route" type="button">🗺 経路を地図で確認</button>
+          <button class="btn-import" id="v-route" type="button" style="grid-column:1/-1;">🗺 経路を地図で確認（Googleマップ）</button>
         </div>
-        <div id="v-fare-out" style="margin-top:12px;font-weight:800;color:var(--org);font-size:1rem;"></div>
+        <div class="field" style="margin-top:13px;">
+          <label>交通費（円）</label>
+          <input type="number" id="v-fare" placeholder="例）2500">
+        </div>
         <div class="field" style="margin-top:10px;">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
             <input type="checkbox" id="v-fare-print" style="width:18px;height:18px;"> 交通費をFAX返信画像にも印字する
@@ -985,6 +977,8 @@
         if (!fromOcr) $("paste-text").value = text;
         toast(r.n ? `${r.n}項目だけ読み取れました。読取結果を貼り付け欄で確認・手直しできます` : "自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
       }
+      // 業者用タブの宛名を読み取り結果で更新し、空白へ配置し直す
+      if (V.img) { $("v-greet").value = buildGreet(); autoPlace(); }
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
@@ -1170,6 +1164,18 @@
       ctx.closePath();
     };
 
+    // 宛名（会社は御中・個人は様）＋定型文
+    const honorific = (s) => /株式会社|有限会社|工務店|工業|建設|建材|商店|センター|組|店$/.test(s) ? " 御中" : " 様";
+    const buildGreet = () => {
+      const d = readForm();
+      const L = [];
+      if (d.client) L.push(d.client + honorific(d.client));
+      if (d["contact-name"]) L.push(withSama(d["contact-name"]));
+      if (L.length) L.push("");
+      L.push("大変お世話になっております。", "上記、喜んで手配させていただきます。", "ありがとうございます。");
+      return L.join("\n");
+    };
+
     const setVendorImage = (canvas) => {
       try {
         const url = canvas.toDataURL("image/jpeg", 0.92);
@@ -1186,11 +1192,110 @@
             hanko: { x: w * 0.78, y: c.height * 0.12 },
             fare: { x: w * 0.06, y: c.height * 0.31 }
           };
+          $("v-greet").value = buildGreet();
           $("vendor-editor").classList.remove("hidden");
-          vendorRedraw();
+          autoPlace();
         };
         im.src = url;
       } catch {}
+    };
+
+    /* ---------- 空白検出と自動配置 ---------- */
+    const vendorBase = () => {
+      const c = $("vendor-canvas");
+      return Math.max(18, c.width * 0.026) * (parseInt($("v-size").value, 10) / 100);
+    };
+    const hankoSize = () => Math.max(70, $("vendor-canvas").width * 0.09);
+    const vendorMeasure = (ctx, text, size) => {
+      const lines = text.split("\n");
+      ctx.font = `700 ${size}px 'Noto Sans JP', sans-serif`;
+      const lh = size * 1.5;
+      let maxw = 0;
+      lines.forEach(l => { maxw = Math.max(maxw, ctx.measureText(l).width); });
+      const pad = size * 0.5;
+      return { lines, lh, pad, bw: maxw + pad * 2, bh: lh * lines.length + pad * 1.2 };
+    };
+
+    // 1/8スケールの「インク量」積分画像（暗い画素＝文字や地図がある場所）
+    const buildInkMap = () => {
+      const c = $("vendor-canvas");
+      const s = 8;
+      const w = Math.ceil(c.width / s), h = Math.ceil(c.height / s);
+      const t = document.createElement("canvas");
+      t.width = w; t.height = h;
+      const tc = t.getContext("2d");
+      tc.drawImage(V.img, 0, 0, w, h);
+      const data = tc.getImageData(0, 0, w, h).data;
+      const W = w + 1;
+      const sum = new Float64Array(W * (h + 1));
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          const i = (y * w + x) * 4;
+          const g = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          const dark = g < 195 ? 1 : 0;
+          sum[(y + 1) * W + x + 1] = dark + sum[y * W + x + 1] + sum[(y + 1) * W + x] - sum[y * W + x];
+        }
+      }
+      V.ink = { sum, w, h, s };
+    };
+    const inkDensity = (x, y, bw, bh) => {
+      const { sum, w, h, s } = V.ink;
+      const W = w + 1;
+      const x0 = Math.max(0, Math.floor(x / s)), y0 = Math.max(0, Math.floor(y / s));
+      const x1 = Math.min(w, Math.ceil((x + bw) / s)), y1 = Math.min(h, Math.ceil((y + bh) / s));
+      const cells = (x1 - x0) * (y1 - y0);
+      if (cells <= 0) return 1;
+      return (sum[y1 * W + x1] - sum[y0 * W + x1] - sum[y1 * W + x0] + sum[y0 * W + x0]) / cells;
+    };
+    // ボックスサイズに合う一番白い場所を探す
+    const findSpot = (bw, bh, opts = {}) => {
+      const c = $("vendor-canvas");
+      const step = Math.max(8, Math.round(c.width / 70));
+      const yMin = (opts.yMin ?? 0.01) * c.height;
+      const yMax = (opts.yMax ?? 0.65) * c.height - bh;
+      const xMin = (opts.xMin ?? 0.015) * c.width;
+      const xMax = (opts.xMax ?? 0.985) * c.width - bw;
+      let best = null, bs = Infinity;
+      for (let y = yMin; y <= yMax; y += step) {
+        for (let x = xMin; x <= xMax; x += step) {
+          let score = inkDensity(x, y, bw, bh);
+          (opts.avoid || []).forEach(b => {
+            const ox = Math.max(0, Math.min(x + bw, b.x + b.w) - Math.max(x, b.x));
+            const oy = Math.max(0, Math.min(y + bh, b.y + b.h) - Math.max(y, b.y));
+            score += 3 * (ox * oy) / (bw * bh);
+          });
+          score += 0.22 * (y / c.height);          // なるべく上へ
+          if (opts.rightBias) score += 0.25 * (1 - (x + bw) / c.width);  // なるべく右へ
+          if (score < bs) { bs = score; best = { x: Math.round(x), y: Math.round(y) }; }
+        }
+      }
+      return best;
+    };
+    const autoPlace = () => {
+      if (!V.img || !V.items) { return; }
+      buildInkMap();
+      const c = $("vendor-canvas");
+      const ctx = c.getContext("2d");
+      const base = vendorBase();
+      const placed = [];
+      const putText = (key, text) => {
+        if (!text) return;
+        const m = vendorMeasure(ctx, text, base);
+        const spot = findSpot(m.bw, m.bh, { avoid: placed });
+        if (spot) {
+          V.items[key] = spot;
+          placed.push({ x: spot.x, y: spot.y, w: m.bw, h: m.bh });
+        }
+      };
+      putText("greet", $("v-greet").value.trim());
+      putText("date", fmtDateJp($("f-date").value));
+      if ($("v-fare-print").checked && V.fareText) putText("fare", V.fareText);
+      if ($("v-seal").value) {
+        const dm = hankoSize();
+        const spot = findSpot(dm, dm, { avoid: placed, yMax: 0.45, xMin: 0.5, rightBias: 1 });
+        if (spot) V.items.hanko = spot;
+      }
+      vendorRedraw();
     };
 
     const vendorRedraw = () => {
@@ -1201,23 +1306,18 @@
       ctx.drawImage(V.img, 0, 0, c.width, c.height);
       V.hit = [];
       $("v-date-view").value = fmtDateJp($("f-date").value);
-      const base = Math.max(18, c.width * 0.026);
+      const base = vendorBase();
       const drawText = (key, text, color) => {
         if (!text) return;
         const it = V.items[key];
-        const lines = text.split("\n");
-        ctx.font = `700 ${base}px 'Noto Sans JP', sans-serif`;
-        const lh = base * 1.5;
-        let maxw = 0;
-        lines.forEach(l => { maxw = Math.max(maxw, ctx.measureText(l).width); });
-        const pad = base * 0.5;
-        const bw = maxw + pad * 2, bh = lh * lines.length + pad * 1.2;
+        const m = vendorMeasure(ctx, text, base);
         ctx.fillStyle = "rgba(255,255,255,0.82)";
-        roundRect(ctx, it.x, it.y, bw, bh, base * 0.4);
+        roundRect(ctx, it.x, it.y, m.bw, m.bh, base * 0.4);
         ctx.fill();
         ctx.fillStyle = color;
-        lines.forEach((l, i) => ctx.fillText(l, it.x + pad, it.y + pad * 0.6 + lh * (i + 0.75)));
-        V.hit.push({ key, x: it.x, y: it.y, w: bw, h: bh });
+        ctx.font = `700 ${base}px 'Noto Sans JP', sans-serif`;
+        m.lines.forEach((l, i) => ctx.fillText(l, it.x + m.pad, it.y + m.pad * 0.6 + m.lh * (i + 0.75)));
+        V.hit.push({ key, x: it.x, y: it.y, w: m.bw, h: m.bh });
       };
       drawText("greet", $("v-greet").value.trim(), "#16418c");
       drawText("date", fmtDateJp($("f-date").value), "#16418c");
@@ -1226,7 +1326,7 @@
       const seal = $("v-seal").value;
       if (seal) {
         const it = V.items.hanko;
-        const dm = Math.max(70, c.width * 0.09);
+        const dm = hankoSize();
         ctx.save();
         ctx.globalAlpha = 0.88;
         ctx.strokeStyle = "#d3362d";
@@ -1309,6 +1409,8 @@
 
     $("v-greet").addEventListener("input", vendorRedraw);
     $("v-fare-print").addEventListener("change", vendorRedraw);
+    $("v-size").addEventListener("input", vendorRedraw);
+    $("v-auto").addEventListener("click", autoPlace);
 
     // 業者用タブから直接FAXを開く
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
@@ -1346,48 +1448,14 @@
       }, "image/png");
     });
 
-    /* ---------- 交通費 ---------- */
+    /* ---------- 交通費（手入力＋Googleマップで経路確認） ---------- */
     const cleanAddr = (s) => s.replace(/〒?\d{3}-?\d{4}\s*/, "").replace(/\s+/g, "");
-    const geocode = async (q) => {
-      const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=" + encodeURIComponent(q));
-      const j = await r.json();
-      if (!j[0]) throw new Error("notfound");
-      return j[0];
-    };
-    const routeKm = async (a, b) => {
-      const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`);
-      const j = await r.json();
-      if (!j.routes || !j.routes[0]) throw new Error("noroute");
-      return j.routes[0].distance / 1000;
-    };
-    $("v-calc").addEventListener("click", async () => {
-      const office = $("v-office").value.trim();
-      const rate = parseFloat($("v-rate").value);
-      const genba = $("f-address").value.trim();
-      saveV({ office, rate: $("v-rate").value, round: $("v-round").checked });
-      if (!rate) { toast("単価（円/km）を入力してください"); return; }
-      let km = parseFloat($("v-km").value);
-      if (!km) {
-        if (!office) { toast("事務所の住所を入力してください"); return; }
-        if (!genba) { toast("「作成・編集」タブで現場住所を入力してください"); return; }
-        try {
-          $("v-fare-out").textContent = "距離を計算中…";
-          const a = await geocode(cleanAddr(office));
-          const b = await geocode(cleanAddr(genba));
-          km = Math.round((await routeKm(a, b)) * 10) / 10;
-          $("v-km").value = km;
-        } catch {
-          $("v-fare-out").textContent = "";
-          toast("自動計算に失敗しました。距離(km)を手入力して再度押してください");
-          return;
-        }
-      }
-      const mult = $("v-round").checked ? 2 : 1;
-      const fare = Math.round(km * rate * mult / 10) * 10;
-      V.fareText = `交通費 ¥${fare.toLocaleString()}`;
-      $("v-fare-out").textContent = `${km}km × ${rate}円/km${mult === 2 ? " × 往復" : ""} = ¥${fare.toLocaleString()}`;
+    $("v-fare").addEventListener("input", () => {
+      const v = parseInt($("v-fare").value, 10);
+      V.fareText = v ? `交通費 ¥${v.toLocaleString()}` : "";
       vendorRedraw();
     });
+    $("v-office").addEventListener("change", () => saveV({ office: $("v-office").value.trim() }));
     $("v-route").addEventListener("click", () => {
       const office = $("v-office").value.trim();
       const genba = $("f-address").value.trim();
@@ -1421,8 +1489,6 @@
     {
       const s = loadV();
       if (s.office) $("v-office").value = s.office;
-      if (s.rate) $("v-rate").value = s.rate;
-      if (s.round === false) $("v-round").checked = false;
       refreshSeals();
     }
   </script>
