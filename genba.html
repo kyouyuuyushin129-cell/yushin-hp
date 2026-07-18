@@ -487,7 +487,10 @@
 
     /* ---------- text parser (paste / OCR) ---------- */
     const parseGenbaText = (raw) => {
-      const lines = raw.split(/\r?\n/).map(l => l.trim());
+      // OCRは日本語を「株 式 会 社」のように空白区切りで出すため、日本語文字間の空白を除去して解析
+      const compactJa = (s) => s.replace(/([^\x00-\x7F]) +(?=[^\x00-\x7F])/g, "$1");
+      raw = raw.split(/\r?\n/).map(l => compactJa(l.trim())).join("\n");
+      const lines = raw.split(/\n/);
       const d = {};
       const isLabel = (l) => /^(業者名|担当者|現場住所|開始時間|集合時間|プラン|メンバー|作業内容|計\s*\d+\s*名|よろしく)/.test(l);
       const nextValue = (i) => {
@@ -564,6 +567,51 @@
         }
       }
 
+      // ---- FAX等の自由書式向け（ラベルで見つからなかった項目のみ）----
+      const isOurs = (s) => /優心/.test(s);
+      // 業者名・担当者：「小浜木材工業株式会社 高橋」形式。会社名を含む最初の行を採用
+      // （FAXは重要情報が上部に書かれ、地図等のゴミ文字は後方に出るため、上から順で正解しやすい）
+      if (!d.client) {
+        for (const l of lines) {
+          if (!l || /御中/.test(l)) continue;
+          const m = l.match(/([一-龥々ァ-ヶーA-Za-z0-9]{0,12})(株式会社|有限会社)([一-龥々ァ-ヶー]{0,10})/);
+          if (m && !isOurs(m[0])) {
+            if (m[1]) {
+              // 前置き型（◯◯株式会社）：後ろに続く漢字は担当者名の可能性が高い
+              d.client = m[1] + m[2];
+              if (!d["contact-name"] && m[3] && m[3].length <= 4) d["contact-name"] = m[3];
+            } else {
+              // 後置き型（株式会社◯◯）
+              d.client = m[2] + m[3];
+            }
+            break;
+          }
+        }
+      }
+      // 現場名：「現場名：◯◯」「（現場名・◯◯」表記
+      if (!d.name) {
+        const m = raw.match(/現場名\s*[：:・.、]?\s*([^\n)）]+)/);
+        if (m) d.name = m[1].trim();
+      }
+      // 開始時間：「13時半」「13時30分」「13:30」など（時刻の話をしている行のみ）
+      if (!d.start) {
+        for (const l of lines) {
+          if (!/(時|開始|集合)/.test(l)) continue;
+          const m = l.match(/\d{1,2}[:：]\d{2}|\d{1,2}\s*時\s*半|\d{1,2}\s*時(?:\d{1,2}分)?/);
+          if (m) { d.start = m[0].replace(/\s+/g, "") + (/開始/.test(l) || !/集合/.test(l) ? "開始" : ""); break; }
+        }
+      }
+      // 作業内容：「フロア搬入」「PB搬入」など（扱入・般入はOCRの誤読補正）
+      if (!d.work) {
+        const m = raw.match(/[^\s、。;:：（()）]*(?:搬入|扱入|般入|搬出|荷揚げ|荷上げ|揚重)/);
+        if (m && !/現場/.test(m[0])) d.work = m[0].replace(/[扱般]入/, "搬入").replace(/^\d*名/, "");
+      }
+      // 人数：「1名」→ 備考へメモ（メンバー名は不明のため）
+      if (!d.members && !d.note) {
+        const m = raw.match(/(\d{1,2})\s*名/);
+        if (m) d.note = "人数：" + m[1] + "名";
+      }
+
       // ※メモ、🚨⚠️注意事項（プラン/メンバーより前→集合側、後→作業側）
       const planIdx = lines.findIndex(l => /^(プラン|メンバー|作業内容)/.test(l));
       const notes = [], c1 = [], c2 = [];
@@ -575,6 +623,7 @@
       if (c1.length) d.caution1 = c1.join("\n");
       if (c2.length) d.caution2 = c2.join("\n");
 
+      if (d.address) d.address = d.address.replace(/\s+/g, "");
       return d;
     };
 
