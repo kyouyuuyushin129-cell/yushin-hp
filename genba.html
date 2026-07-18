@@ -412,9 +412,15 @@
               <select id="v-seal" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--line-d);border-radius:9px;padding:11px 12px;color:var(--paper);font-size:16px;"></select>
             </div>
           </div>
-          <div class="import-btns">
-            <button class="btn-import" id="v-seal-add" type="button">＋ 印鑑を追加</button>
-            <button class="btn-import" id="v-seal-del" type="button">－ 印鑑を削除</button>
+          <div class="row2" style="margin-top:4px;">
+            <div class="field">
+              <label>新しい印鑑の名前（姓）</label>
+              <input type="text" id="v-seal-name" placeholder="例）白谷">
+            </div>
+            <div class="field" style="display:flex;align-items:flex-end;gap:8px;">
+              <button class="btn-import" id="v-seal-add" type="button" style="flex:1;">＋ 登録</button>
+              <button class="btn-import" id="v-seal-del" type="button" style="flex:1;">選択中を削除</button>
+            </div>
           </div>
           <div class="field" style="margin-top:13px;">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -1410,7 +1416,17 @@
         m.lines.forEach((l, i) => ctx.fillText(l, it.x + m.pad, it.y + m.pad * 0.6 + m.lh * (i + 0.75)));
         V.hit.push({ key, x: it.x, y: it.y, w: m.bw, h: m.bh });
       };
-      drawText("greet", $("v-greet").value.trim(), "#16418c");
+      // 定型文：本文より上に置いたら「下記」、下なら「上記」に自動で切り替え
+      let greetText = $("v-greet").value.trim();
+      if (greetText && /[上下]記/.test(greetText)) {
+        let refY = c.height * 0.15;
+        if (V.ocrWords && V.ocrWords.words) {
+          const wref = V.ocrWords.words.find(w => w.text && /(お願い|搬入|搬出|荷揚)/.test(w.text) && w.bbox);
+          if (wref) refY = wref.bbox.y1 * (c.height / V.ocrWords.h);
+        }
+        greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
+      }
+      drawText("greet", greetText, "#16418c");
       drawText("date", fmtDateJp($("f-date").value), "#16418c");
       if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
       // 「御中」を消す棒線
@@ -1508,10 +1524,11 @@
     };
     $("v-seal").addEventListener("change", () => { saveV({ seal: $("v-seal").value }); vendorRedraw(); });
     $("v-seal-add").addEventListener("click", () => {
-      const n = (prompt("印鑑にする名前（姓）を入力してください") || "").trim();
-      if (!n) return;
+      const n = $("v-seal-name").value.trim();
+      if (!n) { toast("印鑑にする名前を入力してください"); $("v-seal-name").focus(); return; }
       const s = loadV();
       saveV({ seals: [...new Set([...(s.seals || []), n])], seal: n });
+      $("v-seal-name").value = "";
       refreshSeals();
       vendorRedraw();
       toast(`印鑑「${n}」を登録しました`);
@@ -1519,11 +1536,11 @@
     $("v-seal-del").addEventListener("click", () => {
       const cur = $("v-seal").value;
       if (!cur) { toast("削除する印鑑を選んでください"); return; }
-      if (!confirm(`印鑑「${cur}」を削除しますか？`)) return;
       const s = loadV();
       saveV({ seals: (s.seals || []).filter(x => x !== cur), seal: "" });
       refreshSeals();
       vendorRedraw();
+      toast(`印鑑「${cur}」を削除しました`);
     });
 
     $("v-greet").addEventListener("input", vendorRedraw);
