@@ -81,13 +81,14 @@
       display: flex; align-items: center; gap: 8px;
     }
     .card h2::before { content: ""; width: 4px; height: 14px; background: var(--org); border-radius: 2px; }
+    .card .hint { font-size: 0.7rem; color: rgba(216,212,202,0.5); line-height: 1.7; margin-bottom: 12px; }
     .field { margin-bottom: 13px; }
     .field:last-child { margin-bottom: 0; }
     .field label {
       display: block; font-size: 0.72rem; font-weight: 700;
       color: rgba(216,212,202,0.75); margin-bottom: 5px; letter-spacing: 0.05em;
     }
-    .field input, .field textarea, .field select {
+    .field input, .field textarea {
       width: 100%;
       background: rgba(255,255,255,0.05);
       border: 1px solid var(--line-d);
@@ -101,6 +102,29 @@
     .field input:focus, .field textarea:focus { border-color: rgba(255,196,0,0.6); }
     .field textarea { resize: vertical; min-height: 64px; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ---------- import ---------- */
+    .import-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn-import {
+      padding: 13px 8px; border-radius: 11px;
+      background: rgba(255,196,0,0.1); color: var(--org);
+      border: 1px dashed rgba(255,196,0,0.55);
+      font-family: var(--sans); font-weight: 800; font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .btn-import:active { background: rgba(255,196,0,0.2); }
+    #paste-area { margin-top: 12px; }
+    #paste-area textarea { min-height: 120px; }
+    #ocr-status {
+      margin-top: 12px; font-size: 0.8rem; font-weight: 700; color: var(--org);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .spinner {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 2px solid rgba(255,196,0,0.25); border-top-color: var(--org);
+      animation: spin 0.8s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ---------- preview ---------- */
     .sheet {
@@ -197,6 +221,7 @@
       opacity: 0; pointer-events: none;
       transition: opacity 0.25s, transform 0.25s;
       z-index: 100;
+      max-width: 88vw; text-align: center;
     }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -205,7 +230,7 @@
 
     @media print {
       body { background: #fff; }
-      .app-header, .tabs, .actions, #form-area, .note, .toast { display: none !important; }
+      .app-header, .tabs, .actions, #form-area, #import-card, .note, .toast { display: none !important; }
       .wrap { padding: 0; max-width: none; }
       .sheet { box-shadow: none; border-radius: 0; }
     }
@@ -228,82 +253,105 @@
 
     <!-- ============ 作成画面 ============ -->
     <div id="page-edit">
+      <div class="card" id="import-card">
+        <h2>画像・テキストから自動入力</h2>
+        <p class="hint">FAXの画像やLINEのスクショ、もらった文面から各項目を自動で振り分けます。画像は端末の中だけで処理され、外部には送信されません。</p>
+        <div class="import-btns">
+          <button class="btn-import" id="btn-ocr" type="button">📷 画像を読み取る</button>
+          <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
+        </div>
+        <input type="file" id="ocr-file" accept="image/*" class="hidden">
+        <div id="paste-area" class="hidden">
+          <div class="field" style="margin-top:12px;">
+            <textarea id="paste-text" placeholder="LINEやメールでもらった現場詳細の文面を、ここにそのまま貼り付けてください"></textarea>
+          </div>
+          <button class="btn btn-gold" id="btn-paste-run" type="button" style="width:100%;">↓ 各項目に振り分ける</button>
+        </div>
+        <div id="ocr-status" class="hidden"><span class="spinner"></span><span id="ocr-status-text"></span></div>
+      </div>
+
       <div id="form-area">
         <div class="card">
           <h2>基本情報</h2>
-          <div class="field">
-            <label>現場名 *</label>
-            <input type="text" id="f-name" placeholder="例）梅田○○ビル新築工事">
-          </div>
           <div class="row2">
             <div class="field">
               <label>日付</label>
               <input type="date" id="f-date">
             </div>
             <div class="field">
-              <label>集合時間</label>
-              <input type="time" id="f-meet-time">
+              <label>業者名</label>
+              <input type="text" id="f-client" placeholder="例）ラックプラス">
             </div>
-          </div>
-          <div class="field">
-            <label>作業時間（目安）</label>
-            <input type="text" id="f-work-time" placeholder="例）8:00〜17:00（昼休憩あり）">
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>場所</h2>
-          <div class="field">
-            <label>現場住所</label>
-            <input type="text" id="f-address" placeholder="例）大阪市北区梅田1-1-1">
-          </div>
-          <div class="field">
-            <label>集合場所</label>
-            <input type="text" id="f-meet-place" placeholder="例）現場前 1階搬入口">
-          </div>
-          <div class="field">
-            <label>駐車場</label>
-            <input type="text" id="f-parking" placeholder="例）近隣コインP（領収書もらうこと）">
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>作業内容</h2>
-          <div class="field">
-            <label>作業内容</label>
-            <textarea id="f-work" placeholder="例）PB（プラスターボード）搬入&#10;3階まで階段上げ 約300枚"></textarea>
           </div>
           <div class="row2">
             <div class="field">
-              <label>人数</label>
-              <input type="text" id="f-people" placeholder="例）4名">
+              <label>担当者</label>
+              <input type="text" id="f-contact-name" placeholder="例）渡村">
             </div>
             <div class="field">
-              <label>元請・取引先</label>
-              <input type="text" id="f-client" placeholder="例）株式会社○○工務店">
-            </div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>連絡・その他</h2>
-          <div class="row2">
-            <div class="field">
-              <label>現場担当者</label>
-              <input type="text" id="f-contact-name" placeholder="例）山田様">
-            </div>
-            <div class="field">
-              <label>連絡先</label>
+              <label>担当者 電話番号</label>
               <input type="tel" id="f-contact-tel" placeholder="例）090-0000-0000">
             </div>
           </div>
+        </div>
+
+        <div class="card">
+          <h2>現場</h2>
           <div class="field">
-            <label>持ち物・服装</label>
-            <input type="text" id="f-items" placeholder="例）ヘルメット・安全帯・グリーンサイト登録">
+            <label>現場住所（〒から）</label>
+            <input type="text" id="f-address" placeholder="例）〒591-8007 大阪府堺市北区奥本町２丁１１４">
           </div>
           <div class="field">
-            <label>備考・注意事項</label>
-            <textarea id="f-note" placeholder="例）朝礼あり（7:50〜）。搬入口が狭いので台車は小さめ。"></textarea>
+            <label>現場名</label>
+            <input type="text" id="f-name" placeholder="例）奥本町共同住宅">
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>時間・集合</h2>
+          <div class="row2">
+            <div class="field">
+              <label>開始時間</label>
+              <input type="text" id="f-start" placeholder="例）13:00開始">
+            </div>
+            <div class="field">
+              <label>集合時間</label>
+              <input type="text" id="f-meet" placeholder="例）11:00に事務所集合❗️">
+            </div>
+          </div>
+          <div class="field">
+            <label>※メモ（1行ずつ）</label>
+            <textarea id="f-meet-notes" placeholder="例）ミラで‼️&#10;パナソニックの用意積んで向かってください！"></textarea>
+          </div>
+          <div class="field">
+            <label>🚨注意事項（集合・装備）</label>
+            <textarea id="f-caution1"></textarea>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>作業</h2>
+          <div class="row2">
+            <div class="field">
+              <label>プラン</label>
+              <input type="text" id="f-plan" placeholder="例）3h">
+            </div>
+            <div class="field">
+              <label>作業内容</label>
+              <input type="text" id="f-work" placeholder="例）材料搬入">
+            </div>
+          </div>
+          <div class="field">
+            <label>メンバー（1行に1名）</label>
+            <textarea id="f-members" placeholder="例）大西&#10;松本"></textarea>
+          </div>
+          <div class="field">
+            <label>🚨注意事項（作業）</label>
+            <textarea id="f-caution2" style="min-height:110px;"></textarea>
+          </div>
+          <div class="field">
+            <label>備考（あれば）</label>
+            <textarea id="f-note" placeholder="その他伝えたいこと"></textarea>
           </div>
         </div>
       </div>
@@ -318,7 +366,6 @@
         <div class="sheet-body" id="p-body"></div>
         <div class="sheet-foot">
           <span><b>株式会社優心</b>｜搬入・荷揚げ</span>
-          <span id="p-stamp"></span>
         </div>
       </div>
 
@@ -341,8 +388,10 @@
   <script>
     "use strict";
     const $ = (id) => document.getElementById(id);
-    const FIELDS = ["name","date","meet-time","work-time","address","meet-place","parking","work","people","client","contact-name","contact-tel","items","note"];
+    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
+    const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
+    const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
     let currentId = null;
 
     /* ---------- data ---------- */
@@ -359,41 +408,48 @@
     };
     const writeForm = (d) => {
       FIELDS.forEach(f => $("f-" + f).value = (d && d[f]) || "");
+      if (!d) {
+        $("f-caution1").value = DEFAULT_CAUTION1;
+        $("f-caution2").value = DEFAULT_CAUTION2;
+      }
       render();
     };
 
     /* ---------- helpers ---------- */
-    const fmtDate = (iso) => {
+    const WEEK = ["日","月","火","水","木","金","土"];
+    const fmtDateShort = (iso) => {
       if (!iso) return "";
       const [y, m, day] = iso.split("-").map(Number);
-      const w = ["日","月","火","水","木","金","土"][new Date(y, m - 1, day).getDay()];
-      return `${y}年${m}月${day}日（${w}）`;
+      return `${m}/${day} ${WEEK[new Date(y, m - 1, day).getDay()]}曜日`;
     };
-    const mapUrl = (addr) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr);
+    const mapUrl = (addr) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr.replace(/〒?\d{3}-?\d{4}\s*/, ""));
     const esc = (s) => s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+    const withSama = (s) => s ? (/様\s*$/.test(s) ? s : s + " 様") : "";
+    const memberList = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
+    const starLines = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean).map(x => /^[※]/.test(x) ? x : "※" + x);
 
     /* ---------- preview ---------- */
     const render = () => {
       const d = readForm();
-      $("p-name").textContent = d.name || "（現場名を入力してください）";
-
-      let dateLine = fmtDate(d.date);
-      if (d["meet-time"]) dateLine += (dateLine ? "　" : "") + "集合 " + d["meet-time"];
-      $("p-date").textContent = dateLine;
+      $("p-name").textContent = d.name || d.client || "（現場名を入力してください）";
+      $("p-date").textContent = fmtDateShort(d.date);
 
       const rows = [];
       const add = (k, vHtml) => { if (vHtml) rows.push(`<div class="sheet-row"><div class="k">${k}</div><div class="v">${vHtml}</div></div>`); };
 
-      add("作業時間", d["work-time"] && esc(d["work-time"]));
-      add("住所", d.address && `${esc(d.address)}<br><a href="${mapUrl(d.address)}" target="_blank" rel="noopener">📍 地図を開く</a>`);
-      add("集合場所", d["meet-place"] && `<strong>${esc(d["meet-place"])}</strong>`);
-      add("駐車場", d.parking && esc(d.parking));
-      add("作業内容", d.work && esc(d.work));
-      add("人数", d.people && esc(d.people));
-      add("元請", d.client && esc(d.client));
-      const contact = [d["contact-name"], d["contact-tel"] && `<a href="tel:${esc(d["contact-tel"])}">${esc(d["contact-tel"])}</a>`].filter(Boolean).join("　");
+      add("業者名", d.client && `<strong>${esc(withSama(d.client))}</strong>`);
+      const contact = [d["contact-name"] && esc(withSama(d["contact-name"])), d["contact-tel"] && `<a href="tel:${esc(d["contact-tel"])}">${esc(d["contact-tel"])}</a>`].filter(Boolean).join("<br>");
       add("担当者", contact);
-      add("持ち物", d.items && esc(d.items));
+      add("現場住所", d.address && `${esc(d.address)}<br><a href="${mapUrl(d.address)}" target="_blank" rel="noopener">📍 地図を開く</a>`);
+      add("開始時間", d.start && `<strong>${esc(d.start)}</strong>`);
+      const meet = [d.meet && `<strong>${esc(d.meet)}</strong>`, ...starLines(d["meet-notes"]).map(esc)].filter(Boolean).join("<br>");
+      add("集合", meet);
+      add("注意事項", d.caution1 && esc(d.caution1));
+      add("プラン", d.plan && `<strong>${esc(d.plan)}</strong>`);
+      const mem = memberList(d.members);
+      add("メンバー", mem.length ? esc(mem.join("\n")) + `<br><strong>計${mem.length}名</strong>` : "");
+      add("作業内容", d.work && `<strong>${esc(d.work)}</strong>`);
+      add("作業注意", d.caution2 && esc(d.caution2));
       add("備考", d.note && esc(d.note));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
@@ -402,28 +458,193 @@
     /* ---------- LINE text ---------- */
     const buildText = () => {
       const d = readForm();
-      const L = [];
-      L.push("━━━━━━━━━━━━");
-      L.push("■ 現場詳細");
-      L.push("━━━━━━━━━━━━");
-      if (d.name) L.push("【現場】" + d.name);
-      if (d.date) L.push("【日付】" + fmtDate(d.date));
-      if (d["meet-time"]) L.push("【集合】" + d["meet-time"] + (d["meet-place"] ? "　" + d["meet-place"] : ""));
-      else if (d["meet-place"]) L.push("【集合場所】" + d["meet-place"]);
-      if (d["work-time"]) L.push("【作業時間】" + d["work-time"]);
-      if (d.address) { L.push("【住所】" + d.address); L.push(mapUrl(d.address)); }
-      if (d.parking) L.push("【駐車場】" + d.parking);
-      if (d.work) L.push("【作業内容】\n" + d.work);
-      if (d.people) L.push("【人数】" + d.people);
-      if (d.client) L.push("【元請】" + d.client);
-      const c = [d["contact-name"], d["contact-tel"]].filter(Boolean).join("　");
-      if (c) L.push("【担当者】" + c);
-      if (d.items) L.push("【持ち物】" + d.items);
-      if (d.note) L.push("【備考】\n" + d.note);
-      L.push("━━━━━━━━━━━━");
-      L.push("株式会社優心");
-      return L.join("\n");
+      const B = [];
+      if (d.date) B.push(fmtDateShort(d.date));
+      if (d.client) B.push("業者名  " + withSama(d.client));
+      const contact = ["担当者", d["contact-name"] && withSama(d["contact-name"]), d["contact-tel"]].filter(Boolean);
+      if (contact.length > 1) B.push(contact.join("\n"));
+      if (d.address) B.push("現場住所\n" + d.address);
+      if (d.name) B.push(d.name);
+
+      const timeL = [];
+      if (d.start) timeL.push("開始時間 " + d.start);
+      if (d.meet) timeL.push("集合時間 " + d.meet);
+      timeL.push(...starLines(d["meet-notes"]));
+      if (timeL.length) B.push(timeL.join("\n"));
+
+      if (d.caution1) B.push(d.caution1);
+      if (d.plan) B.push("プラン " + d.plan);
+
+      const mem = memberList(d.members);
+      if (mem.length) B.push("メンバー\n" + mem.join("\n") + "\n\n計" + mem.length + "名");
+
+      if (d.work) B.push("作業内容\n" + d.work);
+      if (d.caution2) B.push(d.caution2);
+      if (d.note) B.push(d.note);
+      B.push("よろしくお願いいたします！");
+      return B.join("\n\n");
     };
+
+    /* ---------- text parser (paste / OCR) ---------- */
+    const parseGenbaText = (raw) => {
+      const lines = raw.split(/\r?\n/).map(l => l.trim());
+      const d = {};
+      const isLabel = (l) => /^(業者名|担当者|現場住所|開始時間|集合時間|プラン|メンバー|作業内容|計\s*\d+\s*名|よろしく)/.test(l);
+      const nextValue = (i) => {
+        for (let j = i + 1; j < lines.length; j++) {
+          if (!lines[j]) continue;
+          if (isLabel(lines[j])) return "";
+          return lines[j];
+        }
+        return "";
+      };
+      const afterLabel = (line, label) => line.replace(new RegExp("^" + label + "[\\s:：]*"), "").trim();
+
+      // 日付（例: 7/21 火曜日）
+      for (const l of lines) {
+        const m = l.match(/^(\d{1,2})[\/月](\d{1,2})/);
+        if (m) {
+          const now = new Date();
+          let y = now.getFullYear();
+          const mo = +m[1], da = +m[2];
+          if (mo < now.getMonth() - 5) y++; // 年末に翌年の日付を入れた場合
+          d.date = `${y}-${String(mo).padStart(2, "0")}-${String(da).padStart(2, "0")}`;
+          break;
+        }
+      }
+
+      // 電話番号
+      const tel = raw.match(/0\d{1,3}[-‐ー−]\d{1,4}[-‐ー−]\d{3,4}|0\d{9,10}/);
+      if (tel) d["contact-tel"] = tel[0].replace(/[‐ー−]/g, "-");
+
+      const memberLines = [];
+      let memberMode = false;
+
+      lines.forEach((l, i) => {
+        if (!l) { return; }
+        if (memberMode) {
+          if (/^計\s*\d+\s*名/.test(l) || isLabel(l) || /^[🚨⚠️※]/u.test(l)) { memberMode = false; }
+          else { memberLines.push(l); return; }
+        }
+        if (/^業者名/.test(l)) {
+          d.client = (afterLabel(l, "業者名") || nextValue(i)).replace(/様\s*$/, "").trim();
+        } else if (/^担当者/.test(l)) {
+          const v = afterLabel(l, "担当者") || nextValue(i);
+          if (v && !/^0\d/.test(v)) d["contact-name"] = v.replace(/様\s*$/, "").trim();
+        } else if (/^現場住所/.test(l)) {
+          const v = afterLabel(l, "現場住所") || nextValue(i);
+          d.address = v;
+          // 住所の次の行が現場名のことが多い
+          const idx = lines.indexOf(v, i);
+          if (idx >= 0) {
+            const nv = nextValue(idx);
+            if (nv && !isLabel(nv) && !/^[🚨⚠️※]/u.test(nv) && !/^0\d/.test(nv)) d.name = nv;
+          }
+        } else if (/^開始時間/.test(l)) {
+          d.start = afterLabel(l, "開始時間") || nextValue(i);
+        } else if (/^集合時間/.test(l)) {
+          d.meet = afterLabel(l, "集合時間") || nextValue(i);
+        } else if (/^プラン/.test(l)) {
+          d.plan = afterLabel(l, "プラン") || nextValue(i);
+        } else if (/^メンバー/.test(l)) {
+          memberMode = true;
+        } else if (/^作業内容/.test(l)) {
+          d.work = afterLabel(l, "作業内容") || nextValue(i);
+        }
+      });
+      if (memberLines.length) d.members = memberLines.join("\n");
+
+      // 〒住所（ラベルなしで書かれている場合）
+      if (!d.address) {
+        const m = raw.match(/〒?\s*\d{3}[-−]?\d{4}[^\n]*/);
+        if (m) d.address = m[0].trim();
+      }
+
+      // ※メモ、🚨⚠️注意事項（プラン/メンバーより前→集合側、後→作業側）
+      const planIdx = lines.findIndex(l => /^(プラン|メンバー|作業内容)/.test(l));
+      const notes = [], c1 = [], c2 = [];
+      lines.forEach((l, i) => {
+        if (/^※/.test(l)) notes.push(l.replace(/^※/, ""));
+        else if (/^[🚨⚠️]/u.test(l)) ((planIdx < 0 || i < planIdx) ? c1 : c2).push(l);
+      });
+      if (notes.length) d["meet-notes"] = notes.join("\n");
+      if (c1.length) d.caution1 = c1.join("\n");
+      if (c2.length) d.caution2 = c2.join("\n");
+
+      return d;
+    };
+
+    const applyParsed = (d) => {
+      let count = 0;
+      FIELDS.forEach(f => { if (d[f]) { $("f-" + f).value = d[f]; count++; } });
+      render();
+      return count;
+    };
+
+    /* ---------- paste ---------- */
+    $("btn-paste").addEventListener("click", () => {
+      $("paste-area").classList.toggle("hidden");
+    });
+    $("btn-paste-run").addEventListener("click", () => {
+      const raw = $("paste-text").value.trim();
+      if (!raw) { toast("先に文面を貼り付けてください"); return; }
+      const n = applyParsed(parseGenbaText(raw));
+      if (n) {
+        $("paste-area").classList.add("hidden");
+        $("paste-text").value = "";
+        toast(`${n}項目を振り分けました。内容を確認してください`);
+      } else {
+        toast("振り分けできる項目が見つかりませんでした");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    /* ---------- OCR ---------- */
+    const setOcrStatus = (msg) => {
+      $("ocr-status").classList.toggle("hidden", !msg);
+      $("ocr-status-text").textContent = msg || "";
+    };
+    const loadTesseract = () => new Promise((resolve, reject) => {
+      if (window.Tesseract) return resolve();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("script"));
+      document.head.appendChild(s);
+    });
+
+    $("btn-ocr").addEventListener("click", () => $("ocr-file").click());
+    $("ocr-file").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      try {
+        setOcrStatus("読み取り準備中…（初回は少し時間がかかります）");
+        await loadTesseract();
+        const worker = await Tesseract.createWorker("jpn", 1, {
+          logger: (m) => {
+            if (m.status === "recognizing text") setOcrStatus(`文字を読み取り中… ${Math.round(m.progress * 100)}%`);
+          }
+        });
+        const { data } = await worker.recognize(file);
+        await worker.terminate();
+        setOcrStatus("");
+        const text = (data.text || "").replace(/[ \t]+/g, " ");
+        if (!text.trim()) { toast("文字を読み取れませんでした"); return; }
+        const n = applyParsed(parseGenbaText(text));
+        if (n) {
+          toast(`${n}項目を読み取りました。必ず内容を確認してください`);
+        } else {
+          $("paste-area").classList.remove("hidden");
+          $("paste-text").value = text.trim();
+          toast("自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } catch (err) {
+        setOcrStatus("");
+        toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
+      }
+    });
 
     /* ---------- toast ---------- */
     let toastTimer;
@@ -432,7 +653,7 @@
       t.textContent = msg;
       t.classList.add("show");
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+      toastTimer = setTimeout(() => t.classList.remove("show"), 2600);
     };
 
     /* ---------- actions ---------- */
@@ -464,7 +685,7 @@
 
     $("btn-save").addEventListener("click", () => {
       const d = readForm();
-      if (!d.name) { toast("現場名を入力してください"); $("f-name").focus(); return; }
+      if (!d.name && !d.client) { toast("現場名か業者名を入力してください"); $("f-name").focus(); return; }
       const list = loadAll();
       if (currentId) {
         const i = list.findIndex(x => x.id === currentId);
@@ -497,10 +718,10 @@
         return;
       }
       box.innerHTML = list.map(g => {
-        const meta = [fmtDate(g.date), g["meet-time"] && "集合 " + g["meet-time"], g.client].filter(Boolean).join("　");
+        const meta = [fmtDateShort(g.date), g.start, g.client && withSama(g.client)].filter(Boolean).join("　");
         return `<div class="saved-item" data-id="${g.id}">
           <div class="saved-info">
-            <div class="saved-name">${esc(g.name || "（無題）")}</div>
+            <div class="saved-name">${esc(g.name || g.client || "（無題）")}</div>
             <div class="saved-meta">${esc(meta) || "詳細未入力"}</div>
           </div>
           <button class="saved-del" data-del="${g.id}" type="button">削除</button>
@@ -542,6 +763,8 @@
 
     /* ---------- init ---------- */
     FIELDS.forEach(f => $("f-" + f).addEventListener("input", render));
+    $("f-caution1").value = DEFAULT_CAUTION1;
+    $("f-caution2").value = DEFAULT_CAUTION2;
     render();
     renderList();
   </script>
