@@ -248,7 +248,8 @@
   <div class="wrap">
     <div class="tabs">
       <div class="tab active" id="tab-edit">作成・編集</div>
-      <div class="tab" id="tab-list">保存した現場 <span id="saved-count"></span></div>
+      <div class="tab" id="tab-vendor">業者用</div>
+      <div class="tab" id="tab-list">保存済み <span id="saved-count"></span></div>
     </div>
 
     <!-- ============ 作成画面 ============ -->
@@ -375,6 +376,84 @@
         <button class="btn btn-dark" id="btn-save" type="button">保存する</button>
       </div>
       <p class="note">入力内容はこの端末（スマホ／PC）の中だけに保存されます。<br>インターネット上には送信されません。</p>
+    </div>
+
+    <!-- ============ 業者用（FAX返信作成） ============ -->
+    <div id="page-vendor" class="hidden">
+      <div class="card">
+        <h2>FAXへの返信を作成</h2>
+        <p class="hint">FAXの上に定型文・日付・印鑑を重ねて、返信用の画像を作ります。「作成・編集」で読み取ったFAXは自動でここに表示されます。文字や印鑑は<b>指でドラッグ</b>して好きな位置に動かせます。</p>
+        <div class="import-btns">
+          <button class="btn-import" id="btn-vendor-file" type="button">📄 FAXを開く（画像・PDF）</button>
+        </div>
+        <input type="file" id="vendor-file" accept="image/*,.pdf,application/pdf" class="hidden">
+      </div>
+
+      <div id="vendor-editor" class="hidden">
+        <div class="card">
+          <canvas id="vendor-canvas" style="width:100%;display:block;border-radius:8px;touch-action:none;background:#fff;"></canvas>
+        </div>
+        <div class="card">
+          <h2>重ねる内容</h2>
+          <div class="field">
+            <label>定型文</label>
+            <textarea id="v-greet">大変お世話になっております。
+上記、喜んで手配させていただきます。
+ありがとうございます。</textarea>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>日付（作成・編集の日付が入ります）</label>
+              <input type="text" id="v-date-view" readonly placeholder="日付未入力">
+            </div>
+            <div class="field">
+              <label>印鑑（名前）</label>
+              <select id="v-seal" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--line-d);border-radius:9px;padding:11px 12px;color:var(--paper);font-size:16px;"></select>
+            </div>
+          </div>
+          <div class="import-btns">
+            <button class="btn-import" id="v-seal-add" type="button">＋ 印鑑を追加</button>
+            <button class="btn-import" id="v-seal-del" type="button">－ 印鑑を削除</button>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:0;">
+          <button class="btn btn-gold" id="v-share" type="button">📤 返信画像を共有・保存</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h2>交通費</h2>
+        <p class="hint">事務所住所と単価を一度設定すれば、「作成・編集」の現場住所までの道のり距離で交通費を計算します（距離の計算時のみ、住所を地図サービスに送信します）。</p>
+        <div class="field">
+          <label>事務所の住所</label>
+          <input type="text" id="v-office" placeholder="例）大阪市◯◯区◯◯1-2-3">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>単価（円/km）</label>
+            <input type="number" id="v-rate" placeholder="例）100">
+          </div>
+          <div class="field">
+            <label>距離（km・自動計算可）</label>
+            <input type="number" id="v-km" placeholder="自動 or 手入力">
+          </div>
+        </div>
+        <div class="field">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="v-round" checked style="width:18px;height:18px;"> 往復で計算する
+          </label>
+        </div>
+        <div class="import-btns">
+          <button class="btn-import" id="v-calc" type="button">🧮 交通費を計算</button>
+          <button class="btn-import" id="v-route" type="button">🗺 経路を地図で確認</button>
+        </div>
+        <div id="v-fare-out" style="margin-top:12px;font-weight:800;color:var(--org);font-size:1rem;"></div>
+        <div class="field" style="margin-top:10px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="v-fare-print" style="width:18px;height:18px;"> 交通費をFAX返信画像にも印字する
+          </label>
+        </div>
+      </div>
     </div>
 
     <!-- ============ 保存一覧 ============ -->
@@ -594,10 +673,14 @@
           }
         }
       }
-      // 現場名：「現場名：◯◯」「（現場名・◯◯」表記
-      if (!d.name) {
-        const m = raw.match(/現場名\s*[：:・.、]?\s*([^\n)）]+)/);
-        if (m) d.name = m[1].trim();
+      // 現場名：「現場名：◯◯」「（現場名・◯◯」表記（明記があれば推測より優先。複数候補は最長を採用）
+      {
+        let best = "";
+        for (const m of raw.matchAll(/現場名\s*[：:・.、]?\s*([^\n)）]+)/g)) {
+          const v = m[1].trim();
+          if (v.length > best.length) best = v;
+        }
+        if (best) d.name = best;
       }
       // 開始時間：「13時半」「13時30分」「13:30」など（時刻の話をしている行のみ）
       if (!d.start) {
@@ -609,8 +692,8 @@
       }
       // 作業内容：「フロア搬入」「PB搬入」など（扱入・般入はOCRの誤読補正）
       if (!d.work) {
-        const m = raw.match(/[^\s、。;:：（()）]*(?:搬入|扱入|般入|搬出|荷揚げ|荷上げ|揚重)/);
-        if (m && !/現場/.test(m[0])) d.work = m[0].replace(/[扱般]入/, "搬入").replace(/^\d*名/, "");
+        const m = raw.match(/[^\s、。;:：（()）]*(?:搬入|扱入|般入|撤入|搬出|荷揚げ|荷上げ|揚重)/);
+        if (m && !/現場/.test(m[0])) d.work = m[0].replace(/[扱般撤]入/, "搬入").replace(/^\d*名/, "");
       }
       // 人数：「1名」→ 備考へメモ（メンバー名は不明のため）
       if (!d.members && !d.note) {
@@ -805,7 +888,7 @@
       for (let p = 1; p <= pages; p++) {
         const page = await pdf.getPage(p);
         const vp1 = page.getViewport({ scale: 1 });
-        const scale = Math.min(2.5, 1800 / vp1.width);
+        const scale = Math.min(3.5, 2000 / vp1.width);
         const vp = page.getViewport({ scale });
         const canvas = document.createElement("canvas");
         canvas.width = vp.width;
@@ -852,7 +935,7 @@
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
         ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
-        resolve(preprocessCanvas(canvas));
+        resolve(canvas);
       };
       im.onerror = () => { URL.revokeObjectURL(url); reject(new Error("image")); };
       im.src = url;
@@ -923,12 +1006,31 @@
           // 文字データが乏しい（スキャンPDF・FAX等）→ 画像化してOCRし、良い方を採用
           if (countParsed(layerText).n < 3) {
             setOcrStatus("スキャンPDFのため文字認識に切り替えます…");
-            const canvases = (await pdfToCanvases(pdf)).map(preprocessCanvas);
-            const ocrText = await ocrSources(canvases);
+            const pageCanvases = await pdfToCanvases(pdf);
+            setVendorImage(pageCanvases[0]);
+            const canvases = pageCanvases.map(preprocessCanvas);
+            let ocrText = await ocrSources(canvases);
+            // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
+            const p1 = countParsed(ocrText).d;
+            if (!p1.address || !p1.name) {
+              setOcrStatus("下部の住所・現場名を追加読み取り中…");
+              const src = canvases[0];
+              const ch = Math.round(src.height * 0.35);
+              const crop = document.createElement("canvas");
+              crop.width = 1100;
+              crop.height = Math.round(ch * (1100 / src.width));
+              crop.getContext("2d").drawImage(src, 0, src.height - ch, src.width, ch, 0, 0, crop.width, crop.height);
+              ocrText += "\n" + await ocrSources([crop]);
+            }
             if (countParsed(ocrText).n >= countParsed(layerText).n) { text = ocrText; fromOcr = true; }
+          } else {
+            // 文字入りPDFでも業者用返信のために1ページ目を画像化しておく
+            try { setVendorImage((await pdfToCanvases(pdf))[0]); } catch {}
           }
         } else {
-          text = await ocrSources([await imageToCanvas(file)]);
+          const c = await imageToCanvas(file);
+          setVendorImage(c);
+          text = await ocrSources([preprocessCanvas(c)]);
           fromOcr = true;
         }
         setOcrStatus("");
@@ -1047,14 +1149,266 @@
       toast("読み込みました");
     });
 
+    /* ---------- 業者用（FAX返信作成） ---------- */
+    const VKEY = "yushin-genba-vendor-v1";
+    const loadV = () => { try { return JSON.parse(localStorage.getItem(VKEY)) || {}; } catch { return {}; } };
+    const saveV = (patch) => { const s = { ...loadV(), ...patch }; localStorage.setItem(VKEY, JSON.stringify(s)); return s; };
+
+    const V = { img: null, items: null, hit: [], fareText: "" };
+    const fmtDateJp = (iso) => {
+      if (!iso) return "";
+      const [y, m, day] = iso.split("-").map(Number);
+      return `${y}年${m}月${day}日`;
+    };
+    const roundRect = (ctx, x, y, w, h, r) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    };
+
+    const setVendorImage = (canvas) => {
+      try {
+        const url = canvas.toDataURL("image/jpeg", 0.92);
+        const im = new Image();
+        im.onload = () => {
+          V.img = im;
+          const c = $("vendor-canvas");
+          const w = Math.min(im.width, 1600);
+          c.width = w;
+          c.height = Math.round(im.height * w / im.width);
+          V.items = {
+            greet: { x: w * 0.06, y: c.height * 0.17 },
+            date: { x: w * 0.06, y: c.height * 0.115 },
+            hanko: { x: w * 0.78, y: c.height * 0.12 },
+            fare: { x: w * 0.06, y: c.height * 0.31 }
+          };
+          $("vendor-editor").classList.remove("hidden");
+          vendorRedraw();
+        };
+        im.src = url;
+      } catch {}
+    };
+
+    const vendorRedraw = () => {
+      const c = $("vendor-canvas");
+      if (!V.img || !V.items) return;
+      const ctx = c.getContext("2d");
+      ctx.clearRect(0, 0, c.width, c.height);
+      ctx.drawImage(V.img, 0, 0, c.width, c.height);
+      V.hit = [];
+      $("v-date-view").value = fmtDateJp($("f-date").value);
+      const base = Math.max(18, c.width * 0.026);
+      const drawText = (key, text, color) => {
+        if (!text) return;
+        const it = V.items[key];
+        const lines = text.split("\n");
+        ctx.font = `700 ${base}px 'Noto Sans JP', sans-serif`;
+        const lh = base * 1.5;
+        let maxw = 0;
+        lines.forEach(l => { maxw = Math.max(maxw, ctx.measureText(l).width); });
+        const pad = base * 0.5;
+        const bw = maxw + pad * 2, bh = lh * lines.length + pad * 1.2;
+        ctx.fillStyle = "rgba(255,255,255,0.82)";
+        roundRect(ctx, it.x, it.y, bw, bh, base * 0.4);
+        ctx.fill();
+        ctx.fillStyle = color;
+        lines.forEach((l, i) => ctx.fillText(l, it.x + pad, it.y + pad * 0.6 + lh * (i + 0.75)));
+        V.hit.push({ key, x: it.x, y: it.y, w: bw, h: bh });
+      };
+      drawText("greet", $("v-greet").value.trim(), "#16418c");
+      drawText("date", fmtDateJp($("f-date").value), "#16418c");
+      if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
+      // 印鑑（朱色の丸に縦書きの名前）
+      const seal = $("v-seal").value;
+      if (seal) {
+        const it = V.items.hanko;
+        const dm = Math.max(70, c.width * 0.09);
+        ctx.save();
+        ctx.globalAlpha = 0.88;
+        ctx.strokeStyle = "#d3362d";
+        ctx.fillStyle = "#d3362d";
+        ctx.lineWidth = dm * 0.05;
+        ctx.beginPath();
+        ctx.arc(it.x + dm / 2, it.y + dm / 2, dm / 2 - ctx.lineWidth, 0, Math.PI * 2);
+        ctx.stroke();
+        const chars = seal.split("");
+        const fs = Math.min(dm / 2.6, (dm * 0.7) / chars.length);
+        ctx.font = `700 ${fs}px 'Shippori Mincho B1', serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        const step = fs * 1.05;
+        chars.forEach((chr, i) => {
+          ctx.fillText(chr, it.x + dm / 2, it.y + dm / 2 - (step * chars.length) / 2 + step * (i + 0.5));
+        });
+        ctx.restore();
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+        V.hit.push({ key: "hanko", x: it.x, y: it.y, w: dm, h: dm });
+      }
+    };
+
+    // ドラッグで位置調整
+    {
+      const c = $("vendor-canvas");
+      let drag = null;
+      const pos = (e) => {
+        const r = c.getBoundingClientRect();
+        return { x: (e.clientX - r.left) * c.width / r.width, y: (e.clientY - r.top) * c.height / r.height };
+      };
+      c.addEventListener("pointerdown", (e) => {
+        const p = pos(e);
+        for (let i = V.hit.length - 1; i >= 0; i--) {
+          const h = V.hit[i];
+          if (p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h) {
+            drag = { key: h.key, dx: p.x - V.items[h.key].x, dy: p.y - V.items[h.key].y };
+            c.setPointerCapture(e.pointerId);
+            break;
+          }
+        }
+      });
+      c.addEventListener("pointermove", (e) => {
+        if (!drag) return;
+        const p = pos(e);
+        V.items[drag.key].x = p.x - drag.dx;
+        V.items[drag.key].y = p.y - drag.dy;
+        vendorRedraw();
+      });
+      c.addEventListener("pointerup", () => { drag = null; });
+      c.addEventListener("pointercancel", () => { drag = null; });
+    }
+
+    // 印鑑の登録・選択（端末に保存）
+    const refreshSeals = () => {
+      const s = loadV();
+      $("v-seal").innerHTML = `<option value="">（なし）</option>` +
+        (s.seals || []).map(n => `<option value="${esc(n)}"${n === s.seal ? " selected" : ""}>${esc(n)}</option>`).join("");
+    };
+    $("v-seal").addEventListener("change", () => { saveV({ seal: $("v-seal").value }); vendorRedraw(); });
+    $("v-seal-add").addEventListener("click", () => {
+      const n = (prompt("印鑑にする名前（姓）を入力してください") || "").trim();
+      if (!n) return;
+      const s = loadV();
+      saveV({ seals: [...new Set([...(s.seals || []), n])], seal: n });
+      refreshSeals();
+      vendorRedraw();
+      toast(`印鑑「${n}」を登録しました`);
+    });
+    $("v-seal-del").addEventListener("click", () => {
+      const cur = $("v-seal").value;
+      if (!cur) { toast("削除する印鑑を選んでください"); return; }
+      if (!confirm(`印鑑「${cur}」を削除しますか？`)) return;
+      const s = loadV();
+      saveV({ seals: (s.seals || []).filter(x => x !== cur), seal: "" });
+      refreshSeals();
+      vendorRedraw();
+    });
+
+    $("v-greet").addEventListener("input", vendorRedraw);
+    $("v-fare-print").addEventListener("change", vendorRedraw);
+
+    // 業者用タブから直接FAXを開く
+    $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
+    $("vendor-file").addEventListener("change", async (e) => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      try {
+        const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+        if (isPdf) {
+          await loadPdfJs();
+          const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+          setVendorImage((await pdfToCanvases(pdf))[0]);
+        } else {
+          setVendorImage(await imageToCanvas(file));
+        }
+      } catch { toast("ファイルを開けませんでした"); }
+    });
+
+    // 返信画像の共有・保存
+    $("v-share").addEventListener("click", () => {
+      $("vendor-canvas").toBlob(async (blob) => {
+        if (!blob) return;
+        const fname = "FAX返信_" + ($("f-date").value || "genba") + ".png";
+        const file = new File([blob], fname, { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try { await navigator.share({ files: [file] }); return; } catch {}
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        toast("画像を保存しました");
+      }, "image/png");
+    });
+
+    /* ---------- 交通費 ---------- */
+    const cleanAddr = (s) => s.replace(/〒?\d{3}-?\d{4}\s*/, "").replace(/\s+/g, "");
+    const geocode = async (q) => {
+      const r = await fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=jp&q=" + encodeURIComponent(q));
+      const j = await r.json();
+      if (!j[0]) throw new Error("notfound");
+      return j[0];
+    };
+    const routeKm = async (a, b) => {
+      const r = await fetch(`https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=false`);
+      const j = await r.json();
+      if (!j.routes || !j.routes[0]) throw new Error("noroute");
+      return j.routes[0].distance / 1000;
+    };
+    $("v-calc").addEventListener("click", async () => {
+      const office = $("v-office").value.trim();
+      const rate = parseFloat($("v-rate").value);
+      const genba = $("f-address").value.trim();
+      saveV({ office, rate: $("v-rate").value, round: $("v-round").checked });
+      if (!rate) { toast("単価（円/km）を入力してください"); return; }
+      let km = parseFloat($("v-km").value);
+      if (!km) {
+        if (!office) { toast("事務所の住所を入力してください"); return; }
+        if (!genba) { toast("「作成・編集」タブで現場住所を入力してください"); return; }
+        try {
+          $("v-fare-out").textContent = "距離を計算中…";
+          const a = await geocode(cleanAddr(office));
+          const b = await geocode(cleanAddr(genba));
+          km = Math.round((await routeKm(a, b)) * 10) / 10;
+          $("v-km").value = km;
+        } catch {
+          $("v-fare-out").textContent = "";
+          toast("自動計算に失敗しました。距離(km)を手入力して再度押してください");
+          return;
+        }
+      }
+      const mult = $("v-round").checked ? 2 : 1;
+      const fare = Math.round(km * rate * mult / 10) * 10;
+      V.fareText = `交通費 ¥${fare.toLocaleString()}`;
+      $("v-fare-out").textContent = `${km}km × ${rate}円/km${mult === 2 ? " × 往復" : ""} = ¥${fare.toLocaleString()}`;
+      vendorRedraw();
+    });
+    $("v-route").addEventListener("click", () => {
+      const office = $("v-office").value.trim();
+      const genba = $("f-address").value.trim();
+      if (!genba) { toast("「作成・編集」タブで現場住所を入力してください"); return; }
+      saveV({ office });
+      const url = office
+        ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(cleanAddr(office))}&destination=${encodeURIComponent(cleanAddr(genba))}`
+        : mapUrl(genba);
+      window.open(url, "_blank");
+    });
+
     /* ---------- tabs ---------- */
     const showPage = (which) => {
-      $("page-edit").classList.toggle("hidden", which !== "edit");
-      $("page-list").classList.toggle("hidden", which !== "list");
-      $("tab-edit").classList.toggle("active", which === "edit");
-      $("tab-list").classList.toggle("active", which === "list");
+      ["edit", "vendor", "list"].forEach(p => {
+        $("page-" + p).classList.toggle("hidden", p !== which);
+        $("tab-" + p).classList.toggle("active", p === which);
+      });
+      if (which === "vendor") vendorRedraw();
     };
     $("tab-edit").addEventListener("click", () => showPage("edit"));
+    $("tab-vendor").addEventListener("click", () => showPage("vendor"));
     $("tab-list").addEventListener("click", () => { renderList(); showPage("list"); });
 
     /* ---------- init ---------- */
@@ -1064,6 +1418,13 @@
     render();
     renderList();
     refreshDatalists();
+    {
+      const s = loadV();
+      if (s.office) $("v-office").value = s.office;
+      if (s.rate) $("v-rate").value = s.rate;
+      if (s.round === false) $("v-round").checked = false;
+      refreshSeals();
+    }
   </script>
 </body>
 </html>
