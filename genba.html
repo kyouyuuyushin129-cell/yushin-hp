@@ -255,12 +255,12 @@
     <div id="page-edit">
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像やLINEのスクショ、もらった文面から各項目を自動で振り分けます。画像は端末の中だけで処理され、外部には送信されません。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。ファイルは端末の中だけで処理され、外部には送信されません。</p>
         <div class="import-btns">
-          <button class="btn-import" id="btn-ocr" type="button">📷 画像を読み取る</button>
+          <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
         </div>
-        <input type="file" id="ocr-file" accept="image/*" class="hidden">
+        <input type="file" id="ocr-file" accept="image/*,.pdf,application/pdf" class="hidden">
         <div id="paste-area" class="hidden">
           <div class="field" style="margin-top:12px;">
             <textarea id="paste-text" placeholder="LINEやメールでもらった現場詳細の文面を、ここにそのまま貼り付けてください"></textarea>
@@ -613,33 +613,120 @@
       document.head.appendChild(s);
     });
 
+    const loadPdfJs = () => new Promise((resolve, reject) => {
+      if (window.pdfjsLib) return resolve();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js";
+      s.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+        resolve();
+      };
+      s.onerror = () => reject(new Error("script"));
+      document.head.appendChild(s);
+    });
+
+    // 文字データ入りPDF：テキストを行単位に組み立てて抽出
+    const pdfExtractText = async (pdf) => {
+      const out = [];
+      const pages = Math.min(pdf.numPages, 5);
+      for (let p = 1; p <= pages; p++) {
+        const page = await pdf.getPage(p);
+        const tc = await page.getTextContent();
+        const lines = new Map();
+        tc.items.forEach(it => {
+          if (!it.str || !it.str.trim()) return;
+          const y = it.transform[5];
+          let key = null;
+          for (const k of lines.keys()) { if (Math.abs(k - y) <= 3) { key = k; break; } }
+          if (key === null) { key = y; lines.set(key, []); }
+          lines.get(key).push({ x: it.transform[4], s: it.str });
+        });
+        const sorted = [...lines.entries()].sort((a, b) => b[0] - a[0])
+          .map(([, items]) => items.sort((a, b) => a.x - b.x).map(i => i.s).join(" ")
+            .replace(/([^\x00-\x7F]) +/g, "$1").replace(/ +([^\x00-\x7F])/g, "$1"));
+        out.push(sorted.join("\n"));
+      }
+      return out.join("\n");
+    };
+
+    // スキャンPDF：ページを高解像度画像に変換（OCR用）
+    const pdfToCanvases = async (pdf) => {
+      const canvases = [];
+      const pages = Math.min(pdf.numPages, 3);
+      for (let p = 1; p <= pages; p++) {
+        const page = await pdf.getPage(p);
+        const vp1 = page.getViewport({ scale: 1 });
+        const scale = Math.min(2.5, 1800 / vp1.width);
+        const vp = page.getViewport({ scale });
+        const canvas = document.createElement("canvas");
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+        canvases.push(canvas);
+      }
+      return canvases;
+    };
+
+    const ocrSources = async (sources) => {
+      setOcrStatus("読み取り準備中…（初回は少し時間がかかります）");
+      await loadTesseract();
+      const total = sources.length;
+      let pageNo = 1;
+      const worker = await Tesseract.createWorker("jpn", 1, {
+        logger: (m) => {
+          if (m.status === "recognizing text") {
+            const pageInfo = total > 1 ? `${pageNo}/${total}ページ目 ` : "";
+            setOcrStatus(`${pageInfo}文字を読み取り中… ${Math.round(m.progress * 100)}%`);
+          }
+        }
+      });
+      let text = "";
+      for (const src of sources) {
+        const { data } = await worker.recognize(src);
+        text += (data.text || "") + "\n";
+        pageNo++;
+      }
+      await worker.terminate();
+      return text;
+    };
+
+    const finishWithText = (rawText) => {
+      const text = (rawText || "").replace(/[ \t]+/g, " ");
+      if (!text.trim()) { toast("文字を読み取れませんでした"); return; }
+      const n = applyParsed(parseGenbaText(text));
+      if (n) {
+        toast(`${n}項目を読み取りました。必ず内容を確認してください`);
+      } else {
+        $("paste-area").classList.remove("hidden");
+        $("paste-text").value = text.trim();
+        toast("自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     $("btn-ocr").addEventListener("click", () => $("ocr-file").click());
     $("ocr-file").addEventListener("change", async (e) => {
       const file = e.target.files && e.target.files[0];
       e.target.value = "";
       if (!file) return;
+      const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
       try {
-        setOcrStatus("読み取り準備中…（初回は少し時間がかかります）");
-        await loadTesseract();
-        const worker = await Tesseract.createWorker("jpn", 1, {
-          logger: (m) => {
-            if (m.status === "recognizing text") setOcrStatus(`文字を読み取り中… ${Math.round(m.progress * 100)}%`);
+        let text;
+        if (isPdf) {
+          setOcrStatus("PDFを開いています…");
+          await loadPdfJs();
+          const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+          text = await pdfExtractText(pdf);
+          if (text.replace(/\s/g, "").length < 30) {
+            // 文字データのないスキャンPDF（FAX等）→ 画像化してOCR
+            setOcrStatus("スキャンPDFのため文字認識に切り替えます…");
+            text = await ocrSources(await pdfToCanvases(pdf));
           }
-        });
-        const { data } = await worker.recognize(file);
-        await worker.terminate();
-        setOcrStatus("");
-        const text = (data.text || "").replace(/[ \t]+/g, " ");
-        if (!text.trim()) { toast("文字を読み取れませんでした"); return; }
-        const n = applyParsed(parseGenbaText(text));
-        if (n) {
-          toast(`${n}項目を読み取りました。必ず内容を確認してください`);
         } else {
-          $("paste-area").classList.remove("hidden");
-          $("paste-text").value = text.trim();
-          toast("自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
+          text = await ocrSources([file]);
         }
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        setOcrStatus("");
+        finishWithText(text);
       } catch (err) {
         setOcrStatus("");
         toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
