@@ -554,10 +554,14 @@
       });
       if (memberLines.length) d.members = memberLines.join("\n");
 
-      // 〒住所（ラベルなしで書かれている場合）
+      // 〒住所（ラベルなしで書かれている場合）。〒か都道府県表記がある行のみ対象
       if (!d.address) {
-        const m = raw.match(/〒?\s*\d{3}[-−]?\d{4}[^\n]*/);
+        const m = raw.match(/〒\s*\d{3}[-−]?\d{4}[^\n]*/);
         if (m) d.address = m[0].trim();
+        else {
+          const line = lines.find(l => /(都|道|府|県)[^\n]{0,15}(市|区|郡|町|村)/.test(l) && /[0-9０-９]/.test(l) && !isLabel(l));
+          if (line) d.address = line;
+        }
       }
 
       // ※メモ、🚨⚠️注意事項（プラン/メンバーより前→集合側、後→作業側）
@@ -667,6 +671,48 @@
       return canvases;
     };
 
+    // FAX等の粗い画像向け前処理：グレースケール化＋コントラスト補正
+    const preprocessCanvas = (canvas) => {
+      const ctx = canvas.getContext("2d");
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const a = img.data;
+      let min = 255, max = 0;
+      for (let i = 0; i < a.length; i += 4) {
+        const g = (a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114) | 0;
+        a[i] = a[i + 1] = a[i + 2] = g;
+        if (g < min) min = g;
+        if (g > max) max = g;
+      }
+      const range = Math.max(1, max - min);
+      for (let i = 0; i < a.length; i += 4) {
+        const g = (a[i] - min) * 255 / range;
+        const v = g < 140 ? g * 0.75 : Math.min(255, g * 1.15);
+        a[i] = a[i + 1] = a[i + 2] = v;
+      }
+      ctx.putImageData(img, 0, 0);
+      return canvas;
+    };
+
+    // 画像ファイル→OCR向けキャンバス（小さい画像は拡大して認識率を上げる）
+    const imageToCanvas = (file) => new Promise((resolve, reject) => {
+      const url = URL.createObjectURL(file);
+      const im = new Image();
+      im.onload = () => {
+        URL.revokeObjectURL(url);
+        const scale = Math.min(3, Math.max(1, 1800 / Math.max(im.width, 1)));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.round(im.width * scale);
+        canvas.height = Math.round(im.height * scale);
+        const ctx = canvas.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(im, 0, 0, canvas.width, canvas.height);
+        resolve(preprocessCanvas(canvas));
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); reject(new Error("image")); };
+      im.src = url;
+    });
+
     const ocrSources = async (sources) => {
       setOcrStatus("読み取り準備中…（初回は少し時間がかかります）");
       await loadTesseract();
@@ -690,16 +736,26 @@
       return text;
     };
 
-    const finishWithText = (rawText) => {
-      const text = (rawText || "").replace(/[ \t]+/g, " ");
-      if (!text.trim()) { toast("文字を読み取れませんでした"); return; }
+    const countParsed = (text) => {
+      const d = parseGenbaText(text);
+      return { d, n: Object.keys(d).filter(k => d[k]).length };
+    };
+
+    const finishWithText = (rawText, fromOcr) => {
+      const text = (rawText || "").replace(/[ \t]+/g, " ").trim();
+      if (!text) { toast("文字を読み取れませんでした"); return; }
       const n = applyParsed(parseGenbaText(text));
-      if (n) {
+      if (fromOcr) {
+        // 読み取った生テキストを残して、確認・手直しできるようにする
+        $("paste-text").value = text;
+      }
+      if (n >= 3) {
         toast(`${n}項目を読み取りました。必ず内容を確認してください`);
+        if (fromOcr) $("paste-area").classList.add("hidden");
       } else {
         $("paste-area").classList.remove("hidden");
-        $("paste-text").value = text.trim();
-        toast("自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
+        if (!fromOcr) $("paste-text").value = text;
+        toast(n ? `${n}項目だけ読み取れました。読取結果を貼り付け欄で確認・手直しできます` : "自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -711,22 +767,27 @@
       if (!file) return;
       const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
       try {
-        let text;
+        let text, fromOcr;
         if (isPdf) {
           setOcrStatus("PDFを開いています…");
           await loadPdfJs();
           const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-          text = await pdfExtractText(pdf);
-          if (text.replace(/\s/g, "").length < 30) {
-            // 文字データのないスキャンPDF（FAX等）→ 画像化してOCR
+          const layerText = await pdfExtractText(pdf);
+          text = layerText;
+          fromOcr = false;
+          // 文字データが乏しい（スキャンPDF・FAX等）→ 画像化してOCRし、良い方を採用
+          if (countParsed(layerText).n < 3) {
             setOcrStatus("スキャンPDFのため文字認識に切り替えます…");
-            text = await ocrSources(await pdfToCanvases(pdf));
+            const canvases = (await pdfToCanvases(pdf)).map(preprocessCanvas);
+            const ocrText = await ocrSources(canvases);
+            if (countParsed(ocrText).n >= countParsed(layerText).n) { text = ocrText; fromOcr = true; }
           }
         } else {
-          text = await ocrSources([file]);
+          text = await ocrSources([await imageToCanvas(file)]);
+          fromOcr = true;
         }
         setOcrStatus("");
-        finishWithText(text);
+        finishWithText(text, fromOcr);
       } catch (err) {
         setOcrStatus("");
         toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
