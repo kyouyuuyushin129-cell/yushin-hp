@@ -486,6 +486,7 @@
       if (d.work) B.push("作業内容\n" + d.work);
       if (d.caution2) B.push(d.caution2);
       if (d.note) B.push(d.note);
+      if (d.address) B.push("📍現場の地図（タップで開く）\n" + mapUrl(d.address));
       B.push("よろしくお願いいたします！");
       return B.join("\n\n");
     };
