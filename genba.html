@@ -255,7 +255,7 @@
     <div id="page-edit">
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。ファイルは端末の中だけで処理され、外部には送信されません。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。一度コピー・保存した業者や現場はこの端末が覚えて、次回の読み取りで担当者・電話番号・住所などを自動補完します。ファイルもデータも端末の中だけで処理され、外部には送信されません。</p>
         <div class="import-btns">
           <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
@@ -280,13 +280,13 @@
             </div>
             <div class="field">
               <label>業者名</label>
-              <input type="text" id="f-client" placeholder="例）ラックプラス">
+              <input type="text" id="f-client" placeholder="例）ラックプラス" list="dl-client">
             </div>
           </div>
           <div class="row2">
             <div class="field">
               <label>担当者</label>
-              <input type="text" id="f-contact-name" placeholder="例）渡村">
+              <input type="text" id="f-contact-name" placeholder="例）渡村" list="dl-contact">
             </div>
             <div class="field">
               <label>担当者 電話番号</label>
@@ -303,7 +303,7 @@
           </div>
           <div class="field">
             <label>現場名</label>
-            <input type="text" id="f-name" placeholder="例）奥本町共同住宅">
+            <input type="text" id="f-name" placeholder="例）奥本町共同住宅" list="dl-site">
           </div>
         </div>
 
@@ -338,7 +338,7 @@
             </div>
             <div class="field">
               <label>作業内容</label>
-              <input type="text" id="f-work" placeholder="例）材料搬入">
+              <input type="text" id="f-work" placeholder="例）材料搬入" list="dl-work">
             </div>
           </div>
           <div class="field">
@@ -382,6 +382,11 @@
       <div id="saved-list"></div>
     </div>
   </div>
+
+  <datalist id="dl-client"></datalist>
+  <datalist id="dl-contact"></datalist>
+  <datalist id="dl-site"></datalist>
+  <datalist id="dl-work"></datalist>
 
   <div class="toast" id="toast"></div>
 
@@ -627,11 +632,101 @@
       return d;
     };
 
+    /* ---------- 学習（送った業者・現場を端末内に記憶して次回補完） ---------- */
+    const LEARN_KEY = "yushin-genba-learn-v1";
+    const loadLearn = () => {
+      try {
+        const L = JSON.parse(localStorage.getItem(LEARN_KEY)) || {};
+        return { vendors: L.vendors || {}, sites: L.sites || {}, works: L.works || {} };
+      } catch { return { vendors: {}, sites: {}, works: {} }; }
+    };
+    const saveLearn = (L) => localStorage.setItem(LEARN_KEY, JSON.stringify(L));
+    const normName = (s) => (s || "").replace(/株式会社|有限会社|\s/g, "");
+
+    const bigrams = (s) => { const set = new Set(); for (let i = 0; i < s.length - 1; i++) set.add(s.slice(i, i + 2)); return set; };
+    const similarity = (a, b) => {
+      if (!a || !b) return 0;
+      if (a === b) return 1;
+      if (a.length >= 2 && b.length >= 2 && (a.includes(b) || b.includes(a))) return 0.9;
+      const A = bigrams(a), B = bigrams(b);
+      if (!A.size || !B.size) return 0;
+      let hit = 0;
+      A.forEach(g => { if (B.has(g)) hit++; });
+      return 2 * hit / (A.size + B.size);
+    };
+
+    const learnCurrent = () => {
+      const d = readForm();
+      const L = loadLearn();
+      if (d.client) {
+        const k = normName(d.client);
+        const old = L.vendors[k] || {};
+        L.vendors[k] = { client: d.client, contact: d["contact-name"] || old.contact || "", tel: d["contact-tel"] || old.tel || "", t: Date.now() };
+      }
+      if (d.name) {
+        const k = normName(d.name);
+        const old = L.sites[k] || {};
+        L.sites[k] = { name: d.name, address: d.address || old.address || "", t: Date.now() };
+      }
+      if (d.work) L.works[d.work] = { v: d.work, t: Date.now() };
+      // 上限（古いものから削除）
+      ["vendors", "sites", "works"].forEach(g => {
+        const keys = Object.keys(L[g]);
+        if (keys.length > 300) keys.sort((a, b) => L[g][a].t - L[g][b].t).slice(0, keys.length - 300).forEach(k => delete L[g][k]);
+      });
+      saveLearn(L);
+      refreshDatalists();
+    };
+
+    const bestMatch = (dict, key, getName) => {
+      let best = null, bs = 0;
+      Object.values(dict).forEach(v => {
+        const s = similarity(key, normName(getName(v)));
+        if (s > bs) { bs = s; best = v; }
+      });
+      return bs >= 0.55 ? best : null;
+    };
+
+    // 読み取り結果を過去の記憶で補完（欠けを埋め、OCRの読み間違いを直す）
+    const enrichFromMemory = () => {
+      const L = loadLearn();
+      let filled = 0;
+      const cl = $("f-client").value.trim();
+      if (cl) {
+        const v = bestMatch(L.vendors, normName(cl), x => x.client);
+        if (v) {
+          if (v.client !== cl) { $("f-client").value = v.client; filled++; }
+          if (!$("f-contact-name").value.trim() && v.contact) { $("f-contact-name").value = v.contact; filled++; }
+          if (!$("f-contact-tel").value.trim() && v.tel) { $("f-contact-tel").value = v.tel; filled++; }
+        }
+      }
+      const nm = $("f-name").value.trim();
+      if (nm) {
+        const s = bestMatch(L.sites, normName(nm), x => x.name);
+        if (s) {
+          if (s.name.length > nm.length) { $("f-name").value = s.name; filled++; }
+          if (!$("f-address").value.trim() && s.address) { $("f-address").value = s.address; filled++; }
+        }
+      }
+      return filled;
+    };
+
+    const refreshDatalists = () => {
+      const L = loadLearn();
+      const fill = (id, arr) => { $(id).innerHTML = [...new Set(arr.filter(Boolean))].map(v => `<option value="${esc(v)}">`).join(""); };
+      const byT = (o, f) => Object.values(o).sort((a, b) => b.t - a.t).map(f);
+      fill("dl-client", byT(L.vendors, v => v.client));
+      fill("dl-contact", byT(L.vendors, v => v.contact));
+      fill("dl-site", byT(L.sites, v => v.name));
+      fill("dl-work", byT(L.works, v => v.v));
+    };
+
     const applyParsed = (d) => {
       let count = 0;
       FIELDS.forEach(f => { if (d[f]) { $("f-" + f).value = d[f]; count++; } });
+      const extra = enrichFromMemory();
       render();
-      return count;
+      return { n: count, e: extra };
     };
 
     /* ---------- paste ---------- */
@@ -641,11 +736,11 @@
     $("btn-paste-run").addEventListener("click", () => {
       const raw = $("paste-text").value.trim();
       if (!raw) { toast("先に文面を貼り付けてください"); return; }
-      const n = applyParsed(parseGenbaText(raw));
-      if (n) {
+      const r = applyParsed(parseGenbaText(raw));
+      if (r.n) {
         $("paste-area").classList.add("hidden");
         $("paste-text").value = "";
-        toast(`${n}項目を振り分けました。内容を確認してください`);
+        toast(`${r.n}項目を振り分けました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}。内容を確認してください`);
       } else {
         toast("振り分けできる項目が見つかりませんでした");
       }
@@ -793,18 +888,18 @@
     const finishWithText = (rawText, fromOcr) => {
       const text = (rawText || "").replace(/[ \t]+/g, " ").trim();
       if (!text) { toast("文字を読み取れませんでした"); return; }
-      const n = applyParsed(parseGenbaText(text));
+      const r = applyParsed(parseGenbaText(text));
       if (fromOcr) {
         // 読み取った生テキストを残して、確認・手直しできるようにする
         $("paste-text").value = text;
       }
-      if (n >= 3) {
-        toast(`${n}項目を読み取りました。必ず内容を確認してください`);
+      if (r.n >= 3) {
+        toast(`${r.n}項目を読み取りました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}。必ず内容を確認してください`);
         if (fromOcr) $("paste-area").classList.add("hidden");
       } else {
         $("paste-area").classList.remove("hidden");
         if (!fromOcr) $("paste-text").value = text;
-        toast(n ? `${n}項目だけ読み取れました。読取結果を貼り付け欄で確認・手直しできます` : "自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
+        toast(r.n ? `${r.n}項目だけ読み取れました。読取結果を貼り付け欄で確認・手直しできます` : "自動振り分けできなかったため、読取結果を貼り付け欄に入れました");
       }
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
@@ -855,6 +950,7 @@
 
     /* ---------- actions ---------- */
     $("btn-copy").addEventListener("click", async () => {
+      learnCurrent();
       const text = buildText();
       try {
         await navigator.clipboard.writeText(text);
@@ -871,6 +967,7 @@
     });
 
     $("btn-share").addEventListener("click", async () => {
+      learnCurrent();
       const text = buildText();
       if (navigator.share) {
         try { await navigator.share({ text }); } catch {}
@@ -883,6 +980,7 @@
     $("btn-save").addEventListener("click", () => {
       const d = readForm();
       if (!d.name && !d.client) { toast("現場名か業者名を入力してください"); $("f-name").focus(); return; }
+      learnCurrent();
       const list = loadAll();
       if (currentId) {
         const i = list.findIndex(x => x.id === currentId);
@@ -964,6 +1062,7 @@
     $("f-caution2").value = DEFAULT_CAUTION2;
     render();
     renderList();
+    refreshDatalists();
   </script>
 </body>
 </html>
