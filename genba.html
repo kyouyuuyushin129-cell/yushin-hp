@@ -368,15 +368,13 @@
 
         <div class="card">
           <h2>作業</h2>
-          <div class="row2">
-            <div class="field">
-              <label>プラン</label>
-              <input type="text" id="f-plan" placeholder="例）3h">
-            </div>
-            <div class="field">
-              <label>作業内容</label>
-              <input type="text" id="f-work" placeholder="例）材料搬入" list="dl-work">
-            </div>
+          <div class="field">
+            <label>プラン</label>
+            <input type="text" id="f-plan" placeholder="例）3h">
+          </div>
+          <div class="field">
+            <label>作業内容（1行に1つずつ。階ごとに改行すると見やすい）</label>
+            <textarea id="f-work" placeholder="例）1F PB 120枚&#10;2F フロア材 80枚"></textarea>
           </div>
           <div class="field">
             <label>メンバー（1行に1名）</label>
@@ -552,7 +550,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20c";
+    const APP_VER = "2026-07-20d";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -621,6 +619,17 @@
     const withSama = (s) => s ? (/様\s*$/.test(s) ? s : s + " 様") : "";
     const memberList = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
     const starLines = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean).map(x => /^[※]/.test(x) ? x : "※" + x);
+    // 作業内容を見やすい箇条書きに整える（階ごとに改行＋各行に「・」）
+    const bulletize = (s) => {
+      if (!s) return "";
+      const lines = s.split(/\r?\n/).flatMap(l => {
+        l = l.trim().replace(/^[・•]\s*/, "");
+        if (!l) return [];
+        // 「1F …2F …」のように1行に複数階が詰まっている時は階ごとに分ける
+        return l.split(/[、,]?\s*(?=[0-9０-９]+\s*[FＦ階])/).map(x => x.trim()).filter(Boolean);
+      });
+      return lines.map(l => /^[・•\-–—]/.test(l) ? l : "・" + l).join("\n");
+    };
 
     /* ---------- preview ---------- */
     const render = () => {
@@ -645,7 +654,7 @@
       add("プラン", d.plan && `<strong>${esc(d.plan)}</strong>`);
       const mem = memberList(d.members);
       add("メンバー", mem.length ? esc(mem.join("\n")) + `<br><strong>計${mem.length}名</strong>` : "");
-      add("作業内容", d.work && `<strong>${esc(d.work)}</strong>`);
+      add("作業内容", d.work && `<strong>${esc(bulletize(d.work))}</strong>`);
       add("作業注意", d.caution2 && esc(d.caution2));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
@@ -686,7 +695,7 @@
       const mem = memberList(d.members);
       if (mem.length) B.push("メンバー\n" + mem.join("\n") + "\n\n計" + mem.length + "名");
 
-      if (d.work) B.push("作業内容\n" + d.work);
+      if (d.work) B.push("作業内容\n" + bulletize(d.work));
       if (d.caution2) B.push(d.caution2);
       B.push("宜しくお願い致します！");
       return B.join("\n\n");
@@ -1028,7 +1037,7 @@
         start: { type: "STRING", description: "作業開始時間。「13:00開始」の形（例:13時半開始、8:00開始）。不明なら空文字" },
         meet: { type: "STRING", description: "集合時間・集合場所。記載がなければ開始時間の15分前で「12:45までに現場着」の形にする。開始時間も不明なら空文字" },
         plan: { type: "STRING", description: "作業プラン。3h/4h/5h/9h のいずれか。物量が200枚前後なら3h。記載がなく判断もできなければ空文字" },
-        work: { type: "STRING", description: "作業内容。階数（1F、2F等）ごとに物量を整理し、改行区切りの箇条書き（例:1F PB 120枚\\n2F フロア材 80枚）。不明なら空文字" },
+        work: { type: "STRING", description: "作業内容。だらだら書かず、1項目=1行の短い箇条書きにする。階数（1F、2F等）や材料の種類ごとに必ず改行で分け、各行は「場所 材料 数量」の順で簡潔に（例:1F PB 120枚\\n2F フロア材 80枚\\n3F 石膏ボード 40枚）。1行に複数階・複数材料を詰め込まない。不明なら空文字" },
         members: { type: "STRING", description: "作業メンバー名。1行に1名、改行区切り。不明なら空文字" },
         note: { type: "STRING", description: "人数などの補足（例:人数：1名）。不明なら空文字" },
         gochu_box: { type: "ARRAY", items: { type: "INTEGER" }, nullable: true, description: "宛名の「御中」の文字の位置。[ymin,xmin,ymax,xmax]を0〜1000に正規化。無ければnull" },
