@@ -479,8 +479,8 @@
           <button class="btn-import" id="v-route" type="button" style="grid-column:1/-1;">🗺 経路を地図で確認（Googleマップ）</button>
         </div>
         <div class="field" style="margin-top:13px;">
-          <label>行き先（印字用）</label>
-          <input type="text" id="v-fare-dest" placeholder="例）西宮市久保町（「◯◯まで」と印字されます）">
+          <label>行き先（印字用・入力したまま印字されます）</label>
+          <input type="text" id="v-fare-dest" placeholder="例）城北公園~西宮">
         </div>
         <div class="row2">
           <div class="field">
@@ -515,7 +515,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19c";
+    const APP_VER = "2026-07-19d";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1920,7 +1920,7 @@
       const num = parseInt($("v-fare-num").value, 10);
       if (!amt) { V.fareText = ""; vendorRedraw(); return; }
       let t = "交通費";
-      if (dest) t += " " + (/(まで|迄)$/.test(dest) ? dest : dest + "まで");
+      if (dest) t += " " + dest;
       t += " ¥" + amt.toLocaleString();
       if (num >= 2) t += " × " + num + "名（計¥" + (amt * num).toLocaleString() + "）";
       else if (num === 1) t += " × 1名";
