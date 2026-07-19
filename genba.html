@@ -594,7 +594,7 @@
       raw = raw.split(/\r?\n/).map(l => compactJa(l.trim())).join("\n");
       const lines = raw.split(/\n/);
       const d = {};
-      const isLabel = (l) => /^(業者名|担当者|現場住所|開始時間|集合時間|プラン|メンバー|作業内容|計\s*\d+\s*名|よろしく)/.test(l);
+      const isLabel = (l) => /^(業者名|担当者|現場住所|住所|所在地|工事場所|現場場所|開始時間|集合時間|プラン|メンバー|作業内容|計\s*\d+\s*名|よろしく)/.test(l);
       const nextValue = (i) => {
         for (let j = i + 1; j < lines.length; j++) {
           if (!lines[j]) continue;
@@ -636,9 +636,9 @@
         } else if (/^担当者/.test(l)) {
           const v = afterLabel(l, "担当者") || nextValue(i);
           if (v && !/^0\d/.test(v)) d["contact-name"] = v.replace(/様\s*$/, "").trim();
-        } else if (/^現場住所/.test(l)) {
-          const v = afterLabel(l, "現場住所") || nextValue(i);
-          d.address = v;
+        } else if (/^(現場住所|住所|所在地|工事場所|現場場所)/.test(l)) {
+          const v = afterLabel(l, "(?:現場住所|住所|所在地|工事場所|現場場所)") || nextValue(i);
+          if (v && !d.address) d.address = v;
           // 住所の次の行が現場名のことが多い
           const idx = lines.indexOf(v, i);
           if (idx >= 0) {
@@ -666,6 +666,21 @@
         else {
           const line = lines.find(l => /(都|道|府|県)[^\n]{0,15}(市|区|郡|町|村)/.test(l) && /[0-9０-９]/.test(l) && !isLabel(l));
           if (line) d.address = line;
+        }
+      }
+      // 都道府県なしの住所（「◯◯市△△町41-14」のような市区郡＋番地の形）
+      if (!d.address) {
+        const line = lines.find(l => /(市|区|郡)[^\s、。]{0,14}[0-9０-９]+[-−ー][0-9０-９]+/.test(l) && l.length < 40 && !isLabel(l));
+        if (line) {
+          const m = line.match(/[^\s、。;:：]*(市|区|郡)[^\s、。]{0,14}[0-9０-９]+[-−ー][0-9０-９]+(?:[-−ー][0-9０-９]+)?/);
+          if (m) d.address = m[0];
+        }
+      }
+      // Googleマップ等のリンクから住所を取り出す
+      if (!d.address) {
+        const m = raw.match(/maps[^\s]*[?&]query=([^&\s]+)/) || raw.match(/google\.[^\s]*\/maps\/place\/([^\/\s?]+)/);
+        if (m) {
+          try { d.address = decodeURIComponent(m[1]).replace(/\+/g, " ").trim(); } catch {}
         }
       }
 
