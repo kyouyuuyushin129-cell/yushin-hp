@@ -336,6 +336,12 @@
             <label>現場名</label>
             <input type="text" id="f-name" placeholder="例）奥本町共同住宅" list="dl-site">
           </div>
+          <div class="field">
+            <label>地図リンク（任意・ピンを正確にしたい時）</label>
+            <input type="text" id="f-mapurl" placeholder="Googleマップの共有リンクを貼り付け">
+            <p class="hint" style="margin-top:6px;">住所だけだと番地の中心にピンが立ち、正確な建物とズレることがあります。正確にしたい時は下のボタンで地図を開き、<b>正しい場所を長押し→「共有」→「リンクをコピー」</b>して、上の欄に貼り付けてください（貼り付けたリンクがそのままLINEのピンになります）。空欄なら住所から自動で地図を作ります。</p>
+            <button class="btn-import" id="f-map-open" type="button" style="width:100%;margin-top:6px;">🗺 住所で地図を開く（位置を確認・調整）</button>
+          </div>
         </div>
 
         <div class="card">
@@ -546,7 +552,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19l";
+    const APP_VER = "2026-07-19m";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -563,7 +569,7 @@
         })
         .catch(() => {});
     })();
-    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
+    const FIELDS = ["date","client","contact-name","contact-tel","address","mapurl","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
     const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
@@ -597,7 +603,20 @@
       const [y, m, day] = iso.split("-").map(Number);
       return `${m}/${day} ${WEEK[new Date(y, m - 1, day).getDay()]}曜日`;
     };
-    const mapUrl = (addr) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr.replace(/〒?\d{3}-?\d{4}\s*/, ""));
+    // 全角数字・記号を半角へ（住所検索の精度向上）
+    const toHalf = (s) => (s || "").replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)).replace(/[－ー−]/g, "-");
+    const addrMapUrl = (addr) => "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(toHalf(addr).replace(/〒?\d{3}-?\d{4}\s*/, "").trim());
+    // 実際にLINE等へ載せるピンのURL：手入力リンク（共有リンク／座標）を最優先、なければ住所検索
+    const pinUrl = (d) => {
+      const m = (d.mapurl || "").trim();
+      if (m) {
+        if (/^https?:\/\//i.test(m)) return m;                       // 共有リンクはそのまま使う（最も正確）
+        const c = m.match(/(-?\d{1,3}\.\d{3,})\s*[,、\s]\s*(-?\d{1,3}\.\d{3,})/); // 「緯度, 経度」
+        if (c) return "https://www.google.com/maps/search/?api=1&query=" + c[1] + "," + c[2];
+        return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(m);
+      }
+      return d.address ? addrMapUrl(d.address) : "";
+    };
     const esc = (s) => s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
     const withSama = (s) => s ? (/様\s*$/.test(s) ? s : s + " 様") : "";
     const memberList = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
@@ -615,7 +634,9 @@
       add("業者名", d.client && `<strong>${esc(withSama(d.client))}</strong>`);
       const contact = [d["contact-name"] && esc(withSama(d["contact-name"])), d["contact-tel"] && `<a href="tel:${esc(d["contact-tel"])}">${esc(d["contact-tel"])}</a>`].filter(Boolean).join("<br>");
       add("担当者", contact);
-      add("現場住所", d.address && `${esc(d.address)}<br><a href="${mapUrl(d.address)}" target="_blank" rel="noopener">📍 地図を開く</a>`);
+      const pu = pinUrl(d);
+      const pinLabel = (d.mapurl || "").trim() ? "📍 地図を開く（正確な位置）" : "📍 地図を開く";
+      add("現場住所", (d.address || pu) && `${esc(d.address || "")}${pu ? `${d.address ? "<br>" : ""}<a href="${esc(pu)}" target="_blank" rel="noopener">${pinLabel}</a>` : ""}`);
       add("開始時間", d.start && `<strong>${esc(d.start)}</strong>`);
       const meet = [d.meet && `<strong>${esc(d.meet)}</strong>`, ...starLines(d["meet-notes"]).map(esc)].filter(Boolean).join("<br>");
       add("集合", meet);
@@ -660,7 +681,8 @@
       if (d.caution2) B.push(d.caution2);
       if (d.note) B.push(d.note);
       B.push("宜しくお願い致します！");
-      if (d.address) B.push("📍現場の地図（タップで開く）\n" + mapUrl(d.address));
+      const pu = pinUrl(d);
+      if (pu) B.push("📍現場の地図（タップで開く）\n" + pu);
       return B.join("\n\n");
     };
 
@@ -759,6 +781,11 @@
         if (m) {
           try { d.address = decodeURIComponent(m[1]).replace(/\+/g, " ").trim(); } catch {}
         }
+      }
+      // FAX/LINEに正確な地図リンクが含まれていれば、そのピンをそのまま保持する
+      if (!d.mapurl) {
+        const mu = raw.match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.)?google\.[^\s]*\/maps|maps\.google\.[^\s]*)[^\s\)）」』】]*/);
+        if (mu) d.mapurl = mu[0];
       }
 
       // ---- FAX等の自由書式向け（ラベルで見つからなかった項目のみ）----
@@ -859,7 +886,7 @@
       if (d.name) {
         const k = normName(d.name);
         const old = L.sites[k] || {};
-        L.sites[k] = { name: d.name, address: d.address || old.address || "", t: Date.now() };
+        L.sites[k] = { name: d.name, address: d.address || old.address || "", mapurl: d.mapurl || old.mapurl || "", t: Date.now() };
       }
       if (d.work) L.works[d.work] = { v: d.work, t: Date.now() };
       // 上限（古いものから削除）
@@ -899,6 +926,7 @@
         if (s) {
           if (s.name.length > nm.length) { $("f-name").value = s.name; filled++; }
           if (!$("f-address").value.trim() && s.address) { $("f-address").value = s.address; filled++; }
+          if (!$("f-mapurl").value.trim() && s.mapurl) { $("f-mapurl").value = s.mapurl; filled++; }
         }
       }
       return filled;
@@ -2070,7 +2098,7 @@
       saveV({ office });
       const url = office
         ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(cleanAddr(office))}&destination=${encodeURIComponent(cleanAddr(genba))}`
-        : mapUrl(genba);
+        : addrMapUrl(genba);
       window.open(url, "_blank");
     });
 
@@ -2085,6 +2113,14 @@
     $("tab-edit").addEventListener("click", () => showPage("edit"));
     $("tab-vendor").addEventListener("click", () => showPage("vendor"));
     $("tab-list").addEventListener("click", () => { renderList(); showPage("list"); });
+
+    $("f-map-open").addEventListener("click", () => {
+      const addr = $("f-address").value.trim();
+      const link = $("f-mapurl").value.trim();
+      const url = link ? pinUrl({ mapurl: link }) : (addr ? addrMapUrl(addr) : "");
+      if (!url) { toast("先に現場住所を入力してください"); return; }
+      window.open(url, "_blank");
+    });
 
     /* ---------- init ---------- */
     FIELDS.forEach(f => $("f-" + f).addEventListener("input", render));
