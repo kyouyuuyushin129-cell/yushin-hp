@@ -436,6 +436,10 @@
             <label>文字の大きさ</label>
             <input type="range" id="v-size" min="60" max="170" value="100" style="width:100%;">
           </div>
+          <div class="field">
+            <label>FAXの大きさ（縮めて余白を作れます）</label>
+            <input type="range" id="v-imgsize" min="55" max="110" value="100" style="width:100%;">
+          </div>
         </div>
         <div class="actions" style="margin-top:0;">
           <button class="btn btn-gold" id="v-share" type="button">📤 返信画像を共有・保存</button>
@@ -1185,7 +1189,7 @@
     const loadV = () => { try { return JSON.parse(localStorage.getItem(VKEY)) || {}; } catch { return {}; } };
     const saveV = (patch) => { const s = { ...loadV(), ...patch }; localStorage.setItem(VKEY, JSON.stringify(s)); return s; };
 
-    const V = { img: null, items: null, hit: [], fareText: "" };
+    const V = { img: null, items: null, hit: [], fareText: "", imgPos: { x: 0, y: 0, s: 1 } };
     const fmtDateJp = (iso) => {
       if (!iso) return "";
       const [y, m, day] = iso.split("-").map(Number);
@@ -1222,6 +1226,8 @@
             strike: { x: w * 0.11, y: c.height * 0.07, w: w * 0.1 },
             sama: { x: w * 0.5, y: c.height * 0.16 }
           };
+          V.imgPos = { x: 0, y: 0, s: 1 };
+          $("v-imgsize").value = 100;
           $("v-greet").value = buildGreet();
           // 日付＝読み込んだ日（今日）を自動セット
           const now = new Date();
@@ -1257,7 +1263,9 @@
       const t = document.createElement("canvas");
       t.width = w; t.height = h;
       const tc = t.getContext("2d");
-      tc.drawImage(V.img, 0, 0, w, h);
+      tc.fillStyle = "#ffffff";
+      tc.fillRect(0, 0, w, h);
+      tc.drawImage(V.img, V.imgPos.x / s, V.imgPos.y / s, w * V.imgPos.s, h * V.imgPos.s);
       const data = tc.getImageData(0, 0, w, h).data;
       const W = w + 1;
       const sum = new Float64Array(W * (h + 1));
@@ -1318,6 +1326,7 @@
       const layouts = loadV().layouts || {};
       layouts[key] = {
         items,
+        img: { fx: V.imgPos.x / c.width, fy: V.imgPos.y / c.height, s: V.imgPos.s },
         size: $("v-size").value,
         strike: $("v-strike").checked,
         sama: $("v-sama").checked,
@@ -1336,6 +1345,10 @@
           if (it.fw) V.items[k].w = it.fw * c.width;
         }
       });
+      if (layout.img) {
+        V.imgPos = { x: layout.img.fx * c.width, y: layout.img.fy * c.height, s: layout.img.s || 1 };
+        $("v-imgsize").value = Math.round(V.imgPos.s * 100);
+      }
       if (layout.size) $("v-size").value = layout.size;
       $("v-strike").checked = layout.strike !== false;
       $("v-sama").checked = layout.sama !== false;
@@ -1356,13 +1369,14 @@
       const placed = [];
       // 1) OCRの単語座標から「御中」の棒線・担当者名の右の「様」を先に確定し、その領域を避ける
       if (V.ocrWords && V.ocrWords.words && V.ocrWords.words.length) {
-        const sx = c.width / V.ocrWords.w, sy = c.height / V.ocrWords.h;
+        const sx = c.width * V.imgPos.s / V.ocrWords.w, sy = c.height * V.imgPos.s / V.ocrWords.h;
+        const ox = V.imgPos.x, oy = V.imgPos.y;
         const gw = V.ocrWords.words.find(w => w.text && w.text.includes("御中") && w.bbox);
         if (gw) {
           const bw = (gw.bbox.x1 - gw.bbox.x0) * sx;
           V.items.strike = {
-            x: gw.bbox.x0 * sx - bw * 0.1,
-            y: ((gw.bbox.y0 + gw.bbox.y1) / 2) * sy - 22,
+            x: ox + gw.bbox.x0 * sx - bw * 0.1,
+            y: oy + ((gw.bbox.y0 + gw.bbox.y1) / 2) * sy - 22,
             w: bw * 1.2
           };
           placed.push({ x: V.items.strike.x - 10, y: V.items.strike.y - 10, w: V.items.strike.w + 20, h: 64 });
@@ -1372,7 +1386,7 @@
         if (cn) {
           const nw = V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox);
           if (nw) {
-            V.items.sama = { x: nw.bbox.x1 * sx + 8, y: nw.bbox.y0 * sy };
+            V.items.sama = { x: ox + nw.bbox.x1 * sx + 8, y: oy + nw.bbox.y0 * sy };
             const fs = base * 1.2;
             placed.push({ x: V.items.sama.x - 14, y: V.items.sama.y - 14, w: fs * 2 + 28, h: fs * 1.6 + 28 });
             samaAnchored = true;
@@ -1408,8 +1422,9 @@
       const c = $("vendor-canvas");
       if (!V.img || !V.items) return;
       const ctx = c.getContext("2d");
-      ctx.clearRect(0, 0, c.width, c.height);
-      ctx.drawImage(V.img, 0, 0, c.width, c.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(V.img, V.imgPos.x, V.imgPos.y, c.width * V.imgPos.s, c.height * V.imgPos.s);
       V.hit = [];
       const base = vendorBase();
       const drawText = (key, text, color) => {
@@ -1430,7 +1445,7 @@
         let refY = c.height * 0.15;
         if (V.ocrWords && V.ocrWords.words) {
           const wref = V.ocrWords.words.find(w => w.text && /(お願い|搬入|搬出|荷揚)/.test(w.text) && w.bbox);
-          if (wref) refY = wref.bbox.y1 * (c.height / V.ocrWords.h);
+          if (wref) refY = V.imgPos.y + wref.bbox.y1 * (c.height * V.imgPos.s / V.ocrWords.h);
         }
         greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
       }
@@ -1504,20 +1519,33 @@
       };
       c.addEventListener("pointerdown", (e) => {
         const p = pos(e);
+        drag = null;
         for (let i = V.hit.length - 1; i >= 0; i--) {
           const h = V.hit[i];
           if (p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h) {
             drag = { key: h.key, dx: p.x - V.items[h.key].x, dy: p.y - V.items[h.key].y };
-            c.setPointerCapture(e.pointerId);
             break;
           }
         }
+        // 文字や印鑑に当たらなければ、FAXの紙自体を動かす
+        if (!drag) drag = { key: "__img", px: p.x, py: p.y };
+        c.setPointerCapture(e.pointerId);
       });
       c.addEventListener("pointermove", (e) => {
         if (!drag) return;
         const p = pos(e);
-        V.items[drag.key].x = p.x - drag.dx;
-        V.items[drag.key].y = p.y - drag.dy;
+        if (drag.key === "__img") {
+          const dx = p.x - drag.px, dy = p.y - drag.py;
+          V.imgPos.x += dx;
+          V.imgPos.y += dy;
+          // 棒線と「様」は紙の文字に付いているので一緒に動かす
+          V.items.strike.x += dx; V.items.strike.y += dy;
+          V.items.sama.x += dx; V.items.sama.y += dy;
+          drag.px = p.x; drag.py = p.y;
+        } else {
+          V.items[drag.key].x = p.x - drag.dx;
+          V.items[drag.key].y = p.y - drag.dy;
+        }
         vendorRedraw();
       });
       c.addEventListener("pointerup", () => { drag = null; });
@@ -1554,6 +1582,23 @@
     $("v-greet").addEventListener("input", vendorRedraw);
     $("v-fare-print").addEventListener("change", vendorRedraw);
     $("v-size").addEventListener("input", vendorRedraw);
+    $("v-imgsize").addEventListener("input", () => {
+      // キャンバス中央を基準に拡大縮小（棒線・「様」は紙に付いているので一緒に変換）
+      const c = $("vendor-canvas");
+      if (!V.img || !V.items) return;
+      const ns = parseInt($("v-imgsize").value, 10) / 100;
+      const k = ns / V.imgPos.s;
+      const cx = c.width / 2, cy = c.height / 2;
+      const tf = (px, py) => ({ x: cx + (px - cx) * k, y: cy + (py - cy) * k });
+      const ip = tf(V.imgPos.x, V.imgPos.y);
+      V.imgPos.x = ip.x; V.imgPos.y = ip.y; V.imgPos.s = ns;
+      ["strike", "sama"].forEach(key => {
+        const p = tf(V.items[key].x, V.items[key].y);
+        V.items[key].x = p.x; V.items[key].y = p.y;
+      });
+      if (V.items.strike.w) V.items.strike.w *= k;
+      vendorRedraw();
+    });
     $("v-auto").addEventListener("click", () => autoPlace(true));
     $("v-strike").addEventListener("change", vendorRedraw);
     $("v-sama").addEventListener("change", vendorRedraw);
