@@ -240,7 +240,7 @@
   <header class="app-header">
     <div>
       <div class="app-title">現場詳細<span>メーカー</span></div>
-      <div class="app-sub">株式会社優心｜社内用ツール</div>
+      <div class="app-sub">株式会社優心｜社内用ツール <span id="app-ver"></span></div>
     </div>
     <button class="btn-new" id="btn-new" type="button">＋ 新規作成</button>
   </header>
@@ -505,7 +505,23 @@
 
   <script>
     "use strict";
+    const APP_VER = "2026-07-19a";
     const $ = (id) => document.getElementById(id);
+
+    // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
+    (() => {
+      $("app-ver") && ($("app-ver").textContent = "v" + APP_VER);
+      if (location.protocol === "file:") return;
+      fetch(location.pathname + "?chk=" + Date.now(), { cache: "no-store" })
+        .then(r => r.text())
+        .then(t => {
+          const m = t.match(/APP_VER = "([^"]+)"/);
+          if (m && m[1] > APP_VER) {
+            location.replace(location.pathname + "?u=" + Date.now());
+          }
+        })
+        .catch(() => {});
+    })();
     const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
