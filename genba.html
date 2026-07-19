@@ -280,6 +280,8 @@
             <button class="btn-import" id="ai-save" type="button">保存</button>
             <button class="btn-import" id="ai-del" type="button">設定を削除</button>
           </div>
+          <button class="btn-import" id="ai-share" type="button" style="width:100%;margin-top:10px;">📲 この設定を別の端末に引き継ぐリンクをコピー</button>
+          <p class="hint" style="margin-top:8px;">パソコンで設定済みなら：上のボタンでリンクをコピーし、LINEなどで自分のスマホに送って、<b>スマホでそのリンクを開くだけ</b>でスマホにもAI設定が入ります（キーは端末ごとに保存されるため、端末が変わると引き継ぎが必要です）。</p>
         </div>
         <div id="paste-area" class="hidden">
           <div class="field" style="margin-top:12px;">
@@ -535,7 +537,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19j";
+    const APP_VER = "2026-07-19k";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -917,7 +919,9 @@
       try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || ""; } catch { return ""; }
     };
     const refreshAiBadge = () => {
-      $("ai-badge").textContent = getAiKey() ? "：設定済み ✓" : "";
+      const b = $("ai-badge");
+      if (getAiKey()) { b.textContent = "：設定済み ✓"; b.style.color = ""; }
+      else { b.textContent = "：この端末は未設定"; b.style.color = "#ff9d7a"; }
     };
     $("btn-ai-setting").addEventListener("click", () => {
       $("ai-panel").classList.toggle("hidden");
@@ -937,6 +941,23 @@
       $("ai-panel").classList.add("hidden");
       refreshAiBadge();
       toast("AI設定を削除しました（端末内OCRに戻ります）");
+    });
+    // 別端末（スマホ等）へAI設定を引き継ぐリンクを作る
+    $("ai-share").addEventListener("click", async () => {
+      const k = getAiKey() || $("ai-key").value.trim();
+      if (!k) { toast("先にAPIキーを保存してください"); return; }
+      const url = location.origin + location.pathname + "#gk=" + encodeURIComponent(k);
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        const ta = document.createElement("textarea");
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+      }
+      toast("引き継ぎリンクをコピーしました。LINEなどで自分のスマホに送り、スマホでそのリンクを開くとAI設定が引き継がれます");
     });
 
     const AI_SCHEMA = {
@@ -1319,6 +1340,7 @@
           pageCanvases = [c];
         }
         // AI読み取り（Gemini・無料枠。APIキー設定時のみ）
+        let aiNote = "";
         if (getAiKey()) {
           try {
             setOcrStatus("AI（Gemini）で読み取り中…");
@@ -1327,8 +1349,11 @@
             applyAiResult(res);
             return;
           } catch (err) {
-            toast("AI読み取り失敗（" + (err && err.message ? err.message : "不明") + "）→ 端末内OCRに切り替えます");
+            aiNote = "AI読み取りに失敗したため、精度の低い簡易OCRの結果です（理由：" + (err && err.message ? err.message : "不明") + "）";
+            toast("AI読み取り失敗 → 端末内OCRに切り替えます");
           }
+        } else {
+          aiNote = "この端末はAI読み取りが未設定のため、精度の低い簡易OCRで読み取りました。「⚙ AI読み取り設定」を開いて設定すると大幅に良くなります";
         }
         // 端末内OCR
         setOcrStatus("文字認識の準備中…");
@@ -1348,6 +1373,7 @@
         }
         setOcrStatus("");
         finishWithText(ocrText, true);
+        if (aiNote) setTimeout(() => toast("⚠️ " + aiNote), 2800);
       } catch (err) {
         setOcrStatus("");
         toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
@@ -1363,6 +1389,17 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => t.classList.remove("show"), msg.length > 40 ? 7000 : 2600);
     };
+
+    // 引き継ぎリンク（#gk=キー）で開かれたら、この端末にAI設定を保存する
+    try {
+      const gm = location.hash.match(/gk=([^&]+)/);
+      if (gm) {
+        localStorage.setItem(AIKEY, JSON.stringify({ key: decodeURIComponent(gm[1]) }));
+        history.replaceState(null, "", location.pathname + location.search);
+        refreshAiBadge();
+        setTimeout(() => toast("AI読み取り設定を引き継ぎました ✓ 次の読み取りからAI（Gemini）を使います"), 500);
+      }
+    } catch {}
 
     /* ---------- actions ---------- */
     $("btn-copy").addEventListener("click", async () => {
