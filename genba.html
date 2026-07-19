@@ -552,7 +552,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20b";
+    const APP_VER = "2026-07-20c";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -640,13 +640,13 @@
       add("開始時間", d.start && `<strong>${esc(d.start)}</strong>`);
       const meet = [d.meet && `<strong>${esc(d.meet)}</strong>`, ...starLines(d["meet-notes"]).map(esc)].filter(Boolean).join("<br>");
       add("集合", meet);
+      add("備考", d.note && esc(d.note));
       add("注意事項", d.caution1 && esc(d.caution1));
       add("プラン", d.plan && `<strong>${esc(d.plan)}</strong>`);
       const mem = memberList(d.members);
       add("メンバー", mem.length ? esc(mem.join("\n")) + `<br><strong>計${mem.length}名</strong>` : "");
       add("作業内容", d.work && `<strong>${esc(d.work)}</strong>`);
       add("作業注意", d.caution2 && esc(d.caution2));
-      add("備考", d.note && esc(d.note));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
       // 交通費欄の現場住所も同期
@@ -677,6 +677,9 @@
       timeL.push(...starLines(d["meet-notes"]));
       if (timeL.length) B.push(timeL.join("\n"));
 
+      // 備考は集合時間のすぐ下に置く
+      if (d.note) B.push(d.note);
+
       if (d.caution1) B.push(d.caution1);
       if (d.plan) B.push("プラン " + d.plan);
 
@@ -685,7 +688,6 @@
 
       if (d.work) B.push("作業内容\n" + d.work);
       if (d.caution2) B.push(d.caution2);
-      if (d.note) B.push(d.note);
       B.push("宜しくお願い致します！");
       return B.join("\n\n");
     };
