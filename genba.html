@@ -552,7 +552,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19m";
+    const APP_VER = "2026-07-20a";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1038,7 +1038,7 @@
       return { x0: xmin / 1000 * w, y0: ymin / 1000 * h, x1: xmax / 1000 * w, y1: ymax / 1000 * h };
     };
 
-    const AI_MODELS = ["gemini-2.5-flash", "gemini-flash-latest"];
+    const AI_MODELS = ["gemini-3.5-flash", "gemini-flash-latest", "gemini-2.5-flash"];
 
     const aiCall = async (model, body) => {
       const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(getAiKey());
