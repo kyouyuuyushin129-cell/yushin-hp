@@ -1825,7 +1825,7 @@
     $("v-sama").addEventListener("change", vendorRedraw);
     $("v-date").addEventListener("change", vendorRedraw);
 
-    // 業者用タブから直接FAXを開く
+    // 業者用タブから直接FAXを開く（画像表示だけでなく、現場住所などの文字読み取りも行う）
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
     $("vendor-file").addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
