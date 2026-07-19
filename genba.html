@@ -455,6 +455,10 @@
         <h2>交通費</h2>
         <p class="hint">「経路を地図で確認」でGoogleマップに事務所→現場の経路と距離が出るので、それを見て金額を決めて入力してください。</p>
         <div class="field">
+          <label>現場の住所（読み取り結果が自動で入ります）</label>
+          <input type="text" id="v-genba-addr" placeholder="PDF読み取りか「作成・編集」タブから自動で入ります">
+        </div>
+        <div class="field">
           <label>事務所の住所（経路の出発地）</label>
           <input type="text" id="v-office" placeholder="例）大阪市◯◯区◯◯1-2-3">
         </div>
@@ -554,6 +558,9 @@
       add("備考", d.note && esc(d.note));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
+      // 交通費欄の現場住所も同期
+      const va = $("v-genba-addr");
+      if (va && va.value !== d.address) va.value = d.address;
     };
 
     /* ---------- LINE text ---------- */
@@ -1714,6 +1721,10 @@
       vendorRedraw();
     });
     $("v-office").addEventListener("change", () => saveV({ office: $("v-office").value.trim() }));
+    $("v-genba-addr").addEventListener("input", () => {
+      $("f-address").value = $("v-genba-addr").value;
+      render();
+    });
     $("v-route").addEventListener("click", () => {
       const office = $("v-office").value.trim();
       const genba = $("f-address").value.trim();
