@@ -256,24 +256,12 @@
     <div id="page-edit">
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。通常はすべて端末内で処理されます（AI読み取りを設定した場合のみ、読み取り時に画像をAnthropic社へ送信します）。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。ファイルもデータも端末の中だけで処理され、外部には送信されません。</p>
         <div class="import-btns">
           <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
         </div>
         <input type="file" id="ocr-file" accept="image/*,.pdf,application/pdf" class="hidden">
-        <button class="btn-import" id="btn-ai-setting" type="button" style="width:100%;margin-top:10px;">⚙ AI読み取り設定（高精度）<span id="ai-badge"></span></button>
-        <div id="ai-panel" class="hidden" style="margin-top:10px;">
-          <p class="hint">AnthropicのAPIキーを設定すると、AI（Claude）が高精度にFAXを読み取ります（手書きや複雑なレイアウトにも強い）。読み取り時のみ画像がAnthropic社のサーバーに送信されます。キーはこの端末の中にだけ保存されます。</p>
-          <div class="field">
-            <label>APIキー（sk-ant-…）</label>
-            <input type="password" id="ai-key" placeholder="sk-ant-api03-...">
-          </div>
-          <div class="import-btns">
-            <button class="btn-import" id="ai-save" type="button">保存</button>
-            <button class="btn-import" id="ai-del" type="button">設定を削除</button>
-          </div>
-        </div>
         <div id="paste-area" class="hidden">
           <div class="field" style="margin-top:12px;">
             <textarea id="paste-text" placeholder="LINEやメールでもらった現場詳細の文面を、ここにそのまま貼り付けてください"></textarea>
@@ -865,123 +853,6 @@
       return { n: count, e: extra };
     };
 
-    /* ---------- AI読み取り（Claude API・任意設定） ---------- */
-    const AIKEY = "yushin-genba-ai-v1";
-    const getAiKey = () => {
-      try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || ""; } catch { return ""; }
-    };
-    const refreshAiBadge = () => {
-      $("ai-badge").textContent = getAiKey() ? "：設定済み ✓" : "";
-    };
-    $("btn-ai-setting").addEventListener("click", () => {
-      $("ai-panel").classList.toggle("hidden");
-      $("ai-key").value = getAiKey();
-    });
-    $("ai-save").addEventListener("click", () => {
-      const k = $("ai-key").value.trim();
-      if (!k) { toast("APIキーを入力してください"); return; }
-      localStorage.setItem(AIKEY, JSON.stringify({ key: k }));
-      $("ai-panel").classList.add("hidden");
-      refreshAiBadge();
-      toast("AI読み取りを設定しました。次の読み取りからAIを使います");
-    });
-    $("ai-del").addEventListener("click", () => {
-      localStorage.removeItem(AIKEY);
-      $("ai-key").value = "";
-      $("ai-panel").classList.add("hidden");
-      refreshAiBadge();
-      toast("AI設定を削除しました（端末内OCRに戻ります）");
-    });
-
-    const AI_BOX = {
-      anyOf: [
-        {
-          type: "object",
-          properties: { x0: { type: "number" }, y0: { type: "number" }, x1: { type: "number" }, y1: { type: "number" } },
-          required: ["x0", "y0", "x1", "y1"],
-          additionalProperties: false
-        },
-        { type: "null" }
-      ]
-    };
-    const AI_SCHEMA = {
-      type: "object",
-      properties: {
-        date: { type: "string", description: "作業日をYYYY-MM-DD形式で。年が書かれていなければ直近の未来の年。不明なら空文字" },
-        client: { type: "string", description: "依頼元の業者名（会社名）。宛先である「優心」は含めない。不明なら空文字" },
-        contact_name: { type: "string", description: "依頼元の担当者名（姓のみ、様は付けない）。不明なら空文字" },
-        contact_tel: { type: "string", description: "依頼元の電話番号。不明なら空文字" },
-        address: { type: "string", description: "現場の住所。不明なら空文字" },
-        name: { type: "string", description: "現場名。不明なら空文字" },
-        start: { type: "string", description: "作業開始時間（例:13時半開始、8:00開始）。不明なら空文字" },
-        meet: { type: "string", description: "集合時間・集合場所。不明なら空文字" },
-        plan: { type: "string", description: "作業プラン（例:3h）。不明なら空文字" },
-        work: { type: "string", description: "作業内容（例:フロア搬入、PB搬入）。不明なら空文字" },
-        members: { type: "string", description: "作業メンバー名。1行に1名、改行区切り。不明なら空文字" },
-        note: { type: "string", description: "人数などの補足（例:人数：1名）。不明なら空文字" },
-        gochu_box: { ...AI_BOX, description: "画像内で宛名の「御中」の文字がある位置のピクセル座標。無ければnull" },
-        tanto_box: { ...AI_BOX, description: "画像内で依頼元担当者名（個人名）の文字がある位置のピクセル座標。無ければnull" }
-      },
-      required: ["date", "client", "contact_name", "contact_tel", "address", "name", "start", "meet", "plan", "work", "members", "note", "gochu_box", "tanto_box"],
-      additionalProperties: false
-    };
-    const AI_PROMPT = "これは建設現場の荷揚げ・搬入の依頼FAX（または案内文書）です。株式会社優心（宛先）が受け取ったものです。画像から各項目を読み取ってJSONで返してください。読み取れない項目は空文字にしてください。座標は送った画像のピクセル座標です。";
-
-    const aiExtract = async (canvas) => {
-      const b64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
-      const resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": getAiKey(),
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true"
-        },
-        body: JSON.stringify({
-          model: "claude-opus-4-8",
-          max_tokens: 2048,
-          output_config: { format: { type: "json_schema", schema: AI_SCHEMA } },
-          messages: [{
-            role: "user",
-            content: [
-              { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
-              { type: "text", text: AI_PROMPT }
-            ]
-          }]
-        })
-      });
-      if (!resp.ok) throw new Error("api " + resp.status);
-      const j = await resp.json();
-      if (j.stop_reason === "refusal") throw new Error("refusal");
-      const block = (j.content || []).find(b => b.type === "text");
-      if (!block) throw new Error("empty");
-      return { data: JSON.parse(block.text), w: canvas.width, h: canvas.height };
-    };
-
-    const applyAiResult = ({ data, w, h }) => {
-      const d = {
-        date: /^\d{4}-\d{2}-\d{2}$/.test(data.date) ? data.date : "",
-        client: data.client,
-        "contact-name": (data.contact_name || "").replace(/様\s*$/, ""),
-        "contact-tel": data.contact_tel,
-        address: data.address,
-        name: data.name,
-        start: data.start,
-        meet: data.meet,
-        plan: data.plan,
-        work: data.work,
-        members: data.members,
-        note: data.note
-      };
-      Object.keys(d).forEach(k => { if (!d[k]) delete d[k]; });
-      const r = applyParsed(d);
-      V.ocrWords = null;
-      V.aiAnchors = { w, h, gochu: data.gochu_box || null, tanto: data.tanto_box || null };
-      toast(`AIで${r.n}項目を読み取りました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}。内容を確認してください`);
-      if (V.img) { $("v-greet").value = buildGreet(); autoPlace(); }
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    };
-
     /* ---------- paste ---------- */
     $("btn-paste").addEventListener("click", () => {
       $("paste-area").classList.toggle("hidden");
@@ -1212,19 +1083,7 @@
           setVendorImage(c);
           pageCanvases = [c];
         }
-        // AI読み取り（APIキー設定時）
-        if (getAiKey()) {
-          try {
-            setOcrStatus("AIで読み取り中…");
-            const res = await aiExtract(pageCanvases[0]);
-            setOcrStatus("");
-            applyAiResult(res);
-            return;
-          } catch (err) {
-            toast("AI読み取りに失敗したため、端末内OCRに切り替えます");
-          }
-        }
-        // 端末内OCR（フォールバック）
+        // 端末内OCR
         setOcrStatus("文字認識の準備中…");
         const canvases = pageCanvases.map(preprocessCanvas);
         let ocrText = await ocrSources(canvases, true);
@@ -1554,8 +1413,6 @@
         const cn = readForm()["contact-name"];
         const nw = cn ? V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox) : null;
         src = { w: V.ocrWords.w, h: V.ocrWords.h, gochu: gw ? gw.bbox : null, tanto: nw ? nw.bbox : null };
-      } else if (V.aiAnchors) {
-        src = { w: V.aiAnchors.w, h: V.aiAnchors.h, gochu: V.aiAnchors.gochu, tanto: V.aiAnchors.tanto };
       }
       let samaAnchored = false;
       if (src) {
@@ -1629,9 +1486,6 @@
         if (V.ocrWords && V.ocrWords.words) {
           const wref = V.ocrWords.words.find(w => w.text && /(お願い|搬入|搬出|荷揚)/.test(w.text) && w.bbox);
           if (wref) refY = V.imgPos.y + wref.bbox.y1 * (c.height * V.imgPos.s / V.ocrWords.h);
-        } else if (V.aiAnchors && (V.aiAnchors.tanto || V.aiAnchors.gochu)) {
-          const b = V.aiAnchors.tanto || V.aiAnchors.gochu;
-          refY = V.imgPos.y + b.y1 * (c.height * V.imgPos.s / V.aiAnchors.h) + 10;
         }
         greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
       }
@@ -1901,7 +1755,6 @@
       const s = loadV();
       if (s.office) $("v-office").value = s.office;
       refreshSeals();
-      refreshAiBadge();
     }
   </script>
 </body>
