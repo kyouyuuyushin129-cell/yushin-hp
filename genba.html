@@ -1675,22 +1675,12 @@
     $("v-sama").addEventListener("change", vendorRedraw);
     $("v-date").addEventListener("change", vendorRedraw);
 
-    // 業者用タブから直接FAXを開く
+    // 業者用タブから直接FAXを開く（画像表示だけでなく、現場住所などの文字読み取りも行う）
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
-    $("vendor-file").addEventListener("change", async (e) => {
+    $("vendor-file").addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       e.target.value = "";
-      if (!file) return;
-      try {
-        const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
-        if (isPdf) {
-          await loadPdfJs();
-          const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-          setVendorImage((await pdfToCanvases(pdf))[0]);
-        } else {
-          setVendorImage(await imageToCanvas(file));
-        }
-      } catch { toast("ファイルを開けませんでした"); }
+      if (file) handleImportFile(file);
     });
 
     // 返信画像の共有・保存（このとき配置と業者情報を学習）
