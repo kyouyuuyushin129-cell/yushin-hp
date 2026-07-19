@@ -435,11 +435,11 @@
           </div>
           <div class="row2">
             <div class="field">
-              <label>日付（読み込んだ日が自動で入ります）</label>
+              <label style="white-space:nowrap;">日付（自動で今日）</label>
               <input type="date" id="v-date">
             </div>
             <div class="field">
-              <label>印鑑（名前）</label>
+              <label style="white-space:nowrap;">印鑑（名前）</label>
               <select id="v-seal" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--line-d);border-radius:9px;padding:11px 12px;color:var(--paper);font-size:16px;"></select>
             </div>
           </div>
@@ -528,7 +528,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19h";
+    const APP_VER = "2026-07-19i";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
