@@ -366,6 +366,26 @@
             <label>備考（あれば）</label>
             <textarea id="f-note" placeholder="その他伝えたいこと"></textarea>
           </div>
+          <div class="row2">
+            <div class="field">
+              <label>予備①見出し</label>
+              <input type="text" id="f-x1label" placeholder="例）駐車場">
+            </div>
+            <div class="field">
+              <label>予備①内容</label>
+              <input type="text" id="f-x1text" placeholder="例）近隣コインP">
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field">
+              <label>予備②見出し</label>
+              <input type="text" id="f-x2label" placeholder="例）支給品">
+            </div>
+            <div class="field">
+              <label>予備②内容</label>
+              <input type="text" id="f-x2text" placeholder="例）ビス・接着剤">
+            </div>
+          </div>
         </div>
       </div>
 
@@ -515,7 +535,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19d";
+    const APP_VER = "2026-07-19e";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -532,7 +552,7 @@
         })
         .catch(() => {});
     })();
-    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
+    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note","x1label","x1text","x2label","x2text"];
     const STORE_KEY = "yushin-genba-v1";
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
     const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
@@ -595,6 +615,8 @@
       add("作業内容", d.work && `<strong>${esc(d.work)}</strong>`);
       add("作業注意", d.caution2 && esc(d.caution2));
       add("備考", d.note && esc(d.note));
+      add(d.x1label || "その他", d.x1text && esc(d.x1text));
+      add(d.x2label || "その他", d.x2text && esc(d.x2text));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
       // 交通費欄の現場住所も同期
@@ -628,6 +650,8 @@
       if (d.work) B.push("作業内容\n" + d.work);
       if (d.caution2) B.push(d.caution2);
       if (d.note) B.push(d.note);
+      if (d.x1text) B.push((d.x1label ? "【" + d.x1label + "】" : "") + d.x1text);
+      if (d.x2text) B.push((d.x2label ? "【" + d.x2label + "】" : "") + d.x2text);
       B.push("宜しくお願い致します！");
       if (d.address) B.push("📍現場の地図（タップで開く）\n" + mapUrl(d.address));
       return B.join("\n\n");
