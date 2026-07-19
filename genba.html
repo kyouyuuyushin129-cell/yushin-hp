@@ -479,8 +479,18 @@
           <button class="btn-import" id="v-route" type="button" style="grid-column:1/-1;">🗺 経路を地図で確認（Googleマップ）</button>
         </div>
         <div class="field" style="margin-top:13px;">
-          <label>交通費（円）</label>
-          <input type="number" id="v-fare" placeholder="例）2500">
+          <label>行き先（印字用）</label>
+          <input type="text" id="v-fare-dest" placeholder="例）西宮市久保町（「◯◯まで」と印字されます）">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label>交通費（円・1名分）</label>
+            <input type="number" id="v-fare" placeholder="例）2500">
+          </div>
+          <div class="field">
+            <label>人数（名）</label>
+            <input type="number" id="v-fare-num" placeholder="例）2">
+          </div>
         </div>
         <div class="field" style="margin-top:10px;">
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -505,7 +515,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19b";
+    const APP_VER = "2026-07-19c";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1904,11 +1914,20 @@
 
     /* ---------- 交通費（手入力＋Googleマップで経路確認） ---------- */
     const cleanAddr = (s) => s.replace(/〒?\d{3}-?\d{4}\s*/, "").replace(/\s+/g, "");
-    $("v-fare").addEventListener("input", () => {
-      const v = parseInt($("v-fare").value, 10);
-      V.fareText = v ? `交通費 ¥${v.toLocaleString()}` : "";
+    const updateFareText = () => {
+      const amt = parseInt($("v-fare").value, 10);
+      const dest = $("v-fare-dest").value.trim();
+      const num = parseInt($("v-fare-num").value, 10);
+      if (!amt) { V.fareText = ""; vendorRedraw(); return; }
+      let t = "交通費";
+      if (dest) t += " " + (/(まで|迄)$/.test(dest) ? dest : dest + "まで");
+      t += " ¥" + amt.toLocaleString();
+      if (num >= 2) t += " × " + num + "名（計¥" + (amt * num).toLocaleString() + "）";
+      else if (num === 1) t += " × 1名";
+      V.fareText = t;
       vendorRedraw();
-    });
+    };
+    ["v-fare", "v-fare-dest", "v-fare-num"].forEach(id => $(id).addEventListener("input", updateFareText));
     $("v-office").addEventListener("change", () => saveV({ office: $("v-office").value.trim() }));
     $("v-genba-addr").addEventListener("input", () => {
       $("f-address").value = $("v-genba-addr").value;
