@@ -256,12 +256,24 @@
     <div id="page-edit">
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。ファイルもデータも端末の中だけで処理され、外部には送信されません。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。通常はすべて端末内で処理されます（AI読み取りを設定した場合のみ、読み取り時に画像をAnthropic社へ送信します）。</p>
         <div class="import-btns">
           <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
         </div>
         <input type="file" id="ocr-file" accept="image/*,.pdf,application/pdf" class="hidden">
+        <button class="btn-import" id="btn-ai-setting" type="button" style="width:100%;margin-top:10px;">⚙ AI読み取り設定（高精度）<span id="ai-badge"></span></button>
+        <div id="ai-panel" class="hidden" style="margin-top:10px;">
+          <p class="hint">AnthropicのAPIキーを設定すると、AI（Claude）が高精度にFAXを読み取ります（手書きや複雑なレイアウトにも強い）。読み取り時のみ画像がAnthropic社のサーバーに送信されます。キーはこの端末の中にだけ保存されます。</p>
+          <div class="field">
+            <label>APIキー（sk-ant-…）</label>
+            <input type="password" id="ai-key" placeholder="sk-ant-api03-...">
+          </div>
+          <div class="import-btns">
+            <button class="btn-import" id="ai-save" type="button">保存</button>
+            <button class="btn-import" id="ai-del" type="button">設定を削除</button>
+          </div>
+        </div>
         <div id="paste-area" class="hidden">
           <div class="field" style="margin-top:12px;">
             <textarea id="paste-text" placeholder="LINEやメールでもらった現場詳細の文面を、ここにそのまま貼り付けてください"></textarea>
@@ -387,6 +399,7 @@
           <button class="btn-import" id="btn-vendor-file" type="button">📄 FAXを開く（画像・PDF）</button>
         </div>
         <input type="file" id="vendor-file" accept="image/*,.pdf,application/pdf" class="hidden">
+        <div id="v-ocr-status" class="hidden" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--org);display:flex;align-items:center;gap:10px;"><span class="spinner"></span><span id="v-ocr-status-text"></span></div>
       </div>
 
       <div id="vendor-editor" class="hidden">
@@ -852,6 +865,123 @@
       return { n: count, e: extra };
     };
 
+    /* ---------- AI読み取り（Claude API・任意設定） ---------- */
+    const AIKEY = "yushin-genba-ai-v1";
+    const getAiKey = () => {
+      try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || ""; } catch { return ""; }
+    };
+    const refreshAiBadge = () => {
+      $("ai-badge").textContent = getAiKey() ? "：設定済み ✓" : "";
+    };
+    $("btn-ai-setting").addEventListener("click", () => {
+      $("ai-panel").classList.toggle("hidden");
+      $("ai-key").value = getAiKey();
+    });
+    $("ai-save").addEventListener("click", () => {
+      const k = $("ai-key").value.trim();
+      if (!k) { toast("APIキーを入力してください"); return; }
+      localStorage.setItem(AIKEY, JSON.stringify({ key: k }));
+      $("ai-panel").classList.add("hidden");
+      refreshAiBadge();
+      toast("AI読み取りを設定しました。次の読み取りからAIを使います");
+    });
+    $("ai-del").addEventListener("click", () => {
+      localStorage.removeItem(AIKEY);
+      $("ai-key").value = "";
+      $("ai-panel").classList.add("hidden");
+      refreshAiBadge();
+      toast("AI設定を削除しました（端末内OCRに戻ります）");
+    });
+
+    const AI_BOX = {
+      anyOf: [
+        {
+          type: "object",
+          properties: { x0: { type: "number" }, y0: { type: "number" }, x1: { type: "number" }, y1: { type: "number" } },
+          required: ["x0", "y0", "x1", "y1"],
+          additionalProperties: false
+        },
+        { type: "null" }
+      ]
+    };
+    const AI_SCHEMA = {
+      type: "object",
+      properties: {
+        date: { type: "string", description: "作業日をYYYY-MM-DD形式で。年が書かれていなければ直近の未来の年。不明なら空文字" },
+        client: { type: "string", description: "依頼元の業者名（会社名）。宛先である「優心」は含めない。不明なら空文字" },
+        contact_name: { type: "string", description: "依頼元の担当者名（姓のみ、様は付けない）。不明なら空文字" },
+        contact_tel: { type: "string", description: "依頼元の電話番号。不明なら空文字" },
+        address: { type: "string", description: "現場の住所。不明なら空文字" },
+        name: { type: "string", description: "現場名。不明なら空文字" },
+        start: { type: "string", description: "作業開始時間（例:13時半開始、8:00開始）。不明なら空文字" },
+        meet: { type: "string", description: "集合時間・集合場所。不明なら空文字" },
+        plan: { type: "string", description: "作業プラン（例:3h）。不明なら空文字" },
+        work: { type: "string", description: "作業内容（例:フロア搬入、PB搬入）。不明なら空文字" },
+        members: { type: "string", description: "作業メンバー名。1行に1名、改行区切り。不明なら空文字" },
+        note: { type: "string", description: "人数などの補足（例:人数：1名）。不明なら空文字" },
+        gochu_box: { ...AI_BOX, description: "画像内で宛名の「御中」の文字がある位置のピクセル座標。無ければnull" },
+        tanto_box: { ...AI_BOX, description: "画像内で依頼元担当者名（個人名）の文字がある位置のピクセル座標。無ければnull" }
+      },
+      required: ["date", "client", "contact_name", "contact_tel", "address", "name", "start", "meet", "plan", "work", "members", "note", "gochu_box", "tanto_box"],
+      additionalProperties: false
+    };
+    const AI_PROMPT = "これは建設現場の荷揚げ・搬入の依頼FAX（または案内文書）です。株式会社優心（宛先）が受け取ったものです。画像から各項目を読み取ってJSONで返してください。読み取れない項目は空文字にしてください。座標は送った画像のピクセル座標です。";
+
+    const aiExtract = async (canvas) => {
+      const b64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": getAiKey(),
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify({
+          model: "claude-opus-4-8",
+          max_tokens: 2048,
+          output_config: { format: { type: "json_schema", schema: AI_SCHEMA } },
+          messages: [{
+            role: "user",
+            content: [
+              { type: "image", source: { type: "base64", media_type: "image/jpeg", data: b64 } },
+              { type: "text", text: AI_PROMPT }
+            ]
+          }]
+        })
+      });
+      if (!resp.ok) throw new Error("api " + resp.status);
+      const j = await resp.json();
+      if (j.stop_reason === "refusal") throw new Error("refusal");
+      const block = (j.content || []).find(b => b.type === "text");
+      if (!block) throw new Error("empty");
+      return { data: JSON.parse(block.text), w: canvas.width, h: canvas.height };
+    };
+
+    const applyAiResult = ({ data, w, h }) => {
+      const d = {
+        date: /^\d{4}-\d{2}-\d{2}$/.test(data.date) ? data.date : "",
+        client: data.client,
+        "contact-name": (data.contact_name || "").replace(/様\s*$/, ""),
+        "contact-tel": data.contact_tel,
+        address: data.address,
+        name: data.name,
+        start: data.start,
+        meet: data.meet,
+        plan: data.plan,
+        work: data.work,
+        members: data.members,
+        note: data.note
+      };
+      Object.keys(d).forEach(k => { if (!d[k]) delete d[k]; });
+      const r = applyParsed(d);
+      V.ocrWords = null;
+      V.aiAnchors = { w, h, gochu: data.gochu_box || null, tanto: data.tanto_box || null };
+      toast(`AIで${r.n}項目を読み取りました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}。内容を確認してください`);
+      if (V.img) { $("v-greet").value = buildGreet(); autoPlace(); }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     /* ---------- paste ---------- */
     $("btn-paste").addEventListener("click", () => {
       $("paste-area").classList.toggle("hidden");
@@ -874,6 +1004,11 @@
     const setOcrStatus = (msg) => {
       $("ocr-status").classList.toggle("hidden", !msg);
       $("ocr-status-text").textContent = msg || "";
+      const v = $("v-ocr-status");
+      if (v) {
+        v.classList.toggle("hidden", !msg);
+        $("v-ocr-status-text").textContent = msg || "";
+      }
     };
     const loadTesseract = () => new Promise((resolve, reject) => {
       if (window.Tesseract) return resolve();
@@ -1057,46 +1192,56 @@
     const handleImportFile = async (file) => {
       const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
       try {
-        let text, fromOcr;
+        let pageCanvases;
         if (isPdf) {
           setOcrStatus("PDFを開いています…");
           await loadPdfJs();
           const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+          // 文字データ入りPDFはそのまま抽出（高精度・無料）
           const layerText = await pdfExtractText(pdf);
-          text = layerText;
-          fromOcr = false;
-          // 文字データが乏しい（スキャンPDF・FAX等）→ 画像化してOCRし、良い方を採用
-          if (countParsed(layerText).n < 3) {
-            setOcrStatus("スキャンPDFのため文字認識に切り替えます…");
-            const pageCanvases = await pdfToCanvases(pdf);
-            setVendorImage(pageCanvases[0]);
-            const canvases = pageCanvases.map(preprocessCanvas);
-            let ocrText = await ocrSources(canvases, true);
-            // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
-            const p1 = countParsed(ocrText).d;
-            if (!p1.address || !p1.name) {
-              setOcrStatus("下部の住所・現場名を追加読み取り中…");
-              const src = canvases[0];
-              const ch = Math.round(src.height * 0.35);
-              const crop = document.createElement("canvas");
-              crop.width = 1100;
-              crop.height = Math.round(ch * (1100 / src.width));
-              crop.getContext("2d").drawImage(src, 0, src.height - ch, src.width, ch, 0, 0, crop.width, crop.height);
-              ocrText += "\n" + await ocrSources([crop]);
-            }
-            if (countParsed(ocrText).n >= countParsed(layerText).n) { text = ocrText; fromOcr = true; }
-          } else {
-            // 文字入りPDFでも業者用返信のために1ページ目を画像化しておく
+          if (countParsed(layerText).n >= 3) {
             try { setVendorImage((await pdfToCanvases(pdf))[0]); } catch {}
+            setOcrStatus("");
+            finishWithText(layerText, false);
+            return;
           }
+          pageCanvases = await pdfToCanvases(pdf);
+          setVendorImage(pageCanvases[0]);
         } else {
           const c = await imageToCanvas(file);
           setVendorImage(c);
-          text = await ocrSources([preprocessCanvas(c)], true);
-          fromOcr = true;
+          pageCanvases = [c];
+        }
+        // AI読み取り（APIキー設定時）
+        if (getAiKey()) {
+          try {
+            setOcrStatus("AIで読み取り中…");
+            const res = await aiExtract(pageCanvases[0]);
+            setOcrStatus("");
+            applyAiResult(res);
+            return;
+          } catch (err) {
+            toast("AI読み取りに失敗したため、端末内OCRに切り替えます");
+          }
+        }
+        // 端末内OCR（フォールバック）
+        setOcrStatus("文字認識の準備中…");
+        const canvases = pageCanvases.map(preprocessCanvas);
+        let ocrText = await ocrSources(canvases, true);
+        // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
+        const p1 = countParsed(ocrText).d;
+        if (!p1.address || !p1.name) {
+          setOcrStatus("下部の住所・現場名を追加読み取り中…");
+          const src = canvases[0];
+          const ch = Math.round(src.height * 0.35);
+          const crop = document.createElement("canvas");
+          crop.width = 1100;
+          crop.height = Math.round(ch * (1100 / src.width));
+          crop.getContext("2d").drawImage(src, 0, src.height - ch, src.width, ch, 0, 0, crop.width, crop.height);
+          ocrText += "\n" + await ocrSources([crop]);
         }
         setOcrStatus("");
-        finishWithText(text, fromOcr);
+        finishWithText(ocrText, true);
       } catch (err) {
         setOcrStatus("");
         toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
@@ -1402,36 +1547,38 @@
       const ctx = c.getContext("2d");
       const base = vendorBase();
       const placed = [];
-      // 1) OCRの単語座標から「御中」の棒線・担当者名の右の「様」を先に確定し、その領域を避ける
+      // 1) 「御中」と担当者名の位置（端末OCRの単語座標 or AI読み取りの座標）を先に確定し、その領域を避ける
+      let src = null;
       if (V.ocrWords && V.ocrWords.words && V.ocrWords.words.length) {
-        const sx = c.width * V.imgPos.s / V.ocrWords.w, sy = c.height * V.imgPos.s / V.ocrWords.h;
-        const ox = V.imgPos.x, oy = V.imgPos.y;
         const gw = V.ocrWords.words.find(w => w.text && w.text.includes("御中") && w.bbox);
-        if (gw) {
-          const bw = (gw.bbox.x1 - gw.bbox.x0) * sx;
+        const cn = readForm()["contact-name"];
+        const nw = cn ? V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox) : null;
+        src = { w: V.ocrWords.w, h: V.ocrWords.h, gochu: gw ? gw.bbox : null, tanto: nw ? nw.bbox : null };
+      } else if (V.aiAnchors) {
+        src = { w: V.aiAnchors.w, h: V.aiAnchors.h, gochu: V.aiAnchors.gochu, tanto: V.aiAnchors.tanto };
+      }
+      let samaAnchored = false;
+      if (src) {
+        const sx = c.width * V.imgPos.s / src.w, sy = c.height * V.imgPos.s / src.h;
+        const ox = V.imgPos.x, oy = V.imgPos.y;
+        if (src.gochu) {
+          const bw = (src.gochu.x1 - src.gochu.x0) * sx;
           V.items.strike = {
-            x: ox + gw.bbox.x0 * sx - bw * 0.1,
-            y: oy + ((gw.bbox.y0 + gw.bbox.y1) / 2) * sy - 22,
+            x: ox + src.gochu.x0 * sx - bw * 0.1,
+            y: oy + ((src.gochu.y0 + src.gochu.y1) / 2) * sy - 22,
             w: bw * 1.2
           };
           placed.push({ x: V.items.strike.x - 10, y: V.items.strike.y - 10, w: V.items.strike.w + 20, h: 64 });
         }
-        const cn = readForm()["contact-name"];
-        let samaAnchored = false;
-        if (cn) {
-          const nw = V.ocrWords.words.find(w => w.text && w.text.includes(cn) && w.bbox);
-          if (nw) {
-            V.items.sama = { x: ox + nw.bbox.x1 * sx + 8, y: oy + nw.bbox.y0 * sy };
-            const fs = base * 1.2;
-            placed.push({ x: V.items.sama.x - 14, y: V.items.sama.y - 14, w: fs * 2 + 28, h: fs * 1.6 + 28 });
-            samaAnchored = true;
-          }
+        if (src.tanto) {
+          V.items.sama = { x: ox + src.tanto.x1 * sx + 8, y: oy + src.tanto.y0 * sy };
+          const fs = base * 1.2;
+          placed.push({ x: V.items.sama.x - 14, y: V.items.sama.y - 14, w: fs * 2 + 28, h: fs * 1.6 + 28 });
+          samaAnchored = true;
         }
-        // 「様」は名前の横に置けたときだけ表示（見つからなければ非表示。手動でONにすれば出せる）
-        $("v-sama").checked = samaAnchored;
-      } else {
-        $("v-sama").checked = false;
       }
+      // 「様」は名前の横に置けたときだけ表示（見つからなければ非表示。手動でONにすれば出せる）
+      $("v-sama").checked = samaAnchored;
       // 2) 空白を探して定型文・日付・交通費・印鑑を配置
       const putText = (key, text) => {
         if (!text) return;
@@ -1482,6 +1629,9 @@
         if (V.ocrWords && V.ocrWords.words) {
           const wref = V.ocrWords.words.find(w => w.text && /(お願い|搬入|搬出|荷揚)/.test(w.text) && w.bbox);
           if (wref) refY = V.imgPos.y + wref.bbox.y1 * (c.height * V.imgPos.s / V.ocrWords.h);
+        } else if (V.aiAnchors && (V.aiAnchors.tanto || V.aiAnchors.gochu)) {
+          const b = V.aiAnchors.tanto || V.aiAnchors.gochu;
+          refY = V.imgPos.y + b.y1 * (c.height * V.imgPos.s / V.aiAnchors.h) + 10;
         }
         greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
       }
@@ -1677,20 +1827,12 @@
 
     // 業者用タブから直接FAXを開く
     $("btn-vendor-file").addEventListener("click", () => $("vendor-file").click());
-    $("vendor-file").addEventListener("change", async (e) => {
+    $("vendor-file").addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       e.target.value = "";
       if (!file) return;
-      try {
-        const isPdf = file.type === "application/pdf" || /\.pdf$/i.test(file.name);
-        if (isPdf) {
-          await loadPdfJs();
-          const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-          setVendorImage((await pdfToCanvases(pdf))[0]);
-        } else {
-          setVendorImage(await imageToCanvas(file));
-        }
-      } catch { toast("ファイルを開けませんでした"); }
+      // 業者用から開いた場合も読み取りを実行（住所・業者名などを自動入力）
+      handleImportFile(file);
     });
 
     // 返信画像の共有・保存（このとき配置と業者情報を学習）
@@ -1759,6 +1901,7 @@
       const s = loadV();
       if (s.office) $("v-office").value = s.office;
       refreshSeals();
+      refreshAiBadge();
     }
   </script>
 </body>
