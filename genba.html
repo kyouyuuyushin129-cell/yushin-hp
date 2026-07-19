@@ -366,26 +366,6 @@
             <label>備考（あれば）</label>
             <textarea id="f-note" placeholder="その他伝えたいこと"></textarea>
           </div>
-          <div class="row2">
-            <div class="field">
-              <label>予備①見出し</label>
-              <input type="text" id="f-x1label" placeholder="例）駐車場">
-            </div>
-            <div class="field">
-              <label>予備①内容</label>
-              <input type="text" id="f-x1text" placeholder="例）近隣コインP">
-            </div>
-          </div>
-          <div class="row2">
-            <div class="field">
-              <label>予備②見出し</label>
-              <input type="text" id="f-x2label" placeholder="例）支給品">
-            </div>
-            <div class="field">
-              <label>予備②内容</label>
-              <input type="text" id="f-x2text" placeholder="例）ビス・接着剤">
-            </div>
-          </div>
         </div>
       </div>
 
@@ -466,7 +446,15 @@
             </label>
           </div>
           <div class="field" style="margin-top:13px;">
-            <label>追加の文字（編集可・ドラッグで移動）</label>
+            <label>その他 予備①（入力するとFAXに印字）</label>
+            <input type="text" id="v-yobi1" placeholder="例）駐車場：近隣コインP（領収書を）">
+          </div>
+          <div class="field">
+            <label>その他 予備②</label>
+            <input type="text" id="v-yobi2" placeholder="例）支給品：ビス・接着剤は現場支給">
+          </div>
+          <div class="field" style="margin-top:13px;">
+            <label>追加の文字（さらに増やす・ドラッグで移動）</label>
             <div id="v-texts"></div>
             <button class="btn-import" id="v-text-add" type="button" style="width:100%;">＋ 文字を追加</button>
           </div>
@@ -535,7 +523,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19e";
+    const APP_VER = "2026-07-19f";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -552,7 +540,7 @@
         })
         .catch(() => {});
     })();
-    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note","x1label","x1text","x2label","x2text"];
+    const FIELDS = ["date","client","contact-name","contact-tel","address","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
     const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
@@ -615,8 +603,6 @@
       add("作業内容", d.work && `<strong>${esc(d.work)}</strong>`);
       add("作業注意", d.caution2 && esc(d.caution2));
       add("備考", d.note && esc(d.note));
-      add(d.x1label || "その他", d.x1text && esc(d.x1text));
-      add(d.x2label || "その他", d.x2text && esc(d.x2text));
 
       $("p-body").innerHTML = rows.join("") || `<div class="sheet-row"><div class="v" style="color:#8a8375;">上のフォームに入力すると、ここに現場詳細が表示されます。</div></div>`;
       // 交通費欄の現場住所も同期
@@ -650,8 +636,6 @@
       if (d.work) B.push("作業内容\n" + d.work);
       if (d.caution2) B.push(d.caution2);
       if (d.note) B.push(d.note);
-      if (d.x1text) B.push((d.x1label ? "【" + d.x1label + "】" : "") + d.x1text);
-      if (d.x2text) B.push((d.x2label ? "【" + d.x2label + "】" : "") + d.x2text);
       B.push("宜しくお願い致します！");
       if (d.address) B.push("📍現場の地図（タップで開く）\n" + mapUrl(d.address));
       return B.join("\n\n");
@@ -1478,10 +1462,14 @@
             hanko: { x: w * 0.78, y: c.height * 0.12 },
             fare: { x: w * 0.06, y: c.height * 0.31 },
             strike: { x: w * 0.11, y: c.height * 0.07, w: w * 0.1 },
-            sama: { x: w * 0.5, y: c.height * 0.16 }
+            sama: { x: w * 0.5, y: c.height * 0.16 },
+            yobi1: { x: w * 0.06, y: c.height * 0.37 },
+            yobi2: { x: w * 0.06, y: c.height * 0.42 }
           };
           V.imgPos = { x: 0, y: 0, s: 1 };
           $("v-imgsize").value = 100;
+          $("v-yobi1").value = "";
+          $("v-yobi2").value = "";
           V.texts = [];
           renderTextList();
           $("v-greet").value = buildGreet();
@@ -1670,6 +1658,8 @@
           placed.push({ x: spot.x, y: spot.y, w: m.bw, h: m.bh });
         }
       };
+      putText("yobi1", $("v-yobi1").value.trim());
+      putText("yobi2", $("v-yobi2").value.trim());
       putText("greet", $("v-greet").value.trim());
       putText("date", fmtDateJp($("v-date").value));
       if ($("v-fare-print").checked && V.fareText) putText("fare", V.fareText);
@@ -1719,6 +1709,9 @@
       drawText("greet", greetText, "#16418c");
       drawText("date", fmtDateJp($("v-date").value), "#16418c");
       if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
+      // その他 予備欄①②
+      drawText("yobi1", $("v-yobi1").value.trim(), "#16418c");
+      drawText("yobi2", $("v-yobi2").value.trim(), "#16418c");
       // 追加した自由テキスト
       V.texts.forEach(t => drawText("txt:" + t.id, (t.text || "").trim(), "#16418c"));
       // 「御中」を消す棒線
@@ -1882,6 +1875,8 @@
     });
 
     $("v-greet").addEventListener("input", vendorRedraw);
+    $("v-yobi1").addEventListener("input", vendorRedraw);
+    $("v-yobi2").addEventListener("input", vendorRedraw);
     $("v-fare-print").addEventListener("change", vendorRedraw);
     $("v-size").addEventListener("input", vendorRedraw);
     $("v-imgsize").addEventListener("input", () => {
