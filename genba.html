@@ -528,7 +528,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19g";
+    const APP_VER = "2026-07-19h";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1788,6 +1788,7 @@
         return { x: (e.clientX - r.left) * c.width / r.width, y: (e.clientY - r.top) * c.height / r.height };
       };
       c.addEventListener("pointerdown", (e) => {
+        if (!V.img) return;
         const p = pos(e);
         drag = null;
         for (let i = V.hit.length - 1; i >= 0; i--) {
@@ -1800,10 +1801,12 @@
         }
         // 文字や印鑑に当たらなければ、FAXの紙自体を動かす
         if (!drag) drag = { key: "__img", px: p.x, py: p.y };
-        c.setPointerCapture(e.pointerId);
-      });
+        try { c.setPointerCapture(e.pointerId); } catch {}
+        e.preventDefault();
+      }, { passive: false });
       c.addEventListener("pointermove", (e) => {
         if (!drag) return;
+        e.preventDefault();
         const p = pos(e);
         if (drag.key === "__img") {
           const dx = p.x - drag.px, dy = p.y - drag.py;
@@ -1818,9 +1821,13 @@
           if (it) { it.x = p.x - drag.dx; it.y = p.y - drag.dy; }
         }
         vendorRedraw();
-      });
-      c.addEventListener("pointerup", () => { drag = null; });
-      c.addEventListener("pointercancel", () => { drag = null; });
+      }, { passive: false });
+      const endDrag = () => { drag = null; };
+      c.addEventListener("pointerup", endDrag);
+      c.addEventListener("pointercancel", endDrag);
+      c.addEventListener("lostpointercapture", endDrag);
+      // iOS等でtouch-actionが効かない場合の保険：ドラッグ中はタッチスクロールを止める
+      c.addEventListener("touchmove", (e) => { if (drag) e.preventDefault(); }, { passive: false });
     }
 
     // 印鑑の登録・選択（端末に保存）
