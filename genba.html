@@ -101,7 +101,14 @@
     }
     .field input:focus, .field textarea:focus { border-color: rgba(255,196,0,0.6); }
     .field textarea { resize: vertical; min-height: 64px; }
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    .row2 > .field { min-width: 0; }
+    .field input, .field select { min-width: 0; max-width: 100%; box-sizing: border-box; }
+    /* iPhoneの日付欄が固有の幅を主張して枠からはみ出すのを防ぐ */
+    .field input[type="date"] {
+      -webkit-appearance: none; appearance: none;
+      display: block; width: 100%; min-height: 44px; text-align: left;
+    }
 
     /* ---------- import ---------- */
     .import-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -528,7 +535,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19i";
+    const APP_VER = "2026-07-19j";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -994,10 +1001,34 @@
       return JSON.parse(text.slice(s, e + 1));
     };
 
+    // AI送信用の画像を作る：スマホ（特にiPhone）はキャンバスが大きすぎると
+    // 変換に失敗して白紙が送られるため、長辺1600pxまで縮小してから送る。
+    // 変換失敗（空データ）も検知してエラーにする。
+    const canvasForAi = (cv) => {
+      const MAX_EDGE = 1600;
+      let out = cv;
+      const long = Math.max(cv.width, cv.height);
+      if (long > MAX_EDGE) {
+        const s = MAX_EDGE / long;
+        const c2 = document.createElement("canvas");
+        c2.width = Math.max(1, Math.round(cv.width * s));
+        c2.height = Math.max(1, Math.round(cv.height * s));
+        const ctx = c2.getContext("2d");
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(cv, 0, 0, c2.width, c2.height);
+        out = c2;
+      }
+      let data = "";
+      try { data = (out.toDataURL("image/jpeg", 0.85).split(",")[1]) || ""; } catch (e) { data = ""; }
+      if (data.length < 1000) throw new Error("画像の変換に失敗しました。カメラの撮影サイズを下げるか、PDFで送り直してください");
+      return data;
+    };
+
     const aiExtract = async (canvases) => {
       // 全ページ（最大3ページ）をまとめてAIに渡す。座標は1枚目基準
       const pages = canvases.slice(0, 3);
-      const imageParts = pages.map(cv => ({ inlineData: { mimeType: "image/jpeg", data: cv.toDataURL("image/jpeg", 0.85).split(",")[1] } }));
+      const imageParts = pages.map(cv => ({ inlineData: { mimeType: "image/jpeg", data: canvasForAi(cv) } }));
       const canvas = pages[0];
       const pageNote = pages.length > 1 ? `\n\n画像は全部で${pages.length}ページあります。全ページの内容から読み取ってください（住所や作業内容が2ページ目以降にある場合もあります）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
       let lastErr = null;
@@ -1171,7 +1202,12 @@
       const im = new Image();
       im.onload = () => {
         URL.revokeObjectURL(url);
-        const scale = Math.min(3, Math.max(1, 1800 / Math.max(im.width, 1)));
+        let scale = Math.min(3, Math.max(1, 1800 / Math.max(im.width, 1)));
+        // スマホカメラの大きな写真（12MP超など）はiPhoneのキャンバス上限を超えて
+        // 白紙になったり固まったりするため、総画素数を約450万pxまでに抑える
+        const MAX_AREA = 4500000;
+        const area = im.width * im.height * scale * scale;
+        if (area > MAX_AREA) scale = Math.sqrt(MAX_AREA / (im.width * im.height));
         const canvas = document.createElement("canvas");
         canvas.width = Math.round(im.width * scale);
         canvas.height = Math.round(im.height * scale);
