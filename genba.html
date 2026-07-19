@@ -402,6 +402,24 @@
         <div id="v-ocr-status" class="hidden" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--org);display:flex;align-items:center;gap:10px;"><span class="spinner"></span><span id="v-ocr-status-text"></span></div>
       </div>
 
+      <div class="card">
+        <h2>FAXに追加で印字する項目（その他）</h2>
+        <p class="hint">ここに入力した内容はFAX返信画像に印字されます（FAXを開くと空いた場所に自動で配置。位置はドラッグで調整できます）。</p>
+        <div class="field">
+          <label>その他 予備①</label>
+          <input type="text" id="v-yobi1" placeholder="例）駐車場：近隣コインP（領収書を）">
+        </div>
+        <div class="field">
+          <label>その他 予備②</label>
+          <input type="text" id="v-yobi2" placeholder="例）支給品：ビス・接着剤は現場支給">
+        </div>
+        <div class="field" style="margin-top:13px;">
+          <label>さらに追加（何個でも・ドラッグで移動）</label>
+          <div id="v-texts"></div>
+          <button class="btn-import" id="v-text-add" type="button" style="width:100%;">＋ 文字を追加</button>
+        </div>
+      </div>
+
       <div id="vendor-editor" class="hidden">
         <div class="card">
           <canvas id="vendor-canvas" style="width:100%;display:block;border-radius:8px;touch-action:none;background:#fff;"></canvas>
@@ -444,19 +462,6 @@
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
               <input type="checkbox" id="v-sama" checked style="width:18px;height:18px;"> 相手の名前の横に「様」を入れる
             </label>
-          </div>
-          <div class="field" style="margin-top:13px;">
-            <label>その他 予備①（入力するとFAXに印字）</label>
-            <input type="text" id="v-yobi1" placeholder="例）駐車場：近隣コインP（領収書を）">
-          </div>
-          <div class="field">
-            <label>その他 予備②</label>
-            <input type="text" id="v-yobi2" placeholder="例）支給品：ビス・接着剤は現場支給">
-          </div>
-          <div class="field" style="margin-top:13px;">
-            <label>追加の文字（さらに増やす・ドラッグで移動）</label>
-            <div id="v-texts"></div>
-            <button class="btn-import" id="v-text-add" type="button" style="width:100%;">＋ 文字を追加</button>
           </div>
           <div class="field" style="margin-top:13px;">
             <label>文字の大きさ</label>
@@ -523,7 +528,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19f";
+    const APP_VER = "2026-07-19g";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1468,9 +1473,12 @@
           };
           V.imgPos = { x: 0, y: 0, s: 1 };
           $("v-imgsize").value = 100;
-          $("v-yobi1").value = "";
-          $("v-yobi2").value = "";
-          V.texts = [];
+          // 予備欄・追加文字はFAXを開く前に入力できるので、開いても消さずに引き継ぐ。
+          // 画面外に来ないよう位置だけ内側に収める。
+          V.texts.forEach(t => {
+            if (!(t.x >= 0 && t.x <= c.width - 20)) t.x = w * 0.3;
+            if (!(t.y >= 0 && t.y <= c.height - 20)) t.y = c.height * 0.45;
+          });
           renderTextList();
           $("v-greet").value = buildGreet();
           // 日付＝読み込んだ日（今日）を自動セット
@@ -1851,12 +1859,13 @@
         </div>`).join("");
     };
     $("v-text-add").addEventListener("click", () => {
-      if (!V.img) { toast("先にFAXを開いてください"); return; }
       const c = $("vendor-canvas");
-      const t = { id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: "ここに文字を入力", x: c.width * 0.3, y: c.height * 0.45 };
+      const w = c.width || 1000, h = c.height || 1400;
+      const t = { id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: "ここに文字を入力", x: w * 0.3, y: h * 0.45 };
       V.texts.push(t);
       renderTextList();
-      vendorRedraw();
+      if (V.img) vendorRedraw();
+      else toast("入力できます。FAXを開くと印字されます");
       const ta = $("v-texts").querySelector(`textarea[data-tid="${t.id}"]`);
       if (ta) { ta.focus(); ta.select(); }
     });
