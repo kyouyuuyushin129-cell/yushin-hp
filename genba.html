@@ -261,6 +261,14 @@
 
     <!-- ============ 作成画面 ============ -->
     <div id="page-edit">
+      <div class="card hidden" id="ai-warn" style="border-color:rgba(255,140,80,0.6);">
+        <p style="font-size:0.85rem;font-weight:800;color:#ff9d7a;line-height:1.7;margin-bottom:10px;">⚠️ この端末はAI読み取りが未設定です。<br>このままだと読み取り精度がかなり低くなります（パソコンと同じ精度にするには設定が必要です）。</p>
+        <p class="hint" style="margin-bottom:10px;">設定は1回だけ。方法はどちらでもOK：<br><b>①パソコンから引き継ぐ</b>…パソコンでこのアプリを開き「⚙ AI読み取り設定」→「📲 引き継ぐリンクをコピー」→ LINEでこのスマホに送って、そのリンクを開く<br><b>②このスマホで直接設定</b>…下のボタンからGoogleのページを開いてAPIキーをコピーし、貼り付けて保存</p>
+        <div class="import-btns">
+          <button class="btn-import" id="ai-warn-setup" type="button">⚙ ここで設定する</button>
+          <button class="btn-import" id="ai-warn-close" type="button">あとで（閉じる）</button>
+        </div>
+      </div>
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
         <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。通常は端末内だけで処理されます（無料のAI読み取りを設定した場合のみ、読み取り時に画像をGoogleへ送信します）。</p>
@@ -272,6 +280,7 @@
         <button class="btn-import" id="btn-ai-setting" type="button" style="width:100%;margin-top:10px;">⚙ AI読み取り設定（Gemini・無料）<span id="ai-badge"></span></button>
         <div id="ai-panel" class="hidden" style="margin-top:10px;">
           <p class="hint">GoogleのGemini APIキー（無料）を設定すると、AIが高精度にFAXを読み取ります。<b>aistudio.google.com/apikey</b> で「APIキーを作成」するだけ（クレジットカード不要・無料枠内は費用ゼロ）。キーはこの端末の中にだけ保存されます。読み取り時のみ画像がGoogleに送信されます。</p>
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="btn-import" style="display:block;width:100%;text-align:center;text-decoration:none;box-sizing:border-box;margin-bottom:10px;">🔑 Googleのキー発行ページを開く（無料）</a>
           <div class="field">
             <label>Gemini APIキー（AIza…）</label>
             <input type="password" id="ai-key" placeholder="AIzaSy...">
@@ -537,7 +546,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19k";
+    const APP_VER = "2026-07-19l";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -922,7 +931,20 @@
       const b = $("ai-badge");
       if (getAiKey()) { b.textContent = "：設定済み ✓"; b.style.color = ""; }
       else { b.textContent = "：この端末は未設定"; b.style.color = "#ff9d7a"; }
+      // 未設定の端末には目立つ案内カードを出す（設定済みなら消す）
+      let dismissed = false;
+      try { dismissed = sessionStorage.getItem("ai-warn-off") === "1"; } catch {}
+      $("ai-warn").classList.toggle("hidden", !!getAiKey() || dismissed);
     };
+    $("ai-warn-setup").addEventListener("click", () => {
+      $("ai-panel").classList.remove("hidden");
+      $("ai-key").value = getAiKey();
+      $("btn-ai-setting").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    $("ai-warn-close").addEventListener("click", () => {
+      try { sessionStorage.setItem("ai-warn-off", "1"); } catch {}
+      $("ai-warn").classList.add("hidden");
+    });
     $("btn-ai-setting").addEventListener("click", () => {
       $("ai-panel").classList.toggle("hidden");
       $("ai-key").value = getAiKey();
