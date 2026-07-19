@@ -433,6 +433,11 @@
             </label>
           </div>
           <div class="field" style="margin-top:13px;">
+            <label>追加の文字（編集可・ドラッグで移動）</label>
+            <div id="v-texts"></div>
+            <button class="btn-import" id="v-text-add" type="button" style="width:100%;">＋ 文字を追加</button>
+          </div>
+          <div class="field" style="margin-top:13px;">
             <label>文字の大きさ</label>
             <input type="range" id="v-size" min="60" max="170" value="100" style="width:100%;">
           </div>
@@ -1189,7 +1194,8 @@
     const loadV = () => { try { return JSON.parse(localStorage.getItem(VKEY)) || {}; } catch { return {}; } };
     const saveV = (patch) => { const s = { ...loadV(), ...patch }; localStorage.setItem(VKEY, JSON.stringify(s)); return s; };
 
-    const V = { img: null, items: null, hit: [], fareText: "", imgPos: { x: 0, y: 0, s: 1 } };
+    const V = { img: null, items: null, hit: [], fareText: "", imgPos: { x: 0, y: 0, s: 1 }, texts: [] };
+    const itemOf = (key) => key.startsWith("txt:") ? V.texts.find(t => "txt:" + t.id === key) : V.items[key];
     const fmtDateJp = (iso) => {
       if (!iso) return "";
       const [y, m, day] = iso.split("-").map(Number);
@@ -1228,6 +1234,8 @@
           };
           V.imgPos = { x: 0, y: 0, s: 1 };
           $("v-imgsize").value = 100;
+          V.texts = [];
+          renderTextList();
           $("v-greet").value = buildGreet();
           // 日付＝読み込んだ日（今日）を自動セット
           const now = new Date();
@@ -1327,6 +1335,7 @@
       layouts[key] = {
         items,
         img: { fx: V.imgPos.x / c.width, fy: V.imgPos.y / c.height, s: V.imgPos.s },
+        texts: V.texts.filter(t => (t.text || "").trim()).map(t => ({ text: t.text, fx: t.x / c.width, fy: t.y / c.height })),
         size: $("v-size").value,
         strike: $("v-strike").checked,
         sama: $("v-sama").checked,
@@ -1348,6 +1357,10 @@
       if (layout.img) {
         V.imgPos = { x: layout.img.fx * c.width, y: layout.img.fy * c.height, s: layout.img.s || 1 };
         $("v-imgsize").value = Math.round(V.imgPos.s * 100);
+      }
+      if (layout.texts && layout.texts.length) {
+        V.texts = layout.texts.map((t, i) => ({ id: "L" + i, text: t.text, x: t.fx * c.width, y: t.fy * c.height }));
+        renderTextList();
       }
       if (layout.size) $("v-size").value = layout.size;
       $("v-strike").checked = layout.strike !== false;
@@ -1429,7 +1442,8 @@
       const base = vendorBase();
       const drawText = (key, text, color) => {
         if (!text) return;
-        const it = V.items[key];
+        const it = itemOf(key);
+        if (!it) return;
         const m = vendorMeasure(ctx, text, base);
         ctx.fillStyle = "rgba(255,255,255,0.82)";
         roundRect(ctx, it.x, it.y, m.bw, m.bh, base * 0.4);
@@ -1452,6 +1466,8 @@
       drawText("greet", greetText, "#16418c");
       drawText("date", fmtDateJp($("v-date").value), "#16418c");
       if ($("v-fare-print").checked && V.fareText) drawText("fare", V.fareText, "#16418c");
+      // 追加した自由テキスト
+      V.texts.forEach(t => drawText("txt:" + t.id, (t.text || "").trim(), "#16418c"));
       // 「御中」を消す棒線
       if ($("v-strike").checked) {
         const it = V.items.strike;
@@ -1523,7 +1539,8 @@
         for (let i = V.hit.length - 1; i >= 0; i--) {
           const h = V.hit[i];
           if (p.x >= h.x && p.x <= h.x + h.w && p.y >= h.y && p.y <= h.y + h.h) {
-            drag = { key: h.key, dx: p.x - V.items[h.key].x, dy: p.y - V.items[h.key].y };
+            const it = itemOf(h.key);
+            if (it) { drag = { key: h.key, dx: p.x - it.x, dy: p.y - it.y }; }
             break;
           }
         }
@@ -1543,8 +1560,8 @@
           V.items.sama.x += dx; V.items.sama.y += dy;
           drag.px = p.x; drag.py = p.y;
         } else {
-          V.items[drag.key].x = p.x - drag.dx;
-          V.items[drag.key].y = p.y - drag.dy;
+          const it = itemOf(drag.key);
+          if (it) { it.x = p.x - drag.dx; it.y = p.y - drag.dy; }
         }
         vendorRedraw();
       });
@@ -1577,6 +1594,38 @@
       refreshSeals();
       vendorRedraw();
       toast(`印鑑「${cur}」を削除しました`);
+    });
+
+    // 自由テキストの追加・編集・削除
+    const renderTextList = () => {
+      $("v-texts").innerHTML = V.texts.map(t => `
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:stretch;">
+          <textarea data-tid="${t.id}" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--line-d);border-radius:9px;padding:9px 10px;color:var(--paper);font-family:var(--sans);font-size:16px;min-height:44px;resize:vertical;">${esc(t.text)}</textarea>
+          <button class="saved-del" data-tdel="${t.id}" type="button">削除</button>
+        </div>`).join("");
+    };
+    $("v-text-add").addEventListener("click", () => {
+      if (!V.img) { toast("先にFAXを開いてください"); return; }
+      const c = $("vendor-canvas");
+      const t = { id: "t" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), text: "ここに文字を入力", x: c.width * 0.3, y: c.height * 0.45 };
+      V.texts.push(t);
+      renderTextList();
+      vendorRedraw();
+      const ta = $("v-texts").querySelector(`textarea[data-tid="${t.id}"]`);
+      if (ta) { ta.focus(); ta.select(); }
+    });
+    $("v-texts").addEventListener("input", (e) => {
+      const tid = e.target.getAttribute && e.target.getAttribute("data-tid");
+      if (!tid) return;
+      const t = V.texts.find(x => x.id === tid);
+      if (t) { t.text = e.target.value; vendorRedraw(); }
+    });
+    $("v-texts").addEventListener("click", (e) => {
+      const tid = e.target.getAttribute && e.target.getAttribute("data-tdel");
+      if (!tid) return;
+      V.texts = V.texts.filter(x => x.id !== tid);
+      renderTextList();
+      vendorRedraw();
     });
 
     $("v-greet").addEventListener("input", vendorRedraw);
