@@ -505,7 +505,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19a";
+    const APP_VER = "2026-07-19b";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -971,15 +971,18 @@
       return JSON.parse(text.slice(s, e + 1));
     };
 
-    const aiExtract = async (canvas) => {
-      const b64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
-      const imagePart = { inlineData: { mimeType: "image/jpeg", data: b64 } };
+    const aiExtract = async (canvases) => {
+      // 全ページ（最大3ページ）をまとめてAIに渡す。座標は1枚目基準
+      const pages = canvases.slice(0, 3);
+      const imageParts = pages.map(cv => ({ inlineData: { mimeType: "image/jpeg", data: cv.toDataURL("image/jpeg", 0.85).split(",")[1] } }));
+      const canvas = pages[0];
+      const pageNote = pages.length > 1 ? `\n\n画像は全部で${pages.length}ページあります。全ページの内容から読み取ってください（住所や作業内容が2ページ目以降にある場合もあります）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
       let lastErr = null;
       for (const model of AI_MODELS) {
         // 1回目：構造化出力（responseSchema）で試す
         try {
           const text = await aiCall(model, {
-            contents: [{ parts: [imagePart, { text: AI_PROMPT }] }],
+            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote }] }],
             generationConfig: { responseMimeType: "application/json", responseSchema: AI_SCHEMA, temperature: 0 }
           });
           return { data: extractJson(text), w: canvas.width, h: canvas.height };
@@ -990,7 +993,7 @@
         // 2回目：スキーマなし（プロンプトでJSON形式を指示）で再試行
         try {
           const text = await aiCall(model, {
-            contents: [{ parts: [imagePart, { text: AI_PROMPT + "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。" }] }],
+            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote + "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。" }] }],
             generationConfig: { responseMimeType: "application/json", temperature: 0 }
           });
           return { data: extractJson(text), w: canvas.width, h: canvas.height };
@@ -1260,7 +1263,7 @@
         if (getAiKey()) {
           try {
             setOcrStatus("AI（Gemini）で読み取り中…");
-            const res = await aiExtract(pageCanvases[0]);
+            const res = await aiExtract(pageCanvases);
             setOcrStatus("");
             applyAiResult(res);
             return;
