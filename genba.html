@@ -552,7 +552,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-19m";
+    const APP_VER = "2026-07-19n";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -662,7 +662,13 @@
       if (d.client) B.push("業者名  " + withSama(d.client));
       const contact = ["担当者", d["contact-name"] && withSama(d["contact-name"]), d["contact-tel"]].filter(Boolean);
       if (contact.length > 1) B.push(contact.join("\n"));
-      if (d.address) B.push("現場住所\n" + d.address);
+      const pu = pinUrl(d);
+      if (d.address) {
+        // 現場住所のすぐ下に地図のピンポイントURLを入れる
+        B.push("現場住所\n" + d.address + (pu ? "\n📍" + pu : ""));
+      } else if (pu) {
+        B.push("📍現場の地図（タップで開く）\n" + pu);
+      }
       if (d.name) B.push(d.name);
 
       const timeL = [];
@@ -681,8 +687,6 @@
       if (d.caution2) B.push(d.caution2);
       if (d.note) B.push(d.note);
       B.push("宜しくお願い致します！");
-      const pu = pinUrl(d);
-      if (pu) B.push("📍現場の地図（タップで開く）\n" + pu);
       return B.join("\n\n");
     };
 
