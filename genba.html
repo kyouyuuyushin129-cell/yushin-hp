@@ -566,7 +566,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20p";
+    const APP_VER = "2026-07-20q";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -586,6 +586,15 @@
     const FIELDS = ["date","client","contact-name","contact-tel","address","mapurl","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
     const MAX_PAGES = 8; // PDFはこのページ数まで全部読む（数量が後半ページに続くため）
+    // 端末判定：iPhone/iPad等はキャンバスのメモリ上限が厳しく、画像を抱えすぎると
+    // 白紙化・フリーズする。低メモリ端末では画像サイズ・ページ数を抑えて確実に完了させる。
+    const IS_IOS = /iP(hone|ad|od)/.test(navigator.platform || "")
+      || /iPhone|iPad|iPod/.test(navigator.userAgent || "")
+      || (/Mac/.test(navigator.platform || "") && (navigator.maxTouchPoints || 0) > 1);
+    const LOW_MEM = IS_IOS
+      || (typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 4)
+      || (window.matchMedia && window.matchMedia("(max-width: 820px)").matches);
+    const AI_MAX_PAGES = LOW_MEM ? 4 : MAX_PAGES; // スマホはAIに渡すページ数を抑える
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
     const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
     let currentId = null;
@@ -1107,7 +1116,7 @@
       // スマホの電波が不安定でも止まらないように：60秒でタイムアウトし、
       // 通信エラー・タイムアウトは1回だけ自動で再送する
       const ac = new AbortController();
-      const tm = setTimeout(() => ac.abort(), 60000);
+      const tm = setTimeout(() => ac.abort(), LOW_MEM ? 90000 : 60000);
       let resp;
       try {
         resp = await fetch(url, {
@@ -1205,27 +1214,37 @@
     };
 
     const aiExtract = async (canvases) => {
-      // 全ページ（最大MAX_PAGESページ）をまとめてAIに渡す。座標は1枚目基準
-      const pages = canvases.slice(0, MAX_PAGES);
-      // 1ページ目は高め（座標検出用）、2ページ目以降は軽く（送信量・メモリ削減で高速化）
+      // AIに渡すページ数は端末に合わせて制限（スマホは少なめでメモリを守る）
+      const pages = canvases.slice(0, AI_MAX_PAGES);
+      const canvas = pages[0];
+      const w0 = canvas.width, h0 = canvas.height; // 座標マッピング用に1枚目の寸法を控える
+      // 1ページ目がiOSのメモリ不足で白紙化していないか検査（白紙のままAIに送ると必ず失敗する）
+      if (isCanvasBlank(canvas)) {
+        throw new Error("画像がうまく取り込めませんでした（端末のメモリ不足の可能性）。他のアプリを閉じてから、もう一度お試しください");
+      }
       const imageParts = [];
       let skipped = 0;
-      pages.forEach((cv, i) => {
-        try {
-          imageParts.push({ inlineData: { mimeType: "image/jpeg", data: canvasForAi(cv, i === 0 ? 1600 : 1300, i === 0 ? 0.85 : 0.8) } });
-        } catch (e) {
-          if (i === 0) throw e; // 1ページ目が変換できない場合だけ読み取り不能
-          skipped++; // 2ページ目以降の変換失敗（メモリ不足等）はそのページだけ飛ばして続行
-        }
-      });
-      const canvas = pages[0];
-      // ①精度対策：1ページ目の上半分・下半分を拡大した画像も同じ呼び出しに追加する。
-      //   手書きの数量・住所・日付を、AIが拡大版で確認できるようにする（呼び出し回数は増えない）。
-      let zoomCount = 0;
+      // 1) 全体像（1ページ目）を先頭に
       try {
-        const top = cropForAi(pages[0], 0, 0.55, 1700);
-        const bottom = cropForAi(pages[0], 0.45, 1, 1700);
+        imageParts.push({ inlineData: { mimeType: "image/jpeg", data: canvasForAi(canvas, LOW_MEM ? 1500 : 1600, 0.85) } });
+      } catch (e) { throw e; } // 1ページ目が変換できなければ読み取り不能
+      // 2) 2ページ目以降：エンコードしたら即キャンバスを解放（ネット送信中に抱え続けない＝白紙化防止）
+      for (let i = 1; i < pages.length; i++) {
+        const cv = pages[i];
+        try {
+          if (isCanvasBlank(cv)) { skipped++; }
+          else imageParts.push({ inlineData: { mimeType: "image/jpeg", data: canvasForAi(cv, LOW_MEM ? 1150 : 1300, 0.8) } });
+        } catch (e) { skipped++; }
+        cv.width = 0; cv.height = 0;
+      }
+      // 3) ①精度対策：1ページ目の上半分・下半分を拡大した画像を最後に追加（数量・番地の精読用）。
+      //    スマホはメモリを食うので拡大サイズを控えめにし、作れなければ黙って省略。
+      let zoomCount = 0;
+      const zoomW = LOW_MEM ? 1350 : 1700;
+      try {
+        const top = cropForAi(canvas, 0, 0.55, zoomW);
         if (top) { imageParts.push({ inlineData: { mimeType: "image/jpeg", data: top } }); zoomCount++; }
+        const bottom = cropForAi(canvas, 0.45, 1, zoomW);
         if (bottom) { imageParts.push({ inlineData: { mimeType: "image/jpeg", data: bottom } }); zoomCount++; }
       } catch {}
       const n = pages.length - skipped;
@@ -1243,7 +1262,7 @@
           generationConfig
         });
         rememberModel(model);
-        return { data: extractJson(text), w: canvas.width, h: canvas.height, skipped };
+        return { data: extractJson(text), w: w0, h: h0, skipped };
       };
       let lastErr = null;
       let waited429 = false;
@@ -1442,14 +1461,17 @@
     //               （1ページ目は業者用の下地に使うため常に高解像度）
     const pdfToCanvases = async (pdf, opts = {}) => {
       const canvases = [];
-      const pages = Math.min(pdf.numPages, opts.limit || MAX_PAGES);
+      const cap = opts.limit || (opts.aiFast ? AI_MAX_PAGES : MAX_PAGES);
+      const pages = Math.min(pdf.numPages, cap);
+      // スマホは1ページ目の解像度も少し抑える（大きすぎるキャンバスは白紙化するため）
+      const page1Edge = LOW_MEM ? 1700 : 2000;
       for (let p = 1; p <= pages; p++) {
         if (pages > 1) setOcrStatus(`PDFを画像化中…（${p}/${pages}ページ）`);
         const page = await pdf.getPage(p);
         const vp1 = page.getViewport({ scale: 1 });
         const scale = (p === 1 || !opts.aiFast)
-          ? Math.min(3.5, 2000 / vp1.width)
-          : Math.min(3, 1300 / Math.max(vp1.width, vp1.height));
+          ? Math.min(LOW_MEM ? 2.5 : 3.5, page1Edge / vp1.width)
+          : Math.min(LOW_MEM ? 2 : 3, (LOW_MEM ? 1150 : 1300) / Math.max(vp1.width, vp1.height));
         const vp = page.getViewport({ scale });
         const canvas = document.createElement("canvas");
         canvas.width = vp.width;
@@ -1458,6 +1480,24 @@
         canvases.push(canvas);
       }
       return canvases;
+    };
+
+    // iOSがメモリ不足でキャンバスを白紙化していないか検査（ほぼ真っ白なら失敗とみなす）
+    const isCanvasBlank = (cv) => {
+      try {
+        const s = document.createElement("canvas");
+        s.width = 40; s.height = 40;
+        const ctx = s.getContext("2d");
+        ctx.drawImage(cv, 0, 0, 40, 40);
+        const a = ctx.getImageData(0, 0, 40, 40).data;
+        let content = 0;
+        for (let i = 0; i < a.length; i += 4) {
+          const g = a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114;
+          if (g < 245) content++; // 真っ白でない画素
+        }
+        s.width = 0; s.height = 0;
+        return content < 4; // ほぼ完全に真っ白＝iOSが白紙化したとみなす（誤検知を避けて厳しめ）
+      } catch { return false; }
     };
 
     // FAX等の粗い画像向け前処理：グレースケール化＋コントラスト補正
@@ -1490,8 +1530,8 @@
         URL.revokeObjectURL(url);
         let scale = Math.min(3, Math.max(1, 1800 / Math.max(im.width, 1)));
         // スマホカメラの大きな写真（12MP超など）はiPhoneのキャンバス上限を超えて
-        // 白紙になったり固まったりするため、総画素数を約450万pxまでに抑える
-        const MAX_AREA = 4500000;
+        // 白紙になったり固まったりするため、総画素数を抑える（低メモリ端末はさらに厳しく）
+        const MAX_AREA = LOW_MEM ? 3000000 : 4500000;
         const area = im.width * im.height * scale * scale;
         if (area > MAX_AREA) scale = Math.sqrt(MAX_AREA / (im.width * im.height));
         const canvas = document.createElement("canvas");
@@ -1798,7 +1838,8 @@
           V.img = im;
           const c = $("vendor-canvas");
           // 紙はA4縦（210:297）に固定。FAX画像は縦横比を保ったままA4内に収める
-          const w = 1600;
+          // スマホはメモリ節約のため少し小さめのキャンバスにする（返信画質は十分）
+          const w = LOW_MEM ? 1240 : 1600;
           c.width = w;
           c.height = Math.round(w * 297 / 210);
           const f = Math.min(c.width / im.width, c.height / im.height);
