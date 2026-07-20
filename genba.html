@@ -556,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20m";
+    const APP_VER = "2026-07-20n";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1109,13 +1109,20 @@
       }
       clearTimeout(tm);
       if (!resp.ok) {
+        let ej = null;
+        try { ej = await resp.json(); } catch {}
         let msg = "HTTP " + resp.status;
-        try {
-          const ej = await resp.json();
-          if (ej.error && ej.error.message) msg += ": " + ej.error.message.slice(0, 120);
-        } catch {}
+        if (ej && ej.error && ej.error.message) msg += ": " + ej.error.message.slice(0, 120);
         const e = new Error(msg);
         e.status = resp.status;
+        // 無料枠超過(429)のとき、APIが「あと何秒で再試行可」を返していれば取り出す
+        if (resp.status === 429 && ej && ej.error && Array.isArray(ej.error.details)) {
+          const ri = ej.error.details.find(d => d["@type"] && String(d["@type"]).includes("RetryInfo"));
+          if (ri && ri.retryDelay) {
+            const s = parseInt(ri.retryDelay, 10);
+            if (s > 0) e.retryAfter = s;
+          }
+        }
         throw e;
       }
       const j = await resp.json();
@@ -1175,32 +1182,56 @@
       const canvas = pages[0];
       const n = imageParts.length;
       const pageNote = n > 1 ? `\n\n画像は全部で${n}ページあります。1ページ目から${n}ページ目まで、どのページも飛ばさずに全部読んでください。作業内容・材料・数量（枚数・本数など）は複数ページに分かれて続いていることが多いので、全ページ分の作業項目と数量を漏れなく拾い、workに1項目=1行でまとめてください（数量は必ず各行に付ける）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
+      const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+      const tryModel = async (model, useSchema) => {
+        const extra = useSchema ? "" : "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_box以外の値は必ず文字列にする（配列やオブジェクトにしない。複数行は\nで区切った1つの文字列）。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。";
+        const generationConfig = useSchema
+          ? { responseMimeType: "application/json", responseSchema: AI_SCHEMA, temperature: 0 }
+          : { responseMimeType: "application/json", temperature: 0 };
+        const text = await aiCall(model, {
+          contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote + extra }] }],
+          generationConfig
+        });
+        rememberModel(model);
+        return { data: extractJson(text), w: canvas.width, h: canvas.height, skipped };
+      };
       let lastErr = null;
+      let waited429 = false;
       for (const model of modelOrder()) {
-        // 1回目：構造化出力（responseSchema）で試す
         try {
-          const text = await aiCall(model, {
-            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote }] }],
-            generationConfig: { responseMimeType: "application/json", responseSchema: AI_SCHEMA, temperature: 0 }
-          });
-          rememberModel(model);
-          return { data: extractJson(text), w: canvas.width, h: canvas.height, skipped };
+          return await tryModel(model, true);
         } catch (err) {
           lastErr = err;
-          if (err.status === 404) continue; // モデルが無い → 次のモデルへ
+          if (err.status === 404) continue; // このモデルは存在しない → 次のモデルへ
+          if (err.status === 429) {
+            // 無料枠の上限。すぐ回復する場合（1分以内）は1回だけ待って自動再試行
+            if (!waited429 && err.retryAfter && err.retryAfter <= 60) {
+              waited429 = true;
+              for (let s = err.retryAfter + 1; s > 0; s--) {
+                setOcrStatus(`AIの無料枠の順番待ち…あと${s}秒で自動再開します`);
+                await sleep(1000);
+              }
+              setOcrStatus("AI（Gemini）で読み取り中…");
+              try { return await tryModel(model, true); } catch (e2) { lastErr = e2; }
+            }
+            continue; // このモデルの無料枠切れ → 無料枠が別枠の他モデルで試す
+          }
+          // 構造化出力に非対応な場合など：同じモデルをスキーマなしで再試行
+          try {
+            return await tryModel(model, false);
+          } catch (err2) {
+            lastErr = err2;
+            if (err2.status === 404 || err2.status === 429) continue;
+            break; // 通信・キー等の問題 → 打ち切り
+          }
         }
-        // 2回目：スキーマなし（プロンプトでJSON形式を指示）で再試行
-        try {
-          const text = await aiCall(model, {
-            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote + "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_box以外の値は必ず文字列にする（配列やオブジェクトにしない。複数行は\nで区切った1つの文字列）。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。" }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0 }
-          });
-          rememberModel(model);
-          return { data: extractJson(text), w: canvas.width, h: canvas.height, skipped };
-        } catch (err) {
-          lastErr = err;
-          if (err.status !== 404) break; // モデル以外の問題なら打ち切り
-        }
+      }
+      // エラーを分かりやすい日本語に変換
+      if (lastErr && lastErr.status === 429) {
+        throw new Error("AIの無料枠の上限に達しました。1〜2分おいてもう一度お試しください。何度も出る場合は本日の無料枠を使い切っています（日本時間の夕方ごろ回復）。急ぐ場合は「⚙ AI読み取り設定」で別のAPIキーに切り替えてください");
+      }
+      if (lastErr && (lastErr.status === 400 || lastErr.status === 403)) {
+        throw new Error("APIキーが無効の可能性があります。「⚙ AI読み取り設定」でキーを確認してください（" + lastErr.message + "）");
       }
       throw lastErr || new Error("不明なエラー");
     };
