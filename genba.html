@@ -271,7 +271,7 @@
       </div>
       <div class="card" id="import-card">
         <h2>画像・テキストから自動入力</h2>
-        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。通常は端末内だけで処理されます（無料のAI読み取りを設定した場合のみ、読み取り時に画像をGoogleへ送信します）。</p>
+        <p class="hint">FAXの画像・PDFやLINEのスクショ、もらった文面から各項目を自動で振り分けます。<b>この画面にファイルを投げ込む（ドラッグ＆ドロップ）だけでもOK</b>。一度使った業者・現場・返信の配置はこの端末が覚えて、次回から自動で補完・再現します。画像・スキャンPDFの読み取りは高精度のAI（Gemini・無料）で行います（読み取り時に画像をGoogleへ送信。要初回設定）。文字入りPDFとテキスト貼り付けは端末内だけで処理されます。</p>
         <div class="import-btns">
           <button class="btn-import" id="btn-ocr" type="button">📷 画像・PDFを読み取る</button>
           <button class="btn-import" id="btn-paste" type="button">📋 テキストを貼り付け</button>
@@ -556,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20l";
+    const APP_VER = "2026-07-20m";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1489,47 +1489,35 @@
           setVendorImage(c);
           pageCanvases = [c];
         }
-        // AI読み取り（Gemini・無料枠。APIキー設定時のみ）
-        let aiNote = "";
-        if (getAiKey()) {
-          try {
-            setOcrStatus(`AI（Gemini）で読み取り中…${pageCanvases.length > 1 ? `（${pageCanvases.length}ページ）` : ""}`);
-            const res = await aiExtract(pageCanvases);
-            setOcrStatus("");
-            applyAiResult(res);
-            // スマホのメモリ対策：読み取りが済んだ2ページ目以降の画像を解放
-            pageCanvases.forEach((cv, i) => { if (i > 0) { cv.width = 0; cv.height = 0; } });
-            if (res.skipped) setTimeout(() => toast(`⚠️ メモリ不足で${res.skipped}ページ読み飛ばしました。抜けがあれば内容を確認してください`), 2800);
-            return;
-          } catch (err) {
-            aiNote = "AI読み取りに失敗したため、精度の低い簡易OCRの結果です（理由：" + (err && err.message ? err.message : "不明") + "）";
-            toast("AI読み取り失敗 → 端末内OCRに切り替えます");
-          }
-        } else {
-          aiNote = "この端末はAI読み取りが未設定のため、精度の低い簡易OCRで読み取りました。「⚙ AI読み取り設定」を開いて設定すると大幅に良くなります";
+        // AI読み取り（Gemini）のみ使用。精度の低い簡易OCRへのフォールバックは廃止
+        // （中途半端な読み取り結果が入るより、理由を出して再試行してもらう方が安全）
+        if (!getAiKey()) {
+          setOcrStatus("");
+          try { sessionStorage.removeItem("ai-warn-off"); } catch {}
+          $("ai-warn").classList.remove("hidden");
+          $("ai-panel").classList.remove("hidden");
+          $("btn-ai-setting").scrollIntoView({ behavior: "smooth", block: "center" });
+          toast("この端末はAI読み取りが未設定です。設定するか、設定済みの人から引き継ぎリンクをもらって開いてください");
+          return;
         }
-        // 端末内OCR（時間がかかるため先頭3ページまでに制限）
-        setOcrStatus("文字認識の準備中…");
-        const canvases = pageCanvases.slice(0, 3).map(preprocessCanvas);
-        let ocrText = await ocrSources(canvases, true);
-        // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
-        const p1 = countParsed(ocrText).d;
-        if (!p1.address || !p1.name) {
-          setOcrStatus("下部の住所・現場名を追加読み取り中…");
-          const src = canvases[0];
-          const ch = Math.round(src.height * 0.35);
-          const crop = document.createElement("canvas");
-          crop.width = 1100;
-          crop.height = Math.round(ch * (1100 / src.width));
-          crop.getContext("2d").drawImage(src, 0, src.height - ch, src.width, ch, 0, 0, crop.width, crop.height);
-          ocrText += "\n" + await ocrSources([crop]);
+        try {
+          setOcrStatus(`AI（Gemini）で読み取り中…${pageCanvases.length > 1 ? `（${pageCanvases.length}ページ）` : ""}`);
+          const res = await aiExtract(pageCanvases);
+          setOcrStatus("");
+          applyAiResult(res);
+          // スマホのメモリ対策：読み取りが済んだ2ページ目以降の画像を解放
+          pageCanvases.forEach((cv, i) => { if (i > 0) { cv.width = 0; cv.height = 0; } });
+          if (res.skipped) setTimeout(() => toast(`⚠️ メモリ不足で${res.skipped}ページ読み飛ばしました。抜けがあれば内容を確認してください`), 2800);
+          return;
+        } catch (err) {
+          setOcrStatus("");
+          const reason = err && err.message ? err.message : "不明";
+          toast("❌ AI読み取りに失敗しました（" + reason + "）。もう一度お試しください");
+          return;
         }
-        setOcrStatus("");
-        finishWithText(ocrText, true);
-        if (aiNote) setTimeout(() => toast("⚠️ " + aiNote), 2800);
       } catch (err) {
         setOcrStatus("");
-        toast("読み取りに失敗しました。テキスト貼り付けをお試しください");
+        toast("読み取りに失敗しました。ファイルを開き直すか、テキスト貼り付けをお試しください");
       }
     };
 
