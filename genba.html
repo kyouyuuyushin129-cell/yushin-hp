@@ -556,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20j";
+    const APP_VER = "2026-07-20k";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1649,9 +1649,12 @@
         im.onload = () => {
           V.img = im;
           const c = $("vendor-canvas");
-          const w = Math.min(im.width, 1600);
+          // 紙はA4縦（210:297）に固定。FAX画像は縦横比を保ったままA4内に収める
+          const w = 1600;
           c.width = w;
-          c.height = Math.round(im.height * w / im.width);
+          c.height = Math.round(w * 297 / 210);
+          const f = Math.min(c.width / im.width, c.height / im.height);
+          V.imgFit = { w: im.width * f, h: im.height * f };
           V.items = {
             greet: { x: w * 0.06, y: c.height * 0.17 },
             date: { x: w * 0.06, y: c.height * 0.115 },
@@ -1662,7 +1665,7 @@
             yobi1: { x: w * 0.06, y: c.height * 0.37 },
             yobi2: { x: w * 0.06, y: c.height * 0.42 }
           };
-          V.imgPos = { x: 0, y: 0, s: 1 };
+          V.imgPos = { x: Math.round((c.width - V.imgFit.w) / 2), y: 0, s: 1 };
           $("v-imgsize").value = 100;
           // 予備欄・追加文字はFAXを開く前に入力できるので、開いても消さずに引き継ぐ。
           // 画面外に来ないよう位置だけ内側に収める。
@@ -1708,7 +1711,8 @@
       const tc = t.getContext("2d");
       tc.fillStyle = "#ffffff";
       tc.fillRect(0, 0, w, h);
-      tc.drawImage(V.img, V.imgPos.x / s, V.imgPos.y / s, w * V.imgPos.s, h * V.imgPos.s);
+      const fit = V.imgFit || { w: c.width, h: c.height };
+      tc.drawImage(V.img, V.imgPos.x / s, V.imgPos.y / s, (fit.w / s) * V.imgPos.s, (fit.h / s) * V.imgPos.s);
       const data = tc.getImageData(0, 0, w, h).data;
       const W = w + 1;
       const sum = new Float64Array(W * (h + 1));
@@ -1829,7 +1833,8 @@
       }
       let samaAnchored = false;
       if (src) {
-        const sx = c.width * V.imgPos.s / src.w, sy = c.height * V.imgPos.s / src.h;
+        const fit = V.imgFit || { w: c.width, h: c.height };
+        const sx = fit.w * V.imgPos.s / src.w, sy = fit.h * V.imgPos.s / src.h;
         const ox = V.imgPos.x, oy = V.imgPos.y;
         if (src.gochu) {
           const bw = (src.gochu.x1 - src.gochu.x0) * sx;
@@ -1878,7 +1883,8 @@
       const ctx = c.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, c.width, c.height);
-      ctx.drawImage(V.img, V.imgPos.x, V.imgPos.y, c.width * V.imgPos.s, c.height * V.imgPos.s);
+      const ifit = V.imgFit || { w: c.width, h: c.height };
+      ctx.drawImage(V.img, V.imgPos.x, V.imgPos.y, ifit.w * V.imgPos.s, ifit.h * V.imgPos.s);
       V.hit = [];
       const base = vendorBase();
       const drawText = (key, text, color) => {
@@ -1900,10 +1906,10 @@
         let refY = c.height * 0.15;
         if (V.ocrWords && V.ocrWords.words) {
           const wref = V.ocrWords.words.find(w => w.text && /(お願い|搬入|搬出|荷揚)/.test(w.text) && w.bbox);
-          if (wref) refY = V.imgPos.y + wref.bbox.y1 * (c.height * V.imgPos.s / V.ocrWords.h);
+          if (wref) refY = V.imgPos.y + wref.bbox.y1 * (ifit.h * V.imgPos.s / V.ocrWords.h);
         } else if (V.aiAnchors && (V.aiAnchors.tanto || V.aiAnchors.gochu)) {
           const b = V.aiAnchors.tanto || V.aiAnchors.gochu;
-          refY = V.imgPos.y + b.y1 * (c.height * V.imgPos.s / V.aiAnchors.h) + 10;
+          refY = V.imgPos.y + b.y1 * (ifit.h * V.imgPos.s / V.aiAnchors.h) + 10;
         }
         greetText = V.items.greet.y < refY ? greetText.replace(/上記/g, "下記") : greetText.replace(/下記/g, "上記");
       }
