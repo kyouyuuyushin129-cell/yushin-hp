@@ -550,7 +550,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20f";
+    const APP_VER = "2026-07-20g";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1143,7 +1143,7 @@
         // 2回目：スキーマなし（プロンプトでJSON形式を指示）で再試行
         try {
           const text = await aiCall(model, {
-            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote + "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。" }] }],
+            contents: [{ parts: [...imageParts, { text: AI_PROMPT + pageNote + "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_box以外の値は必ず文字列にする（配列やオブジェクトにしない。複数行は\nで区切った1つの文字列）。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。" }] }],
             generationConfig: { responseMimeType: "application/json", temperature: 0 }
           });
           return { data: extractJson(text), w: canvas.width, h: canvas.height };
@@ -1155,20 +1155,37 @@
       throw lastErr || new Error("不明なエラー");
     };
 
+    // AIの返答が配列やオブジェクトで来ても文字列に直す（[object Object]化の防止）
+    const aiToText = (v) => {
+      if (v == null) return "";
+      if (Array.isArray(v)) return v.map(aiToText).filter(Boolean).join("\n");
+      if (typeof v === "object") return Object.values(v).map(aiToText).filter(Boolean).join(" ");
+      return String(v).trim();
+    };
+
     const applyAiResult = ({ data, w, h }) => {
+      const date = aiToText(data.date);
+      // メンバー欄に「3名」など人数だけが入っていたら、名前ではないので備考の人数へ回す
+      let members = aiToText(data.members);
+      let note = aiToText(data.note);
+      const mNum = members.replace(/\s/g, "").match(/^計?([0-9０-９]+)名?$/);
+      if (mNum) {
+        if (!/人数/.test(note)) note = "人数：" + mNum[1] + "名" + (note ? "\n" + note : "");
+        members = "";
+      }
       const d = {
-        date: /^\d{4}-\d{2}-\d{2}$/.test(data.date) ? data.date : "",
-        client: (data.client || "").replace(/株式会社|有限会社/g, "").trim(),
-        "contact-name": (data.contact_name || "").replace(/様\s*$/, ""),
-        "contact-tel": data.contact_tel,
-        address: data.address,
-        name: data.name,
-        start: data.start,
-        meet: data.meet,
-        plan: data.plan,
-        work: data.work,
-        members: data.members,
-        note: data.note
+        date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : "",
+        client: aiToText(data.client).replace(/株式会社|有限会社/g, "").trim(),
+        "contact-name": aiToText(data.contact_name).replace(/様\s*$/, ""),
+        "contact-tel": aiToText(data.contact_tel),
+        address: aiToText(data.address),
+        name: aiToText(data.name),
+        start: aiToText(data.start),
+        meet: aiToText(data.meet),
+        plan: aiToText(data.plan),
+        work: aiToText(data.work),
+        members,
+        note
       };
       Object.keys(d).forEach(k => { if (!d[k]) delete d[k]; });
       const r = applyParsed(d);
