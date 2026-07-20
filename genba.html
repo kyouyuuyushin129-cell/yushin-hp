@@ -550,7 +550,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20d";
+    const APP_VER = "2026-07-20e";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -619,16 +619,25 @@
     const withSama = (s) => s ? (/様\s*$/.test(s) ? s : s + " 様") : "";
     const memberList = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean);
     const starLines = (s) => s.split(/\r?\n/).map(x => x.trim()).filter(Boolean).map(x => /^[※]/.test(x) ? x : "※" + x);
-    // 作業内容を見やすい箇条書きに整える（階ごとに改行＋各行に「・」）
+    // 作業内容を見やすい箇条書きに整える（階ごとに改行＋各行に「・」。【1F】見出しはそのまま）
     const bulletize = (s) => {
       if (!s) return "";
       const lines = s.split(/\r?\n/).flatMap(l => {
         l = l.trim().replace(/^[・•]\s*/, "");
         if (!l) return [];
+        // 【1F】のような階見出し行は分割しない
+        if (/^[【\[（(].{0,6}[】\]）)]$/.test(l)) return [l];
         // 「1F …2F …」のように1行に複数階が詰まっている時は階ごとに分ける
-        return l.split(/[、,]?\s*(?=[0-9０-９]+\s*[FＦ階])/).map(x => x.trim()).filter(Boolean);
+        const parts = l.split(/[、,]?\s*(?=[0-9０-９]+\s*[FＦ階])/).map(x => x.trim()).filter(Boolean);
+        // 分割で開き括弧だけの断片ができたら（例:【 / 1F】）次の断片とくっつけ直す
+        const merged = [];
+        parts.forEach(p => {
+          if (merged.length && /[【\[（(]$/.test(merged[merged.length - 1])) merged[merged.length - 1] += p;
+          else merged.push(p);
+        });
+        return merged;
       });
-      return lines.map(l => /^[・•\-–—]/.test(l) ? l : "・" + l).join("\n");
+      return lines.map(l => (/^[・•\-–—]/.test(l) || /^[【\[（(].{0,6}[】\]）)]$/.test(l)) ? l : "・" + l).join("\n");
     };
 
     /* ---------- preview ---------- */
