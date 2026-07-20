@@ -550,7 +550,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20d";
+    const APP_VER = "2026-07-20e";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -569,6 +569,7 @@
     })();
     const FIELDS = ["date","client","contact-name","contact-tel","address","mapurl","name","start","meet","meet-notes","caution1","plan","work","members","caution2","note"];
     const STORE_KEY = "yushin-genba-v1";
+    const MAX_PAGES = 8; // PDFはこのページ数まで全部読む（数量が後半ページに続くため）
     const DEFAULT_CAUTION1 = "🚨ヘルメット着用徹底\n🚨安全靴必要\n🚨傷、破損注意\n🚨近隣配慮お願いします。";
     const DEFAULT_CAUTION2 = "🚨職置き厳禁\n🚨危険箇所確認。\n🚨長物振り回す際、注意\n🚨仮置きは、養生徹底。\n🚨近隣、第3者の配慮\n🚨付近タバコ厳禁\n🚨最後に他に揚げるものをあるか聞いて下さい。\n⚠️掃除徹底。\n⚠️破損注意\n⚠️ヘルメット着用";
     let currentId = null;
@@ -1112,11 +1113,11 @@
     };
 
     const aiExtract = async (canvases) => {
-      // 全ページ（最大3ページ）をまとめてAIに渡す。座標は1枚目基準
-      const pages = canvases.slice(0, 3);
+      // 全ページ（最大MAX_PAGESページ）をまとめてAIに渡す。座標は1枚目基準
+      const pages = canvases.slice(0, MAX_PAGES);
       const imageParts = pages.map(cv => ({ inlineData: { mimeType: "image/jpeg", data: canvasForAi(cv) } }));
       const canvas = pages[0];
-      const pageNote = pages.length > 1 ? `\n\n画像は全部で${pages.length}ページあります。全ページの内容から読み取ってください（住所や作業内容が2ページ目以降にある場合もあります）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
+      const pageNote = pages.length > 1 ? `\n\n画像は全部で${pages.length}ページあります。1ページ目から${pages.length}ページ目まで、どのページも飛ばさずに全部読んでください。作業内容・材料・数量（枚数・本数など）は複数ページに分かれて続いていることが多いので、全ページ分の作業項目と数量を漏れなく拾い、workに1項目=1行でまとめてください（数量は必ず各行に付ける）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
       let lastErr = null;
       for (const model of AI_MODELS) {
         // 1回目：構造化出力（responseSchema）で試す
@@ -1221,7 +1222,7 @@
     // 文字データ入りPDF：テキストを行単位に組み立てて抽出
     const pdfExtractText = async (pdf) => {
       const out = [];
-      const pages = Math.min(pdf.numPages, 5);
+      const pages = Math.min(pdf.numPages, MAX_PAGES);
       for (let p = 1; p <= pages; p++) {
         const page = await pdf.getPage(p);
         const tc = await page.getTextContent();
@@ -1245,10 +1246,11 @@
     // スキャンPDF：ページを高解像度画像に変換（OCR用）
     const pdfToCanvases = async (pdf) => {
       const canvases = [];
-      const pages = Math.min(pdf.numPages, 3);
+      const pages = Math.min(pdf.numPages, MAX_PAGES);
       for (let p = 1; p <= pages; p++) {
         const page = await pdf.getPage(p);
         const vp1 = page.getViewport({ scale: 1 });
+        // OCR精度優先で高解像度のまま描画（AIへ送る分はcanvasForAiが別途縮小する）
         const scale = Math.min(3.5, 2000 / vp1.width);
         const vp = page.getViewport({ scale });
         const canvas = document.createElement("canvas");
