@@ -279,11 +279,11 @@
         <input type="file" id="ocr-file" accept="image/*,.pdf,application/pdf" class="hidden">
         <button class="btn-import" id="btn-ai-setting" type="button" style="width:100%;margin-top:10px;">⚙ AI読み取り設定（Gemini・無料）<span id="ai-badge"></span></button>
         <div id="ai-panel" class="hidden" style="margin-top:10px;">
-          <p class="hint">GoogleのGemini APIキー（無料）を設定すると、AIが高精度にFAXを読み取ります。<b>aistudio.google.com/apikey</b> で「APIキーを作成」するだけ（クレジットカード不要・無料枠内は費用ゼロ）。キーはこの端末の中にだけ保存されます。読み取り時のみ画像がGoogleに送信されます。</p>
+          <p class="hint">GoogleのGemini APIキー（無料）を設定すると、AIが高精度にFAXを読み取ります。<b>aistudio.google.com/apikey</b> で「APIキーを作成」するだけ（クレジットカード不要・無料枠内は費用ゼロ）。キーはこの端末の中にだけ保存されます。読み取り時のみ画像がGoogleに送信されます。<b>キーを2個以上登録すると、無料枠を使い切ったとき自動でもう1つのキーに切り替わります</b>（別のGoogleアカウントで発行すれば無料枠がその分増えます）。</p>
           <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="btn-import" style="display:block;width:100%;text-align:center;text-decoration:none;box-sizing:border-box;margin-bottom:10px;">🔑 Googleのキー発行ページを開く（無料）</a>
           <div class="field">
-            <label>Gemini APIキー（AIza…）</label>
-            <input type="password" id="ai-key" placeholder="AIzaSy...">
+            <label>Gemini APIキー（AIza…）※2個以上は1行に1個ずつ</label>
+            <textarea id="ai-key" placeholder="AIzaSy...&#10;AIzaSy...（2個目があれば）" style="min-height:64px;"></textarea>
           </div>
           <div class="import-btns">
             <button class="btn-import" id="ai-save" type="button">保存</button>
@@ -556,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20n";
+    const APP_VER = "2026-07-20o";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -986,12 +986,18 @@
     // 社内共用のGemini APIキー（無料枠）。ここに入れておくと、URLを開いた全員が
     // 設定なしでAI読み取りを使える。設定画面で入れた個人キーがあればそちらを優先。
     const DEFAULT_AI_KEY = "";
-    const getAiKey = () => {
+    // 保存されているキー文字列（複数キーは改行区切り）
+    const getAiRaw = () => {
       try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || DEFAULT_AI_KEY; } catch { return DEFAULT_AI_KEY; }
     };
+    // キーの一覧。複数登録しておくと無料枠切れのとき自動で次のキーに切り替わる
+    const getAiKeys = () => getAiRaw().split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
+    const getAiKey = () => getAiKeys()[0] || "";
+    let aiActiveKey = ""; // 読み取り中に実際に使っているキー（ローテーション用）
     const refreshAiBadge = () => {
       const b = $("ai-badge");
-      if (getAiKey()) { b.textContent = "：設定済み ✓"; b.style.color = ""; }
+      const n = getAiKeys().length;
+      if (n) { b.textContent = "：設定済み ✓" + (n > 1 ? `（キー${n}個）` : ""); b.style.color = ""; }
       else { b.textContent = "：この端末は未設定"; b.style.color = "#ff9d7a"; }
       // 未設定の端末には目立つ案内カードを出す（設定済みなら消す）
       let dismissed = false;
@@ -1000,7 +1006,7 @@
     };
     $("ai-warn-setup").addEventListener("click", () => {
       $("ai-panel").classList.remove("hidden");
-      $("ai-key").value = getAiKey();
+      $("ai-key").value = getAiRaw();
       $("btn-ai-setting").scrollIntoView({ behavior: "smooth", block: "center" });
     });
     $("ai-warn-close").addEventListener("click", () => {
@@ -1009,7 +1015,7 @@
     });
     $("btn-ai-setting").addEventListener("click", () => {
       $("ai-panel").classList.toggle("hidden");
-      $("ai-key").value = getAiKey();
+      $("ai-key").value = getAiRaw();
     });
     $("ai-save").addEventListener("click", () => {
       const k = $("ai-key").value.trim();
@@ -1017,7 +1023,8 @@
       localStorage.setItem(AIKEY, JSON.stringify({ key: k }));
       $("ai-panel").classList.add("hidden");
       refreshAiBadge();
-      toast("AI読み取りを設定しました。次の読み取りからAI（Gemini）を使います");
+      const n = getAiKeys().length;
+      toast(`AI読み取りを設定しました${n > 1 ? `（キー${n}個・無料枠切れ時は自動切替）` : ""}。次の読み取りからAI（Gemini）を使います`);
     });
     $("ai-del").addEventListener("click", () => {
       localStorage.removeItem(AIKEY);
@@ -1028,7 +1035,7 @@
     });
     // 別端末（スマホ等）へAI設定を引き継ぐリンクを作る
     $("ai-share").addEventListener("click", async () => {
-      const k = getAiKey() || $("ai-key").value.trim();
+      const k = getAiKeys().join(",") || $("ai-key").value.trim();
       if (!k) { toast("先にAPIキーを保存してください"); return; }
       const url = location.origin + location.pathname + "#gk=" + encodeURIComponent(k);
       try {
@@ -1084,7 +1091,7 @@
     const rememberModel = (m) => { try { localStorage.setItem(AI_MODEL_CACHE, m); } catch {} };
 
     const aiCall = async (model, body, isRetry) => {
-      const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(getAiKey());
+      const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + encodeURIComponent(aiActiveKey || getAiKey());
       // スマホの電波が不安定でも止まらないように：60秒でタイムアウトし、
       // 通信エラー・タイムアウトは1回だけ自動で再送する
       const ac = new AbortController();
@@ -1197,38 +1204,59 @@
       };
       let lastErr = null;
       let waited429 = false;
-      for (const model of modelOrder()) {
-        try {
-          return await tryModel(model, true);
-        } catch (err) {
-          lastErr = err;
-          if (err.status === 404) continue; // このモデルは存在しない → 次のモデルへ
-          if (err.status === 429) {
-            // 無料枠の上限。すぐ回復する場合（1分以内）は1回だけ待って自動再試行
-            if (!waited429 && err.retryAfter && err.retryAfter <= 60) {
-              waited429 = true;
-              for (let s = err.retryAfter + 1; s > 0; s--) {
-                setOcrStatus(`AIの無料枠の順番待ち…あと${s}秒で自動再開します`);
-                await sleep(1000);
-              }
-              setOcrStatus("AI（Gemini）で読み取り中…");
-              try { return await tryModel(model, true); } catch (e2) { lastErr = e2; }
-            }
-            continue; // このモデルの無料枠切れ → 無料枠が別枠の他モデルで試す
-          }
-          // 構造化出力に非対応な場合など：同じモデルをスキーマなしで再試行
+      let fatal = false;
+      const keys = getAiKeys();
+      // キー1個ずつ試す：無料枠はキー（Googleアカウント）ごとに別なので、
+      // 枠切れ(429)なら次のキーに自動で切り替える
+      for (let ki = 0; ki < keys.length && !fatal; ki++) {
+        aiActiveKey = keys[ki];
+        if (ki > 0) setOcrStatus(`別のAPIキー（${ki + 1}個目）に切り替えて再試行中…`);
+        for (const model of modelOrder()) {
           try {
-            return await tryModel(model, false);
-          } catch (err2) {
-            lastErr = err2;
-            if (err2.status === 404 || err2.status === 429) continue;
-            break; // 通信・キー等の問題 → 打ち切り
+            const r = await tryModel(model, true);
+            aiActiveKey = "";
+            return r;
+          } catch (err) {
+            lastErr = err;
+            if (err.status === 404) continue; // このモデルは存在しない → 次のモデルへ
+            if (err.status === 429) {
+              // 無料枠の上限。他にキーが無く、すぐ回復する場合（1分以内）だけ待って再試行
+              // （待っても直らないのは「1日の上限」の方を使い切っているケース）
+              if (!waited429 && keys.length === 1 && err.retryAfter && err.retryAfter <= 60) {
+                waited429 = true;
+                for (let s = err.retryAfter + 1; s > 0; s--) {
+                  setOcrStatus(`AIの無料枠の順番待ち…あと${s}秒で自動再開します`);
+                  await sleep(1000);
+                }
+                setOcrStatus("AI（Gemini）で読み取り中…");
+                try {
+                  const r = await tryModel(model, true);
+                  aiActiveKey = "";
+                  return r;
+                } catch (e2) { lastErr = e2; }
+              }
+              continue; // このモデルの無料枠切れ → 無料枠が別枠の他モデルで試す
+            }
+            // 構造化出力に非対応な場合など：同じモデルをスキーマなしで再試行
+            try {
+              const r = await tryModel(model, false);
+              aiActiveKey = "";
+              return r;
+            } catch (err2) {
+              lastErr = err2;
+              if (err2.status === 404 || err2.status === 429) continue;
+              if (err2.status === 400 || err2.status === 403) break; // このキーが無効 → 次のキーへ
+              fatal = true; break; // 通信等の問題 → 打ち切り
+            }
           }
         }
       }
+      aiActiveKey = "";
       // エラーを分かりやすい日本語に変換
       if (lastErr && lastErr.status === 429) {
-        throw new Error("AIの無料枠の上限に達しました。1〜2分おいてもう一度お試しください。何度も出る場合は本日の無料枠を使い切っています（日本時間の夕方ごろ回復）。急ぐ場合は「⚙ AI読み取り設定」で別のAPIキーに切り替えてください");
+        throw new Error(keys.length > 1
+          ? "登録された全キーの無料枠上限に達しました。1〜2分おいて再試行するか、日本時間の夕方ごろの回復をお待ちください"
+          : "AIの無料枠の上限に達しました。1〜2分おいてもう一度お試しください。何度も出る場合は本日の無料枠を使い切っています（日本時間の夕方ごろ回復）。「⚙ AI読み取り設定」でキーを追加（1行に1個・別のGoogleアカウントで無料発行）すると枠が増えます");
       }
       if (lastErr && (lastErr.status === 400 || lastErr.status === 403)) {
         throw new Error("APIキーが無効の可能性があります。「⚙ AI読み取り設定」でキーを確認してください（" + lastErr.message + "）");
@@ -1569,7 +1597,7 @@
       const gm = location.hash.match(/gk=([^&]+)/);
       if (gm) {
         const had = getAiKey();
-        localStorage.setItem(AIKEY, JSON.stringify({ key: decodeURIComponent(gm[1]) }));
+        localStorage.setItem(AIKEY, JSON.stringify({ key: decodeURIComponent(gm[1]).replace(/,/g, "\n") }));
         refreshAiBadge();
         if (!had) setTimeout(() => toast("AI読み取り設定を引き継ぎました ✓ このページをブックマークすれば設定はずっと有効です"), 500);
       }
