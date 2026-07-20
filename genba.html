@@ -550,7 +550,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20f";
+    const APP_VER = "2026-07-20g";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1252,15 +1252,21 @@
       return out.join("\n");
     };
 
-    // スキャンPDF：ページを高解像度画像に変換（OCR用）
-    const pdfToCanvases = async (pdf) => {
+    // スキャンPDF：ページを画像に変換
+    // opts.limit  … 変換するページ数の上限（1ページ目だけ欲しい時に指定）
+    // opts.aiFast … AI読み取り用。2ページ目以降を送信サイズ（長辺1600px）で
+    //               直接描画し、スマホでの変換時間とメモリを大幅に削減する
+    //               （1ページ目は業者用の下地に使うため常に高解像度）
+    const pdfToCanvases = async (pdf, opts = {}) => {
       const canvases = [];
-      const pages = Math.min(pdf.numPages, MAX_PAGES);
+      const pages = Math.min(pdf.numPages, opts.limit || MAX_PAGES);
       for (let p = 1; p <= pages; p++) {
+        if (pages > 1) setOcrStatus(`PDFを画像化中…（${p}/${pages}ページ）`);
         const page = await pdf.getPage(p);
         const vp1 = page.getViewport({ scale: 1 });
-        // OCR精度優先で高解像度のまま描画（AIへ送る分はcanvasForAiが別途縮小する）
-        const scale = Math.min(3.5, 2000 / vp1.width);
+        const scale = (p === 1 || !opts.aiFast)
+          ? Math.min(3.5, 2000 / vp1.width)
+          : Math.min(3, 1600 / Math.max(vp1.width, vp1.height));
         const vp = page.getViewport({ scale });
         const canvas = document.createElement("canvas");
         canvas.width = vp.width;
@@ -1403,12 +1409,13 @@
           // 文字データ入りPDFはそのまま抽出（高精度・無料）
           const layerText = await pdfExtractText(pdf);
           if (countParsed(layerText).n >= 3) {
-            try { setVendorImage((await pdfToCanvases(pdf))[0]); } catch {}
+            // 業者用の下地には1ページ目だけあればよい（全ページ画像化しない）
+            try { setVendorImage((await pdfToCanvases(pdf, { limit: 1 }))[0]); } catch {}
             setOcrStatus("");
             finishWithText(layerText, false);
             return;
           }
-          pageCanvases = await pdfToCanvases(pdf);
+          pageCanvases = await pdfToCanvases(pdf, { aiFast: !!getAiKey() });
           setVendorImage(pageCanvases[0]);
         } else {
           const c = await imageToCanvas(file);
@@ -1419,7 +1426,7 @@
         let aiNote = "";
         if (getAiKey()) {
           try {
-            setOcrStatus("AI（Gemini）で読み取り中…");
+            setOcrStatus(`AI（Gemini）で読み取り中…${pageCanvases.length > 1 ? `（${pageCanvases.length}ページ）` : ""}`);
             const res = await aiExtract(pageCanvases);
             setOcrStatus("");
             applyAiResult(res);
@@ -1431,9 +1438,9 @@
         } else {
           aiNote = "この端末はAI読み取りが未設定のため、精度の低い簡易OCRで読み取りました。「⚙ AI読み取り設定」を開いて設定すると大幅に良くなります";
         }
-        // 端末内OCR
+        // 端末内OCR（時間がかかるため先頭3ページまでに制限）
         setOcrStatus("文字認識の準備中…");
-        const canvases = pageCanvases.map(preprocessCanvas);
+        const canvases = pageCanvases.slice(0, 3).map(preprocessCanvas);
         let ocrText = await ocrSources(canvases, true);
         // 下部の大きな住所・現場名は高解像度だと読めないことがある → 下部だけ縮小して追加読み取り
         const p1 = countParsed(ocrText).d;
