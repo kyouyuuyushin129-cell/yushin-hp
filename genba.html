@@ -490,13 +490,19 @@
             <input type="range" id="v-size" min="60" max="170" value="100" style="width:100%;">
           </div>
           <div class="field">
+            <label>印鑑の大きさ</label>
+            <input type="range" id="v-hanko" min="50" max="200" value="100" style="width:100%;">
+          </div>
+          <div class="field">
             <label>FAXの大きさ（縮めて余白を作れます）</label>
             <input type="range" id="v-imgsize" min="55" max="110" value="100" style="width:100%;">
           </div>
         </div>
         <div class="actions" style="margin-top:0;">
           <button class="btn btn-gold" id="v-share" type="button">📤 返信画像を共有・保存</button>
+          <button class="btn btn-dark" id="v-share-pdf" type="button" style="grid-column:1/-1;">📄 PDFで共有・保存（対応端末はPDF＋画像）</button>
         </div>
+        <p class="note" style="margin-top:10px;">編集内容（FAX・文字・印鑑の配置）は自動でこの端末に保存され、アプリを開き直しても続きから編集できます。</p>
       </div>
 
       <div class="card" style="margin-top:16px;">
@@ -550,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20g";
+    const APP_VER = "2026-07-20h";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -977,8 +983,11 @@
 
     /* ---------- AI読み取り（Gemini API 無料枠・任意設定） ---------- */
     const AIKEY = "yushin-genba-gemini-v1";
+    // 社内共用のGemini APIキー（無料枠）。ここに入れておくと、URLを開いた全員が
+    // 設定なしでAI読み取りを使える。設定画面で入れた個人キーがあればそちらを優先。
+    const DEFAULT_AI_KEY = "";
     const getAiKey = () => {
-      try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || ""; } catch { return ""; }
+      try { return (JSON.parse(localStorage.getItem(AIKEY)) || {}).key || DEFAULT_AI_KEY; } catch { return DEFAULT_AI_KEY; }
     };
     const refreshAiBadge = () => {
       const b = $("ai-badge");
@@ -1545,6 +1554,10 @@
     $("btn-new").addEventListener("click", () => {
       currentId = null;
       writeForm(null);
+      // FAX編集も新規に（保存済みの編集状態も消す）
+      clearWorkState();
+      V.img = null; V.items = null; V.texts = [];
+      $("vendor-editor").classList.add("hidden");
       showPage("edit");
       window.scrollTo({ top: 0 });
     });
@@ -1662,7 +1675,7 @@
       const c = $("vendor-canvas");
       return Math.max(18, c.width * 0.026) * (parseInt($("v-size").value, 10) / 100);
     };
-    const hankoSize = () => Math.max(70, $("vendor-canvas").width * 0.09);
+    const hankoSize = () => Math.max(70, $("vendor-canvas").width * 0.09) * (parseInt($("v-hanko").value, 10) / 100);
     const vendorMeasure = (ctx, text, size) => {
       const lines = text.split("\n");
       ctx.font = `700 ${size}px 'Noto Sans JP', sans-serif`;
@@ -1747,6 +1760,7 @@
         img: { fx: V.imgPos.x / c.width, fy: V.imgPos.y / c.height, s: V.imgPos.s },
         texts: V.texts.filter(t => (t.text || "").trim()).map(t => ({ text: t.text, fx: t.x / c.width, fy: t.y / c.height })),
         size: $("v-size").value,
+        hanko: $("v-hanko").value,
         strike: $("v-strike").checked,
         sama: $("v-sama").checked,
         seal: $("v-seal").value,
@@ -1773,6 +1787,7 @@
         renderTextList();
       }
       if (layout.size) $("v-size").value = layout.size;
+      if (layout.hanko) $("v-hanko").value = layout.hanko;
       $("v-strike").checked = layout.strike !== false;
       $("v-sama").checked = layout.sama !== false;
       if (layout.seal) { saveV({ seal: layout.seal }); refreshSeals(); }
@@ -1943,6 +1958,70 @@
         ctx.textBaseline = "alphabetic";
         V.hit.push({ key: "hanko", x: it.x, y: it.y, w: dm, h: dm });
       }
+      scheduleWorkSave();
+    };
+
+    /* ---------- 編集状態の自動保存・復元（端末内） ---------- */
+    const WORKKEY = "yushin-genba-vendor-work-v1";
+    let workSaveTimer = null;
+    const saveWorkState = () => {
+      if (!V.img || !V.items) return;
+      try {
+        const c = $("vendor-canvas");
+        localStorage.setItem(WORKKEY, JSON.stringify({
+          img: V.img.src,
+          cw: c.width, ch: c.height,
+          items: V.items,
+          texts: V.texts,
+          imgPos: V.imgPos,
+          size: $("v-size").value,
+          hanko: $("v-hanko").value,
+          imgsize: $("v-imgsize").value,
+          strike: $("v-strike").checked,
+          sama: $("v-sama").checked,
+          greet: $("v-greet").value,
+          yobi1: $("v-yobi1").value,
+          yobi2: $("v-yobi2").value,
+          date: $("v-date").value,
+          farePrint: $("v-fare-print").checked,
+          fareText: V.fareText,
+          ts: Date.now()
+        }));
+      } catch {} /* 容量オーバー時は自動保存だけ諦める（編集は継続できる） */
+    };
+    const scheduleWorkSave = () => { clearTimeout(workSaveTimer); workSaveTimer = setTimeout(saveWorkState, 600); };
+    const clearWorkState = () => { try { localStorage.removeItem(WORKKEY); } catch {} };
+
+    const restoreWorkState = () => {
+      let s = null;
+      try { s = JSON.parse(localStorage.getItem(WORKKEY)); } catch {}
+      if (!s || !s.img || !s.items) return;
+      const im = new Image();
+      im.onload = () => {
+        V.img = im;
+        const c = $("vendor-canvas");
+        c.width = s.cw || Math.min(im.width, 1600);
+        c.height = s.ch || Math.round(im.height * c.width / im.width);
+        V.items = s.items;
+        V.texts = s.texts || [];
+        V.imgPos = s.imgPos || { x: 0, y: 0, s: 1 };
+        $("v-size").value = s.size || 100;
+        $("v-hanko").value = s.hanko || 100;
+        $("v-imgsize").value = s.imgsize || 100;
+        $("v-strike").checked = s.strike !== false;
+        $("v-sama").checked = !!s.sama;
+        if (s.greet) $("v-greet").value = s.greet;
+        $("v-yobi1").value = s.yobi1 || "";
+        $("v-yobi2").value = s.yobi2 || "";
+        if (s.date) $("v-date").value = s.date;
+        $("v-fare-print").checked = !!s.farePrint;
+        V.fareText = s.fareText || "";
+        renderTextList();
+        $("vendor-editor").classList.remove("hidden");
+        vendorRedraw();
+        toast("前回のFAX編集を復元しました（新しいFAXを開くと上書き）");
+      };
+      im.src = s.img;
     };
 
     // ドラッグで位置調整
@@ -2061,6 +2140,7 @@
     $("v-yobi2").addEventListener("input", vendorRedraw);
     $("v-fare-print").addEventListener("change", vendorRedraw);
     $("v-size").addEventListener("input", vendorRedraw);
+    $("v-hanko").addEventListener("input", vendorRedraw);
     $("v-imgsize").addEventListener("input", () => {
       // キャンバス中央を基準に拡大縮小（棒線・「様」は紙に付いているので一緒に変換）
       const c = $("vendor-canvas");
@@ -2093,10 +2173,61 @@
       handleImportFile(file);
     });
 
+    // PDF作成ライブラリ（jsPDF）を必要時に読み込む
+    const loadJsPdf = () => new Promise((resolve, reject) => {
+      if (window.jspdf && window.jspdf.jsPDF) return resolve();
+      const s = document.createElement("script");
+      s.src = "https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js";
+      s.onload = resolve;
+      s.onerror = () => reject(new Error("script"));
+      document.head.appendChild(s);
+    });
+
+    // 返信をPDFで共有・保存（対応端末ならPDF＋画像をまとめて共有）
+    $("v-share-pdf").addEventListener("click", async () => {
+      const c = $("vendor-canvas");
+      if (!V.img) { toast("先にFAXを開いてください"); return; }
+      saveVendorLayout();
+      learnCurrent();
+      saveWorkState();
+      try {
+        setOcrStatus("PDFを作成中…");
+        await loadJsPdf();
+        const pdf = new window.jspdf.jsPDF({
+          orientation: c.width > c.height ? "l" : "p",
+          unit: "pt",
+          format: [c.width, c.height]
+        });
+        pdf.addImage(c.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, c.width, c.height);
+        const pdfBlob = pdf.output("blob");
+        setOcrStatus("");
+        const base = "FAX返信_" + ($("f-date").value || "genba");
+        const pdfFile = new File([pdfBlob], base + ".pdf", { type: "application/pdf" });
+        const pngBlob = await new Promise(res => c.toBlob(res, "image/png"));
+        const pngFile = pngBlob ? new File([pngBlob], base + ".png", { type: "image/png" }) : null;
+        if (navigator.canShare && pngFile && navigator.canShare({ files: [pdfFile, pngFile] })) {
+          try { await navigator.share({ files: [pdfFile, pngFile] }); return; } catch {}
+        }
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          try { await navigator.share({ files: [pdfFile] }); return; } catch {}
+        }
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(pdfBlob);
+        a.download = base + ".pdf";
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+        toast("PDFを保存しました");
+      } catch (err) {
+        setOcrStatus("");
+        toast("PDFの作成に失敗しました。画像での共有をお試しください");
+      }
+    });
+
     // 返信画像の共有・保存（このとき配置と業者情報を学習）
     $("v-share").addEventListener("click", () => {
       saveVendorLayout();
       learnCurrent();
+      saveWorkState();
       $("vendor-canvas").toBlob(async (blob) => {
         if (!blob) return;
         const fname = "FAX返信_" + ($("f-date").value || "genba") + ".png";
@@ -2177,6 +2308,7 @@
       if (s.office) $("v-office").value = s.office;
       refreshSeals();
       refreshAiBadge();
+      restoreWorkState();
     }
   </script>
 </body>
