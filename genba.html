@@ -101,6 +101,16 @@
     }
     .field input:focus, .field textarea:focus { border-color: rgba(255,196,0,0.6); }
     .field textarea { resize: vertical; min-height: 64px; }
+    /* AIが自信のない項目を赤くハイライト（確認を促す） */
+    .field.needs-check input, .field.needs-check textarea {
+      border-color: #ff6b6b; background: rgba(255,107,107,0.08);
+      box-shadow: 0 0 0 2px rgba(255,107,107,0.18);
+    }
+    .field.needs-check label::after {
+      content: "⚠ 要確認";
+      margin-left: 8px; font-size: 0.62rem; font-weight: 700;
+      color: #ff8a8a; letter-spacing: 0.04em;
+    }
     .row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
     .row2 > .field { min-width: 0; }
     .field input, .field select { min-width: 0; max-width: 100%; box-sizing: border-box; }
@@ -556,7 +566,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20o";
+    const APP_VER = "2026-07-20p";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -598,6 +608,7 @@
         $("f-caution1").value = DEFAULT_CAUTION1;
         $("f-caution2").value = DEFAULT_CAUTION2;
       }
+      if (typeof clearNeedsCheck === "function") clearNeedsCheck(); // 別データを読み込んだら要確認表示は消す
       render();
     };
 
@@ -1066,12 +1077,13 @@
         work: { type: "STRING", description: "作業内容。発注書に品名・規格・数量の表がある場合は、表の全ての行を省略せず1行ずつ書き出すこと（要約したり合計にまとめたりしない）。各行は「品名 規格（サイズ） 数量+単位」の形（例:PB 3×6×12 20枚）。階数（1F、2F、3F等）の区分があれば【1F】のような見出し行を入れて、その階の行を下に並べる（例:【1F】\\nPB 3×6×12 20枚\\nPB 3×2580×12 9枚\\n【2F】\\nPB 3×2680×12 8枚）。単位は記載どおり（枚・本・巻など）。1行に複数の規格を詰め込まない。階数の判定ルール：表の余白に手書きの階数（1F、2F、3F等）と矢印・カッコが書かれている場合、それが指し示す範囲の行はその階の材料。印字された列見出し（お店入・現場入・直引取など）よりも手書きの階数指定を必ず優先する（例:「直引取」の列でも手書きで「3F」とあれば、その列の行は全て【3F】に入れる）。矢印やカッコの始点・終点をよく見て、どの行からどの行までがその階かを正確に区切る。不明なら空文字。表がなければ書かれている作業内容（例:フロア搬入）をそのまま" },
         members: { type: "STRING", description: "作業メンバー名。1行に1名、改行区切り。不明なら空文字" },
         note: { type: "STRING", description: "人数などの補足（例:人数：1名）。不明なら空文字" },
+        low_confidence: { type: "ARRAY", items: { type: "STRING" }, nullable: true, description: "自信を持って読めなかった（手書きでかすれている・つぶれている・複数候補がある等）項目のキー名を配列で。該当キーは date,client,contact_name,contact_tel,address,name,start,meet,plan,work,members のいずれか。特に手書きの数量や住所の番地に自信がない場合は必ず含める。全て明瞭ならnullまたは空配列" },
         gochu_box: { type: "ARRAY", items: { type: "INTEGER" }, nullable: true, description: "宛名の「御中」の文字の位置。[ymin,xmin,ymax,xmax]を0〜1000に正規化。無ければnull" },
         tanto_box: { type: "ARRAY", items: { type: "INTEGER" }, nullable: true, description: "依頼元担当者名（個人名）の文字の位置。[ymin,xmin,ymax,xmax]を0〜1000に正規化。無ければnull" }
       },
       required: ["date", "client", "contact_name", "contact_tel", "address", "name", "start", "meet", "plan", "work", "members", "note"]
     };
-    const AI_PROMPT = "あなたは荷揚げ・搬入作業の現場詳細を作成する専門アシスタントです。これは株式会社優心（宛先・自社）が受け取った依頼FAX・発注書・注文書（または案内文書）です。この画像の内容のみから各項目を正確に読み取ってJSONで返してください。推測で創作せず、読み取れない項目は空文字にしてください。会社名や住所が複数書かれている場合、業者名は発注元（送信元）の会社を、現場住所は納品先・現場の住所を選んでください。自社「優心」の名前や住所は使いません。品名・規格・数量の表（注文リスト）がある場合は、workに表の全ての行を1行ずつ漏れなく書き出してください。長くなっても省略・要約・合計まとめは禁止です。手書きの数字も1行ずつ丁寧に読み取ってください。手書きの注記（階数・矢印・カッコ・丸印・訂正）は印字された文字や列見出しよりも優先して解釈してください。";
+    const AI_PROMPT = "あなたは荷揚げ・搬入作業の現場詳細を作成する専門アシスタントです。これは株式会社優心（宛先・自社）が受け取った依頼FAX・発注書・注文書（または案内文書）です。この画像の内容のみから各項目を正確に読み取ってJSONで返してください。推測で創作せず、読み取れない項目は空文字にしてください。会社名や住所が複数書かれている場合、業者名は発注元（送信元）の会社を、現場住所は納品先・現場の住所を選んでください。自社「優心」の名前や住所は使いません。品名・規格・数量の表（注文リスト）がある場合は、workに表の全ての行を1行ずつ漏れなく書き出してください。長くなっても省略・要約・合計まとめは禁止です。手書きの数字も1行ずつ丁寧に読み取ってください。手書きの注記（階数・矢印・カッコ・丸印・訂正）は印字された文字や列見出しよりも優先して解釈してください。全体像の画像に加えて、数量など重要部分を拡大した画像も一緒に渡すことがあります。拡大画像がある場合は、数字はそちらで正確に確認してください。読み取りに自信がない項目（かすれ・つぶれ・判読困難な手書きなど）は、その項目のキー名を low_confidence 配列に入れてください。";
 
     const aiBoxToPx = (box, w, h) => {
       if (!Array.isArray(box) || box.length !== 4) return null;
@@ -1172,6 +1184,26 @@
       return data;
     };
 
+    // 画像の一部を切り抜いて高解像度で作り直す（手書き数字などの精読用）
+    const cropForAi = (cv, y0f, y1f, targetW) => {
+      const sy = Math.max(0, Math.round(cv.height * y0f));
+      const sh = Math.min(cv.height - sy, Math.round(cv.height * (y1f - y0f)));
+      if (sh <= 0) return null;
+      const tw = targetW || 1700;
+      const scale = tw / cv.width;
+      const c2 = document.createElement("canvas");
+      c2.width = tw;
+      c2.height = Math.max(1, Math.round(sh * scale));
+      const ctx = c2.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(cv, 0, sy, cv.width, sh, 0, 0, c2.width, c2.height);
+      let data = "";
+      try { data = (c2.toDataURL("image/jpeg", 0.82).split(",")[1]) || ""; } catch {}
+      c2.width = 0; c2.height = 0;
+      return data && data.length > 1000 ? data : null;
+    };
+
     const aiExtract = async (canvases) => {
       // 全ページ（最大MAX_PAGESページ）をまとめてAIに渡す。座標は1枚目基準
       const pages = canvases.slice(0, MAX_PAGES);
@@ -1187,11 +1219,22 @@
         }
       });
       const canvas = pages[0];
-      const n = imageParts.length;
-      const pageNote = n > 1 ? `\n\n画像は全部で${n}ページあります。1ページ目から${n}ページ目まで、どのページも飛ばさずに全部読んでください。作業内容・材料・数量（枚数・本数など）は複数ページに分かれて続いていることが多いので、全ページ分の作業項目と数量を漏れなく拾い、workに1項目=1行でまとめてください（数量は必ず各行に付ける）。gochu_box・tanto_boxの座標は1枚目の画像内にある場合のみ返し、1枚目に無ければnullにしてください。` : "";
+      // ①精度対策：1ページ目の上半分・下半分を拡大した画像も同じ呼び出しに追加する。
+      //   手書きの数量・住所・日付を、AIが拡大版で確認できるようにする（呼び出し回数は増えない）。
+      let zoomCount = 0;
+      try {
+        const top = cropForAi(pages[0], 0, 0.55, 1700);
+        const bottom = cropForAi(pages[0], 0.45, 1, 1700);
+        if (top) { imageParts.push({ inlineData: { mimeType: "image/jpeg", data: top } }); zoomCount++; }
+        if (bottom) { imageParts.push({ inlineData: { mimeType: "image/jpeg", data: bottom } }); zoomCount++; }
+      } catch {}
+      const n = pages.length - skipped;
+      const pageNote = (n > 1 ? `\n\n最初の${n}枚は文書のページです（1ページ目から${n}ページ目）。どのページも飛ばさずに全部読んでください。作業内容・材料・数量（枚数・本数など）は複数ページに分かれて続いていることが多いので、全ページ分の作業項目と数量を漏れなく拾い、workに1項目=1行でまとめてください（数量は必ず各行に付ける）。` : "")
+        + (zoomCount ? `\n\n最後の${zoomCount}枚は1ページ目の上部・下部を拡大した画像です。手書きの数量・番地・日付は、この拡大画像で正確に確認してください（数字の読み間違いに特に注意）。` : "")
+        + "\n\ngochu_box・tanto_boxの座標は1枚目（拡大でない元のページ画像）内にある場合のみ返し、無ければnullにしてください。";
       const sleep = (ms) => new Promise(r => setTimeout(r, ms));
       const tryModel = async (model, useSchema) => {
-        const extra = useSchema ? "" : "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, gochu_box, tanto_box。gochu_box/tanto_box以外の値は必ず文字列にする（配列やオブジェクトにしない。複数行は\nで区切った1つの文字列）。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。";
+        const extra = useSchema ? "" : "\n\n必ず次のキーを持つJSONオブジェクトのみを返してください（説明文は不要）: date, client, contact_name, contact_tel, address, name, start, meet, plan, work, members, note, low_confidence, gochu_box, tanto_box。low_confidence以外の文字列項目は必ず文字列にする（配列やオブジェクトにしない。複数行は\nで区切った1つの文字列）。low_confidenceは自信のない項目のキー名の配列（無ければ空配列）。gochu_box/tanto_boxは[ymin,xmin,ymax,xmax]（0〜1000正規化）またはnull。";
         const generationConfig = useSchema
           ? { responseMimeType: "application/json", responseSchema: AI_SCHEMA, temperature: 0 }
           : { responseMimeType: "application/json", temperature: 0 };
@@ -1300,9 +1343,23 @@
       const r = applyParsed(d);
       V.ocrWords = null;
       V.aiAnchors = { w, h, gochu: aiBoxToPx(data.gochu_box, w, h), tanto: aiBoxToPx(data.tanto_box, w, h) };
-      toast(`AIで${r.n}項目を読み取りました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}。内容を確認してください`);
+      // ②精度対策：AIが「自信がない」と申告した項目を赤くハイライトして確認を促す
+      const low = Array.isArray(data.low_confidence) ? data.low_confidence : [];
+      const lowFields = low.map(k => String(k).replace(/_/g, "-").trim())
+        .filter(k => FIELDS.includes(k) && d[k]); // 空欄は対象外（読み取れた項目のうち自信が低いもの）
+      markNeedsCheck(lowFields);
+      const chk = lowFields.length ? `。⚠️ ${lowFields.length}項目は自信が低いので赤色の欄を必ず確認してください` : "。内容を確認してください";
+      toast(`AIで${r.n}項目を読み取りました${r.e ? `（過去のデータで${r.e}項目を補完）` : ""}${chk}`);
       if (V.img) { $("v-greet").value = buildGreet(); autoPlace(); }
       window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    // 指定した項目の入力欄を赤くハイライト（要確認）。編集したら解除される
+    const fieldWrap = (f) => { const el = $("f-" + f); return el ? el.closest(".field") : null; };
+    const clearNeedsCheck = () => document.querySelectorAll(".field.needs-check").forEach(el => el.classList.remove("needs-check"));
+    const markNeedsCheck = (fields) => {
+      clearNeedsCheck();
+      fields.forEach(f => { const w = fieldWrap(f); if (w) w.classList.add("needs-check"); });
     };
 
     /* ---------- paste ---------- */
@@ -2407,6 +2464,10 @@
 
     /* ---------- init ---------- */
     FIELDS.forEach(f => $("f-" + f).addEventListener("input", render));
+    // 要確認ハイライトは、その欄を手直ししたら解除する（確認済みとみなす）
+    FIELDS.forEach(f => $("f-" + f).addEventListener("input", () => {
+      const w = fieldWrap(f); if (w) w.classList.remove("needs-check");
+    }));
     $("f-caution1").value = DEFAULT_CAUTION1;
     $("f-caution2").value = DEFAULT_CAUTION2;
     render();
