@@ -290,7 +290,7 @@
             <button class="btn-import" id="ai-del" type="button">設定を削除</button>
           </div>
           <button class="btn-import" id="ai-share" type="button" style="width:100%;margin-top:10px;">📲 この設定を別の端末に引き継ぐリンクをコピー</button>
-          <p class="hint" style="margin-top:8px;">パソコンで設定済みなら：上のボタンでリンクをコピーし、LINEなどで自分のスマホに送って、<b>スマホでそのリンクを開くだけ</b>でスマホにもAI設定が入ります（キーは端末ごとに保存されるため、端末が変わると引き継ぎが必要です）。</p>
+          <p class="hint" style="margin-top:8px;">パソコンで設定済みなら：上のボタンでリンクをコピーし、LINEなどでスマホや他のスタッフに送って、<b>そのリンクを開くだけ</b>でAI設定が入ります。<b>開いた先でブックマーク（ホーム画面に追加）しておけば、以後はそこから開くたびに自動で設定されるので、設定が消える心配はありません。</b></p>
         </div>
         <div id="paste-area" class="hidden">
           <div class="field" style="margin-top:12px;">
@@ -556,7 +556,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20h";
+    const APP_VER = "2026-07-20i";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1041,7 +1041,7 @@
         document.execCommand("copy");
         ta.remove();
       }
-      toast("引き継ぎリンクをコピーしました。LINEなどで自分のスマホに送り、スマホでそのリンクを開くとAI設定が引き継がれます");
+      toast("引き継ぎリンクをコピーしました。スマホや他の人にLINEで送れば、開くだけでAIが使えます。そのリンクをブックマークしておけば設定はずっと保たれます");
     });
 
     const AI_SCHEMA = {
@@ -1492,16 +1492,21 @@
       toastTimer = setTimeout(() => t.classList.remove("show"), msg.length > 40 ? 7000 : 2600);
     };
 
-    // 引き継ぎリンク（#gk=キー）で開かれたら、この端末にAI設定を保存する
+    // 引き継ぎリンク（#gk=キー）で開かれたら、この端末にAI設定を保存する。
+    // URLのキーはあえて消さない：ブックマークやLINEの履歴から開き直すたびに
+    // 自動で再登録されるので、端末側の保存が消えても設定が復活する。
     try {
       const gm = location.hash.match(/gk=([^&]+)/);
       if (gm) {
+        const had = getAiKey();
         localStorage.setItem(AIKEY, JSON.stringify({ key: decodeURIComponent(gm[1]) }));
-        history.replaceState(null, "", location.pathname + location.search);
         refreshAiBadge();
-        setTimeout(() => toast("AI読み取り設定を引き継ぎました ✓ 次の読み取りからAI（Gemini）を使います"), 500);
+        if (!had) setTimeout(() => toast("AI読み取り設定を引き継ぎました ✓ このページをブックマークすれば設定はずっと有効です"), 500);
       }
     } catch {}
+    // ブラウザに「このサイトのデータを消さないで」と依頼（対応ブラウザのみ。
+    // iPhoneで長期間開かないと設定が消える問題の対策）
+    try { navigator.storage && navigator.storage.persist && navigator.storage.persist().catch(() => {}); } catch {}
 
     /* ---------- actions ---------- */
     $("btn-copy").addEventListener("click", async () => {
