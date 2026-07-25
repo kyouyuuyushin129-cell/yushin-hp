@@ -60,6 +60,19 @@
       display: block; width: 100%; height: auto;
       max-width: 100%; background: #fff; border-radius: 8px;
     }
+    .orient-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .orient-btn {
+      padding: 12px 8px; border-radius: 11px;
+      background: var(--coal); color: rgba(216,212,202,0.7);
+      border: 1px solid var(--line-d);
+      font-family: var(--sans); font-weight: 800; font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .orient-btn.active {
+      background: rgba(255,196,0,0.16); color: var(--org);
+      border-color: rgba(255,196,0,0.65);
+    }
+    .orient-btn:active { background: rgba(255,196,0,0.22); }
     /* 端末を横向きにしたときも使いやすく（ヘッダー余白を抑えて作業面を広げる） */
     @media (orientation: landscape) {
       .wrap { max-width: 1100px; padding: 10px 16px 72px; }
@@ -443,6 +456,14 @@
           <button class="btn-import" id="btn-vendor-file" type="button">📄 FAXを開く（画像・PDF）</button>
         </div>
         <input type="file" id="vendor-file" accept="image/*,.pdf,application/pdf" class="hidden">
+        <div class="field" style="margin-top:14px;">
+          <label>紙の向き</label>
+          <div class="orient-btns" role="group" aria-label="紙の向き">
+            <button type="button" class="orient-btn active" id="v-orient-p" data-orient="p">縦型（A4縦）</button>
+            <button type="button" class="orient-btn" id="v-orient-l" data-orient="l">横型（A4横）</button>
+          </div>
+          <p class="hint" style="margin:8px 0 0;">返信画像の用紙向きです。FAXを開く前に選ぶか、開いたあとも切り替えできます（初期は縦型）。</p>
+        </div>
         <div id="v-ocr-status" class="hidden" style="margin-top:12px;font-size:0.8rem;font-weight:700;color:var(--org);display:flex;align-items:center;gap:10px;"><span class="spinner"></span><span id="v-ocr-status-text"></span></div>
       </div>
 
@@ -578,7 +599,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-25a";
+    const APP_VER = "2026-07-25b";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1842,47 +1863,77 @@
     // 定型文（宛名はFAX原文の名前に「様」を足し、「御中」は棒線で消す方式）
     const buildGreet = () => "大変お世話になっております。\n上記、喜んで手配させていただきます。\nありがとうございます。";
 
+    // 紙の向き（縦型／横型）はユーザーが選択。自動判定はしない。
+    const isPaperLandscape = () => $("v-orient-l") && $("v-orient-l").classList.contains("active");
+    const syncOrientUI = (landscape) => {
+      $("v-orient-p").classList.toggle("active", !landscape);
+      $("v-orient-l").classList.toggle("active", !!landscape);
+    };
+    const sizeVendorPaper = (landscape) => {
+      const c = $("vendor-canvas");
+      // スマホはメモリ節約のため少し小さめのキャンバスにする（返信画質は十分）
+      const short = LOW_MEM ? 1240 : 1600;
+      if (landscape) {
+        c.height = short;
+        c.width = Math.round(short * 297 / 210);
+      } else {
+        c.width = short;
+        c.height = Math.round(short * 297 / 210);
+      }
+      return c;
+    };
+    const defaultVendorItems = (landscape, w, h) => ({
+      greet: { x: w * 0.06, y: h * (landscape ? 0.20 : 0.17) },
+      date: { x: w * 0.06, y: h * (landscape ? 0.12 : 0.115) },
+      hanko: { x: w * (landscape ? 0.86 : 0.78), y: h * (landscape ? 0.14 : 0.12) },
+      fare: { x: w * 0.06, y: h * (landscape ? 0.36 : 0.31) },
+      strike: { x: w * 0.11, y: h * 0.07, w: w * (landscape ? 0.08 : 0.1) },
+      sama: { x: w * (landscape ? 0.55 : 0.5), y: h * (landscape ? 0.20 : 0.16) },
+      yobi1: { x: w * 0.06, y: h * (landscape ? 0.44 : 0.37) },
+      yobi2: { x: w * 0.06, y: h * (landscape ? 0.52 : 0.42) }
+    });
+    const fitVendorImageToPaper = () => {
+      if (!V.img) return;
+      const c = $("vendor-canvas");
+      const f = Math.min(c.width / V.img.width, c.height / V.img.height);
+      V.imgFit = { w: V.img.width * f, h: V.img.height * f };
+      V.imgPos = {
+        x: Math.round((c.width - V.imgFit.w) / 2),
+        y: Math.round((c.height - V.imgFit.h) / 2),
+        s: 1
+      };
+      $("v-imgsize").value = 100;
+      V.texts.forEach(t => {
+        if (!(t.x >= 0 && t.x <= c.width - 20)) t.x = c.width * 0.3;
+        if (!(t.y >= 0 && t.y <= c.height - 20)) t.y = c.height * 0.45;
+      });
+    };
+    const applyPaperOrientation = (landscape, opts = {}) => {
+      const resetItems = opts.resetItems !== false;
+      syncOrientUI(landscape);
+      saveV({ paperOrient: landscape ? "l" : "p" });
+      if (!V.img) return;
+      const c = sizeVendorPaper(landscape);
+      fitVendorImageToPaper();
+      if (resetItems || !V.items) V.items = defaultVendorItems(landscape, c.width, c.height);
+      renderTextList();
+      $("vendor-editor").classList.remove("hidden");
+      autoPlace(true);
+      scheduleWorkSave();
+      toast(landscape ? "横型（A4横）に切り替えました" : "縦型（A4縦）に切り替えました");
+    };
+
     const setVendorImage = (canvas) => {
       try {
         const url = canvas.toDataURL("image/jpeg", 0.92);
         const im = new Image();
         im.onload = () => {
           V.img = im;
-          const c = $("vendor-canvas");
-          // 紙サイズはFAX画像の向きに合わせる（縦→A4縦、横→A4横）。
-          // 画像は縦横比を保ったまま紙いっぱいに収める。
-          // スマホはメモリ節約のため少し小さめのキャンバスにする（返信画質は十分）
-          const short = LOW_MEM ? 1240 : 1600;
-          const isLandscape = im.width > im.height;
-          if (isLandscape) {
-            c.height = short;
-            c.width = Math.round(short * 297 / 210);
-          } else {
-            c.width = short;
-            c.height = Math.round(short * 297 / 210);
-          }
-          const w = c.width, h = c.height;
-          const f = Math.min(w / im.width, h / im.height);
-          V.imgFit = { w: im.width * f, h: im.height * f };
-          // 初期配置は紙の向きに合わせた相対位置（あとで空白検出／学習配置が上書きする）
-          V.items = {
-            greet: { x: w * 0.06, y: h * (isLandscape ? 0.20 : 0.17) },
-            date: { x: w * 0.06, y: h * (isLandscape ? 0.12 : 0.115) },
-            hanko: { x: w * (isLandscape ? 0.86 : 0.78), y: h * (isLandscape ? 0.14 : 0.12) },
-            fare: { x: w * 0.06, y: h * (isLandscape ? 0.36 : 0.31) },
-            strike: { x: w * 0.11, y: h * 0.07, w: w * (isLandscape ? 0.08 : 0.1) },
-            sama: { x: w * (isLandscape ? 0.55 : 0.5), y: h * (isLandscape ? 0.20 : 0.16) },
-            yobi1: { x: w * 0.06, y: h * (isLandscape ? 0.44 : 0.37) },
-            yobi2: { x: w * 0.06, y: h * (isLandscape ? 0.52 : 0.42) }
-          };
-          V.imgPos = { x: Math.round((w - V.imgFit.w) / 2), y: Math.round((h - V.imgFit.h) / 2), s: 1 };
-          $("v-imgsize").value = 100;
+          const landscape = isPaperLandscape();
+          const c = sizeVendorPaper(landscape);
+          fitVendorImageToPaper();
+          V.items = defaultVendorItems(landscape, c.width, c.height);
           // 予備欄・追加文字はFAXを開く前に入力できるので、開いても消さずに引き継ぐ。
-          // 画面外に来ないよう位置だけ内側に収める。
-          V.texts.forEach(t => {
-            if (!(t.x >= 0 && t.x <= c.width - 20)) t.x = c.width * 0.3;
-            if (!(t.y >= 0 && t.y <= c.height - 20)) t.y = c.height * 0.45;
-          });
           renderTextList();
           $("v-greet").value = buildGreet();
           // 日付＝読み込んだ日（今日）を自動セット
@@ -2202,6 +2253,7 @@
           items: V.items,
           texts: V.texts,
           imgPos: V.imgPos,
+          imgFit: V.imgFit,
           size: $("v-size").value,
           hanko: $("v-hanko").value,
           imgsize: $("v-imgsize").value,
@@ -2230,9 +2282,17 @@
         const c = $("vendor-canvas");
         c.width = s.cw || Math.min(im.width, 1600);
         c.height = s.ch || Math.round(im.height * c.width / im.width);
+        // 復元した紙の向きを選択ボタンにも反映
+        syncOrientUI(c.width > c.height);
         V.items = s.items;
         V.texts = s.texts || [];
         V.imgPos = s.imgPos || { x: 0, y: 0, s: 1 };
+        if (s.imgFit) {
+          V.imgFit = s.imgFit;
+        } else {
+          const f = Math.min(c.width / im.width, c.height / im.height);
+          V.imgFit = { w: im.width * f, h: im.height * f };
+        }
         $("v-size").value = s.size || 100;
         $("v-hanko").value = s.hanko || 100;
         $("v-imgsize").value = s.imgsize || 100;
@@ -2400,6 +2460,20 @@
       // 業者用から開いた場合も読み取りを実行（住所・業者名などを自動入力）
       handleImportFile(file);
     });
+    // 紙の向き（縦型／横型）を手動選択。前回の選択を復元
+    (() => {
+      const saved = (loadV().paperOrient === "l");
+      syncOrientUI(saved);
+      const pick = (landscape) => {
+        if (isPaperLandscape() === landscape && V.img) {
+          toast(landscape ? "すでに横型です" : "すでに縦型です");
+          return;
+        }
+        applyPaperOrientation(landscape);
+      };
+      $("v-orient-p").addEventListener("click", () => pick(false));
+      $("v-orient-l").addEventListener("click", () => pick(true));
+    })();
 
     // PDF作成ライブラリ（jsPDF）を必要時に読み込む
     const loadJsPdf = () => new Promise((resolve, reject) => {
