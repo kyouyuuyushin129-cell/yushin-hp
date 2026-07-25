@@ -56,6 +56,18 @@
     .btn-new:active { background: rgba(255,196,0,0.15); }
 
     .wrap { max-width: 720px; margin: 0 auto; padding: 16px 16px 90px; }
+    #vendor-canvas {
+      display: block; width: 100%; height: auto;
+      max-width: 100%; background: #fff; border-radius: 8px;
+    }
+    /* 端末を横向きにしたときも使いやすく（ヘッダー余白を抑えて作業面を広げる） */
+    @media (orientation: landscape) {
+      .wrap { max-width: 1100px; padding: 10px 16px 72px; }
+      .app-header { padding: 10px 16px; }
+      .tabs { margin-bottom: 10px; }
+      .tab { padding: 8px 0; font-size: 0.82rem; }
+      #vendor-canvas { max-height: 70vh; width: auto; margin: 0 auto; }
+    }
 
     /* ---------- tabs ---------- */
     .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
@@ -566,7 +578,7 @@
 
   <script>
     "use strict";
-    const APP_VER = "2026-07-20q";
+    const APP_VER = "2026-07-25a";
     const $ = (id) => document.getElementById(id);
 
     // 自動アップデート：公開中の最新版とバージョンを比べ、古ければ自動で再読み込み
@@ -1837,29 +1849,38 @@
         im.onload = () => {
           V.img = im;
           const c = $("vendor-canvas");
-          // 紙はA4縦（210:297）に固定。FAX画像は縦横比を保ったままA4内に収める
+          // 紙サイズはFAX画像の向きに合わせる（縦→A4縦、横→A4横）。
+          // 画像は縦横比を保ったまま紙いっぱいに収める。
           // スマホはメモリ節約のため少し小さめのキャンバスにする（返信画質は十分）
-          const w = LOW_MEM ? 1240 : 1600;
-          c.width = w;
-          c.height = Math.round(w * 297 / 210);
-          const f = Math.min(c.width / im.width, c.height / im.height);
+          const short = LOW_MEM ? 1240 : 1600;
+          const isLandscape = im.width > im.height;
+          if (isLandscape) {
+            c.height = short;
+            c.width = Math.round(short * 297 / 210);
+          } else {
+            c.width = short;
+            c.height = Math.round(short * 297 / 210);
+          }
+          const w = c.width, h = c.height;
+          const f = Math.min(w / im.width, h / im.height);
           V.imgFit = { w: im.width * f, h: im.height * f };
+          // 初期配置は紙の向きに合わせた相対位置（あとで空白検出／学習配置が上書きする）
           V.items = {
-            greet: { x: w * 0.06, y: c.height * 0.17 },
-            date: { x: w * 0.06, y: c.height * 0.115 },
-            hanko: { x: w * 0.78, y: c.height * 0.12 },
-            fare: { x: w * 0.06, y: c.height * 0.31 },
-            strike: { x: w * 0.11, y: c.height * 0.07, w: w * 0.1 },
-            sama: { x: w * 0.5, y: c.height * 0.16 },
-            yobi1: { x: w * 0.06, y: c.height * 0.37 },
-            yobi2: { x: w * 0.06, y: c.height * 0.42 }
+            greet: { x: w * 0.06, y: h * (isLandscape ? 0.20 : 0.17) },
+            date: { x: w * 0.06, y: h * (isLandscape ? 0.12 : 0.115) },
+            hanko: { x: w * (isLandscape ? 0.86 : 0.78), y: h * (isLandscape ? 0.14 : 0.12) },
+            fare: { x: w * 0.06, y: h * (isLandscape ? 0.36 : 0.31) },
+            strike: { x: w * 0.11, y: h * 0.07, w: w * (isLandscape ? 0.08 : 0.1) },
+            sama: { x: w * (isLandscape ? 0.55 : 0.5), y: h * (isLandscape ? 0.20 : 0.16) },
+            yobi1: { x: w * 0.06, y: h * (isLandscape ? 0.44 : 0.37) },
+            yobi2: { x: w * 0.06, y: h * (isLandscape ? 0.52 : 0.42) }
           };
-          V.imgPos = { x: Math.round((c.width - V.imgFit.w) / 2), y: 0, s: 1 };
+          V.imgPos = { x: Math.round((w - V.imgFit.w) / 2), y: Math.round((h - V.imgFit.h) / 2), s: 1 };
           $("v-imgsize").value = 100;
           // 予備欄・追加文字はFAXを開く前に入力できるので、開いても消さずに引き継ぐ。
           // 画面外に来ないよう位置だけ内側に収める。
           V.texts.forEach(t => {
-            if (!(t.x >= 0 && t.x <= c.width - 20)) t.x = w * 0.3;
+            if (!(t.x >= 0 && t.x <= c.width - 20)) t.x = c.width * 0.3;
             if (!(t.y >= 0 && t.y <= c.height - 20)) t.y = c.height * 0.45;
           });
           renderTextList();
