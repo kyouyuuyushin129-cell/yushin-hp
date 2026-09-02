@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kyouyuuyushin129-cell.github.io/yushin-hp/sitemap.xml
